@@ -1,2 +1,2 @@
 export {HomeScreen} from './HomeScreen';
-export {DeviceControl} from './DeviceControlyhuj';
+export {DeviceControl} from './DeviceControl';
