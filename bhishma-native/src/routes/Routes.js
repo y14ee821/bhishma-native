@@ -1,7 +1,7 @@
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { HomeScreen,DeviceControl} from "../screens";
+import { HomeScreen,DeviceControl,DeviceControlScreen} from "../screens";
 import { ErrorComponent } from "../components";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -45,6 +45,7 @@ export const Routes = () => {
           <Stack.Navigator>
             <Stack.Screen name="HomeScreen" component={HomeScreen} />
             <Stack.Screen name="DeviceControl" component={DeviceControl} />
+            <Stack.Screen name="DeviceControlScreen" component={DeviceControlScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       )}

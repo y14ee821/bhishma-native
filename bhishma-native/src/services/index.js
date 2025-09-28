@@ -1,0 +1,1 @@
+export {IE_Data} from "./MongoService"
