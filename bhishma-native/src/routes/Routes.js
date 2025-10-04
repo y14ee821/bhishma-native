@@ -1,29 +1,108 @@
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { HomeScreen,DeviceControl,DeviceControlScreen,DedicatedIEControl} from "../screens";
+import { HomeScreen, DeviceControl, DeviceControlScreen, DedicatedIEControl } from "../screens";
 import { ErrorComponent } from "../components";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import {clearError} from "../store/utilsSlice"
+import { clearError } from "../store/utilsSlice"
+import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { useWindowDimensions } from 'react-native';
+
+// Simple Flash Icon using SVG (requires react-native-svg)
+import Svg, { Path } from 'react-native-svg';
 import {
   View,
   Text,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Switch,
+  StyleSheet
 } from "react-native";
+
+const FlashIcon = ({ color = '#007AFF', size = 24 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M7 2v11h3v9l7-12h-4l4-8z"
+      fill={color}
+    />
+  </Svg>
+);
+
+// Simple Home and Control Icons using SVG
+const HomeIcon = ({ color = '#007AFF', size = 24 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M3 10.5V21a1 1 0 001 1h5v-6h4v6h5a1 1 0 001-1V10.5a1 1 0 00-.293-.707l-8-8a1 1 0 00-1.414 0l-8 8A1 1 0 003 10.5z"
+      fill={color}
+    />
+  </Svg>
+);
+
+const ControlIcon = ({ color = '#007AFF', size = 24 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M4 13h16v-2H4v2zm0 5h10v-2H4v2zm0-10h7V6H4v2z"
+      fill={color}
+    />
+  </Svg>
+);
+
+const NavBar = ({ current, onNavigate, darkMode, onToggleTheme }) => {
+  const navigation = useNavigation();
+  const { width } = useWindowDimensions();
+  // Thresholds: <600 = mobile, <900 = laptop, else desktop
+  const showIcons = width < 900;
+
+  return (
+    <View style={[styles.navBar, darkMode && styles.navBarDark]}>
+      <View style={styles.appNameContainer}>
+        <FlashIcon color={darkMode ? '#fff' : '#007AFF'} size={26} />
+        <Text style={[styles.appName, darkMode && styles.appNameDark]}>Remcon</Text>
+      </View>
+      <View style={styles.navLinks}>
+        <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
+          {showIcons ? (
+            <HomeIcon color={current === 'Home' ? '#007AFF' : darkMode ? '#fff' : '#444'} size={24} />
+          ) : (
+            <Text style={[
+              styles.navLink,
+              current === 'Home' && styles.navLinkActive,
+              darkMode && styles.navLinkDark
+            ]}>Home</Text>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('DeviceControl')}>
+          {showIcons ? (
+            <ControlIcon color={current === 'Control' ? '#007AFF' : darkMode ? '#fff' : '#444'} size={24} />
+          ) : (
+            <Text style={[
+              styles.navLink,
+              current === 'Control' && styles.navLinkActive,
+              darkMode && styles.navLinkDark
+            ]}>Control</Text>
+          )}
+        </TouchableOpacity>
+
+      </View>
+      <Switch value={darkMode} onValueChange={onToggleTheme} />
+    </View>
+  );
+};
 export const Routes = () => {
   const Stack = createNativeStackNavigator();
   const dispatch = useDispatch();
   //const [hasError, setHasError] = useState(false);
-  const errorState = useSelector((state)=>state.utils.error)
-  console.log("errorState",errorState)
-
+  const errorState = useSelector((state) => state.utils.error)
+  const [darkMode, setDarkMode] = useState(false);
+  
+  const themeStyles = darkMode ? styles.dark : styles.light;
   const handleRetry = () => {
     // Retry logic here
     console.log("Retrying...");
-    
+
     dispatch(clearError(false))
 
   };
@@ -31,7 +110,7 @@ export const Routes = () => {
     prefixes: [
       /* your linking prefixes */
     ],
-     config: {
+    config: {
       screens: {
         HomeScreen: "HomeScreen",
         DedicatedIEControl: {
@@ -45,22 +124,145 @@ export const Routes = () => {
       },
     },
 
-  };  
+  };
   return (
-    <>\
+    <>
       {errorState ? (
         <ErrorComponent errorMessage={<Text>Please Try Again</Text>} onRetry={handleRetry} />
       ) : (
         <NavigationContainer linking={linking}
-        fallback={<View><Text>Loading...</Text></View>}>
+          fallback={<View><Text>Loading...</Text></View>}>
+
+        <NavBar
+          current="Home"
+          //onNavigate={screen => navigation.navigate(screen)}
+          darkMode={darkMode}
+          onToggleTheme={() => setDarkMode(!darkMode)}
+        />
           <Stack.Navigator>
-            <Stack.Screen name="HomeScreen" component={HomeScreen} />
-            <Stack.Screen name="DeviceControl" component={DeviceControl} />
-            <Stack.Screen name="DeviceControlScreen" component={DeviceControlScreen} />
-            <Stack.Screen name="DedicatedIEControl" component={DedicatedIEControl} />
+            <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="DeviceControl" component={DeviceControl} options={{ headerShown: false }} />
+            <Stack.Screen name="DeviceControlScreen" component={DeviceControlScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="DedicatedIEControl" component={DedicatedIEControl} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       )}
     </>
   );
 };
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 10,
+    marginTop: 40,
+  },
+  light: {
+    backgroundColor: '#f6f8fa',
+  },
+  dark: {
+    backgroundColor: '#181a20',
+  },
+  navBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginBottom: 18,
+    elevation: 2,
+  },
+  navBarDark: {
+    backgroundColor: '#23262f',
+  },
+  appNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  appName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    letterSpacing: 1,
+    marginLeft: 6,
+  },
+  appNameDark: {
+    color: '#fff',
+  },
+  navLinks: {
+    flexDirection: 'row',
+    gap: 18,
+  },
+  navLink: {
+    fontSize: 17,
+    color: '#444',
+    fontWeight: '500',
+    marginHorizontal: 8,
+  },
+  navLinkActive: {
+    color: '#007AFF',
+    textDecorationLine: 'underline',
+  },
+  navLinkDark: {
+    color: '#fff',
+  },
+  header: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#222',
+    letterSpacing: 1,
+    textAlign: 'center',
+  },
+  headerDark: {
+    color: '#fff',
+  },
+  summary: {
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    gap: 12,
+  },
+  summaryText: {
+    fontSize: 18,
+    color: '#444',
+  },
+  summaryTextDark: {
+    color: '#ccc',
+  },
+  count: {
+    fontWeight: 'bold',
+    color: '#007AFF',
+  },
+  addButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    shadowColor: '#007AFF',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 0.5,
+  },
+  headerContainer: {
+
+    margin: 20,
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  }
+  // ...rest of your styles unchanged
+});

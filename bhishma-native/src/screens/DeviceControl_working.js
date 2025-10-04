@@ -90,7 +90,7 @@ export const DeviceControl = () => {
     console.log("DeviceControl mounted with name:", name);
   }, []);
   const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
-  console.log(connectedToBroker, channelStates, IE_Mapper, IE_Info)
+  //console.log(connectedToBroker, channelStates, IE_Mapper, IE_Info)
   return (
 
     <View >

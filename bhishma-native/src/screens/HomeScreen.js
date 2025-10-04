@@ -76,17 +76,10 @@ const NavBar = ({ current, onNavigate, darkMode, onToggleTheme }) => {
 
 export const HomeScreen = ({ navigation }) => {
     const [darkMode, setDarkMode] = useState(false);
-    
     const themeStyles = darkMode ? styles.dark : styles.light;
-
     return (
         <View style={[styles.container, themeStyles]}>
-            <NavBar
-                current="Home"
-                onNavigate={screen => navigation.navigate(screen)}
-                darkMode={darkMode}
-                onToggleTheme={() => setDarkMode(!darkMode)}
-            />
+         
             <View style={styles.headerContainer}>
                 <Text style={[styles.header, darkMode && styles.headerDark]}>Welcome to Remcon</Text>
 

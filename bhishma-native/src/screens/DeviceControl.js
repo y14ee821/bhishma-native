@@ -81,17 +81,18 @@ export const DeviceControl = () => {
   const navigation = useNavigation();
 
 
-  useEffect(() => {
-    dispatch(modifyIE_Machines(data))
+  //useEffect(() => {
+    //dispatch(modifyIE_Machines(data))
     //initMQTT(dispatch);
 
     
-  }, []);
+  //}, []);
   const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
-  console.log(connectedToBroker, channelStates, IE_Mapper, IE_Info)
+  //console.log(connectedToBroker, channelStates, IE_Mapper, IE_Info)
   return (
 
     <View >
+      <Text style={styles.heading}>Select Your Device</Text>
       <View style={styles.buttonWrapper}>
       {Object.keys(IE_Info).map(ie => (
         <View key={ie} >
@@ -204,6 +205,16 @@ const styles = StyleSheet.create({
     marginTop: 50,
 
   },
+  heading:
+  {
+    color:"midnightblue",
+    fontSize:22,
+    fontWeight:"bold",
+    textAlign:"center",
+    marginTop:20,
+    marginBottom:20,
+
+  }
 
 });
 

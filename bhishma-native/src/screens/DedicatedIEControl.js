@@ -1,11 +1,20 @@
 import React, { useEffect } from 'react';
-import { View, Text, Switch, StyleSheet, TouchableOpacity,ScrollView } from 'react-native';
+import { View, Text, Switch, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import ToggleSwitch from '../components/ToggleSwitch';
 import { useDispatch } from 'react-redux';
 import { initMQTT } from '../services/mqttService';
 import { useDeviceControlState } from '../reduxstates/deviceControlStates'
 import mqtt from 'mqtt';
+/** 
+ * DedicatedIEControl component for controlling a dedicated internet equipment (IE) via MQTT.
+ * 1. Connects to an MQTT broker using WebSocket 
+ * 2. Gets the IE name from navigation parameters (URL).
+ * 3. Subscribes to the IE's status topic to receive updates on channel states which will be called in initMQTT
+ * 4. Renders ToggleSwitch components for each channel to allow toggling the state.
+ * 5. ie_name and client are passed as props to ToggleSwitch for publishing toggle commands.
+ * 6. Cleans up the MQTT connection when the component is unmounted.
+ * */
 export const DedicatedIEControl = () => {
   const options = {
     protocol: 'wss',
@@ -14,44 +23,58 @@ export const DedicatedIEControl = () => {
     reconnectPeriod: 1000, // ms
     connectTimeout: 30 * 1000, // ms
     clientId: 'emqx_react_lohit_' + Math.random().toString(16).substring(2, 8)
-
   }
   const url = "wss://test.mosquitto.org:8081/mqtt"
-  console.log('MQTT URL:', url);
-  const client = mqtt.connect(url, options)
+
+  const client = mqtt.connect(url, options)// Create a new MQTT client instance
   const dispatch = useDispatch();
   const route = useRoute();
-  const { name } = route.params || {};
+  const { name } = route.params || {};// Get the IE name from navigation parameters
+  const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
   useEffect(() => {
-
-    initMQTT(dispatch, name, client);
+    if(name in IE_Info)
+    {
+      const channelCount = Object.keys(IE_Info[name]["channels"]).length;
+      initMQTT(dispatch, name,channelCount, client);// Initialize MQTT connection and subscriptions
+    }
+    else
+      {
+        console.log(`No IE_Info for the name:${name}, mqtt not initialized.`);
+      }
     return () => {
       console.log("Screen unfocused");
       client.end(); // Disconnect the client when the screen is unfocused
     };
   }
     , [])
-  console.log("DedicatedIEControl mounted with namssssse:", name);
-  const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
-  console.log("information",connectedToBroker, channelStates, IE_Mapper, IE_Info)
+  
+  //console.log("settings",connectedToBroker, channelStates, IE_Mapper, IE_Info)
 
-
-  return (
-<ScrollView>
-    <View >
-      <View style={styles.groupContainer}>
-        <Text style={styles.machineText}>Machine Name:</Text>
-        <View style={styles.flexWrap}>
-          {[0, 1, 2, 3].map(i => (
-            <ToggleSwitch accessibilityLabel={`${i}-lohit`} key={i} index={i} ie_name={name} client={client} />
-          ))}
+  //Object.keys(IE_Info).map()
+   if(name in IE_Info)
+    {
+      return (
+    <ScrollView>
+      <View >
+        <View style={styles.groupContainer}>
+          <Text style={styles.machineText}>Machine Name: {name}</Text>
+          <View style={styles.flexWrap}>
+            {Object.entries(IE_Info[name]["channels"]).map(([channelId, channelData]) => (
+              <ToggleSwitch key={channelId} index={parseInt(channelId)} data={channelData} ie_name={name} client={client} />
+            ))}
+          </View>
         </View>
       </View>
-    </View>
     </ScrollView>
   );
+} else {
+  return (
+    <View>
+      <Text style={styles.errorText}>No data available for the specified IE.</Text>
+    </View>
+  )
 };
-
+}
 const styles = StyleSheet.create({
   card: {
     width: 240,
@@ -100,7 +123,7 @@ const styles = StyleSheet.create({
   },
   machineText: {
     fontSize: 20,
-    color: "#111827",
+    color: "midnightblue",
     fontWeight: "bold",
     marginBottom: 8,
   },

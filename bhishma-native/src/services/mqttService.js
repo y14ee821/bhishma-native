@@ -1,5 +1,6 @@
 //import mqtt from 'mqtt';
-import { updateDeviceState } from '../store/deviceSlice';
+//import { updateDeviceState } from '../store/deviceSlice';
+import { updateIEsState } from '../store/deviceControlSlice';
 
 //   const options = {
 //     protocol: 'wss',
@@ -15,8 +16,9 @@ import { updateDeviceState } from '../store/deviceSlice';
 // console.log('MQTT URL:', url);
 // const client = mqtt.connect(url, options)
 
-export const parseMessage = (msg) => {
-  let channels = new Array(4).fill(0);
+export const parseMessage = (msg,channelCount) => {
+  let channels = new Array(channelCount).fill(0);
+  //Received message: ip4:0-ip1:0-ip2:1-ip3:1
   msg.split('-').map(
     part => {
       channels[part.split(':')[0].slice(- 1)-1] = parseInt(part.split(':')[1]);
@@ -25,7 +27,7 @@ export const parseMessage = (msg) => {
   return { channels };
 };
 
-export const initMQTT = (dispatch,ie_name,client) => {
+export const initMQTT = (dispatch,ie_name,channelCount,client) => {
 
   client.on('connect', () => {
 
@@ -34,14 +36,17 @@ export const initMQTT = (dispatch,ie_name,client) => {
   });
 
   client.on('message', (topic, message) => {
-    console.log('Received message:', message.toString());
-    const parsed = parseMessage(message.toString());
-    dispatch(updateDeviceState(parsed));
+    //console.log('Received message:', message.toString());
+    const parsed = parseMessage(message.toString(),channelCount);
+    dispatch(updateIEsState({ie_name, valueList: parsed.channels}));
   });
 };
 
-export const publishToggle = (channel, state,ie_name, client) => {
-  const message = `op${channel+1}:${state}`;
+export const publishToggle = (channel, state, ie_name, client) => {
+
+  const message = `op${channel}:${state}`;
+  
   console.log('Publishing message:', message);
+
   client.publish(ie_name, message);
 };
