@@ -76,7 +76,7 @@ const NavBar = ({ current, onNavigate, darkMode, onToggleTheme }) => {
 
 export const HomeScreen = ({ navigation }) => {
     const [darkMode, setDarkMode] = useState(false);
-
+    
     const themeStyles = darkMode ? styles.dark : styles.light;
 
     return (

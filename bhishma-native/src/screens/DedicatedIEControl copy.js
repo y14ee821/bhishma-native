@@ -8,103 +8,33 @@ import { modifyIE_Machines, updateIE_Mapper } from '../store/deviceControlSlice'
 import { useDeviceControlState } from '../reduxstates/deviceControlStates'
 import { Button } from 'react-native-web';
 import { useNavigation } from "@react-navigation/native";
-export const DeviceControl = () => {
-  const data =
-  {
-    "rao": {
-      "channels": {
-        1: {
-          id: 1,
-          name: "1",
-          currentState: "OFF",
-          IE_Name: "rao",
-          radioValue: "",
-          channelUpdatedTime: ""
-        },
-        2: {
-          id: 2,
-          name: "2",
-          currentState: "OFF",
-          IE_Name: "rao",
-          radioValue: "",
-          channelUpdatedTime: ""
-        },
-        3: {
-          id: 3,
-          name: "3",
-          currentState: "OFF",
-          IE_Name: "rao",
-          radioValue: "",
-          channelUpdatedTime: ""
-        },
-        4: {
-          id: 4,
-          name: "4",
-          currentState: "OFF",
-          IE_Name: "rao",
-          radioValue: "",
-          channelUpdatedTime: ""
-        },
-      },
-      "lastUpdated": "",
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
-      "faulty": "",
-      "running": true
-    },
-    "venky": {
-      "channels": {
-        1: {
-          id: 1,
-          name: "1",
-          currentState: "OFF",
-          IE_Name: "venky",
-          radioValue: "",
-          channelUpdatedTime: ""
-        },
-        2: {
-          id: 2,
-          name: "2",
-          currentState: "OFF",
-          IE_Name: "venky",
-          radioValue: "",
-          channelUpdatedTime: ""
-        },
-      },
-      "lastUpdated": "",
-      "faulty": "",
-      "running": true
-    },
-  }
-
-
+export const DedicatedIEControl = () => {
+  
   const dispatch = useDispatch();
-  const navigation = useNavigation();
-
-
-  useEffect(() => {
-    dispatch(modifyIE_Machines(data))
-    //initMQTT(dispatch);
-
-    
-  }, []);
+  const route = useRoute();
+  const { name } = route.params || {};
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Screen focused, name param:", name);
+      initMQTT(dispatch, name);
+      return () => {
+        console.log("Screen unfocused");
+      };
+    }, [dispatch, name])
+  );
+  console.log("DedicatedIEControl mounted with namssssse:", name);
   const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
   console.log(connectedToBroker, channelStates, IE_Mapper, IE_Info)
+
+
   return (
 
     <View >
-      <View style={styles.buttonWrapper}>
-      {Object.keys(IE_Info).map(ie => (
-        <View key={ie} >
-          <TouchableOpacity
-            style={styles.deviceButton}
-            onPress={() => navigation.navigate('DedicatedIEControl', { name: ie })} // Pass the IE name as a parameter
-          >
-            <Text style={styles.deviceButtonText}>{ie}</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
-      </View>
-      {/* <View style={styles.groupContainer}>
+
+      <View style={styles.groupContainer}>
         <Text style={styles.machineText}>Machine Name:</Text>
         <View style={styles.flexWrap}>
           {[0, 1, 2, 3].map(i => (
@@ -112,7 +42,7 @@ export const DeviceControl = () => {
           ))}
 
         </View>
-      </View> */}
+      </View>
     </View>
   );
 };

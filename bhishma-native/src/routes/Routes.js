@@ -1,7 +1,7 @@
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { HomeScreen,DeviceControl,DeviceControlScreen} from "../screens";
+import { HomeScreen,DeviceControl,DeviceControlScreen,DedicatedIEControl} from "../screens";
 import { ErrorComponent } from "../components";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -31,9 +31,20 @@ export const Routes = () => {
     prefixes: [
       /* your linking prefixes */
     ],
-    config: {
-      /* configuration for matching screens with paths */
+     config: {
+      screens: {
+        HomeScreen: "HomeScreen",
+        DedicatedIEControl: {
+          path: "DedicatedIEControl",
+          parse: {
+            name: (name) => `${name}`,//for getting the name parameter from url
+          },
+        },
+        DeviceControlScreen: "DeviceControlScreen",
+        DeviceControl: "DeviceControl",
+      },
     },
+
   };  
   return (
     <>\
@@ -46,6 +57,7 @@ export const Routes = () => {
             <Stack.Screen name="HomeScreen" component={HomeScreen} />
             <Stack.Screen name="DeviceControl" component={DeviceControl} />
             <Stack.Screen name="DeviceControlScreen" component={DeviceControlScreen} />
+            <Stack.Screen name="DedicatedIEControl" component={DedicatedIEControl} />
           </Stack.Navigator>
         </NavigationContainer>
       )}

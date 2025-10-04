@@ -80,12 +80,14 @@ export const DeviceControl = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
+  const route = useRoute();
+  const { name } = route.params || {};
 
   useEffect(() => {
     dispatch(modifyIE_Machines(data))
-    //initMQTT(dispatch);
+    initMQTT(dispatch);
 
-    
+    console.log("DeviceControl mounted with name:", name);
   }, []);
   const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
   console.log(connectedToBroker, channelStates, IE_Mapper, IE_Info)
@@ -97,14 +99,14 @@ export const DeviceControl = () => {
         <View key={ie} >
           <TouchableOpacity
             style={styles.deviceButton}
-            onPress={() => navigation.navigate('DedicatedIEControl', { name: ie })} // Pass the IE name as a parameter
+            onPress={() => navigation.navigate('DeviceControl', { name: ie })}
           >
             <Text style={styles.deviceButtonText}>{ie}</Text>
           </TouchableOpacity>
         </View>
       ))}
       </View>
-      {/* <View style={styles.groupContainer}>
+      <View style={styles.groupContainer}>
         <Text style={styles.machineText}>Machine Name:</Text>
         <View style={styles.flexWrap}>
           {[0, 1, 2, 3].map(i => (
@@ -112,7 +114,7 @@ export const DeviceControl = () => {
           ))}
 
         </View>
-      </View> */}
+      </View>
     </View>
   );
 };
