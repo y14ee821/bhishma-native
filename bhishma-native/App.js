@@ -7,11 +7,13 @@ import { useEffect } from 'react';
 import { modifyIE_Machines } from './src/store/deviceControlSlice';
 import { useSelector } from "react-redux";
 import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { Platform } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 // Simple Flash Icon using SVG (requires react-native-svg)
 import Svg, { Path } from 'react-native-svg';
 import { useWindowDimensions } from 'react-native';
-
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors } from './src/styles';
 const data = {
   rao: {
     channels: {
@@ -40,7 +42,7 @@ const data = {
 
 
 
-function AppContent() {
+function AppContent({ darkMode, setDarkMode }) {
   const dispatch = useDispatch();
 
   const LoadedIEs = useSelector(state => state.deviceControl.IE_Info);
@@ -53,133 +55,79 @@ function AppContent() {
     return null;
   }
   //console.log("IE_Info in store:", LoadedIEs);
-  return <Routes />;
+  return <Routes darkMode={darkMode} setDarkMode={setDarkMode} />;
 }
 
 export default function App() {
-
+  const [darkMode, setDarkMode] = useState(false);
+  const theme = darkMode ? darkTheme : lightTheme;
+  //const theme = lightTheme
   return (
     <Provider store={store}>
-      <View style={[styles.container]}>
+      
+        <AppContent darkMode={darkMode} setDarkMode={setDarkMode} />
+      
 
-        <AppContent />
-      </View>
     </Provider>
   );
-} 
+}
+
 const styles = StyleSheet.create({
-  container: {
+  gradient: {
     flex: 1,
-    
-    marginTop: 40,
   },
-  light: {
-    backgroundColor: '#f6f8fa',
-  },
-  dark: {
-    backgroundColor: '#181a20',
-  },
-  navBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
+
+
+});
+
+
+
+const lightTheme = {
+  gradient: ['#46c1d1ff', '#84ccb6ff', '#0d6b77ff'],
+  card: {
     backgroundColor: '#fff',
-    borderRadius: 10,
-    marginBottom: 18,
-    elevation: 2,
-  },
-  navBarDark: {
-    backgroundColor: '#23262f',
-  },
-  appNameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  appName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    letterSpacing: 1,
-    marginLeft: 6,
-  },
-  appNameDark: {
-    color: '#fff',
-  },
-  navLinks: {
-    flexDirection: 'row',
-    gap: 18,
-  },
-  navLink: {
-    fontSize: 17,
-    color: '#444',
-    fontWeight: '500',
-    marginHorizontal: 8,
-  },
-  navLinkActive: {
-    color: '#007AFF',
-    textDecorationLine: 'underline',
-  },
-  navLinkDark: {
-    color: '#fff',
+    borderColor: '#e5e7eb',
+    borderWidth: 1,
+    shadowColor: '#007AFF',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
   },
   header: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#222',
-    letterSpacing: 1,
-    textAlign: 'center',
-  },
-  headerDark: {
-    color: '#fff',
-  },
-  summary: {
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    gap: 12,
-  },
-  summaryText: {
-    fontSize: 18,
-    color: '#444',
-  },
-  summaryTextDark: {
-    color: '#ccc',
-  },
-  count: {
-    fontWeight: 'bold',
     color: '#007AFF',
+    textShadowColor: '#e3eafc',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
   },
-  addButton: {
+  button: {
     backgroundColor: '#007AFF',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    shadowColor: '#007AFF',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
   },
-  addButtonText: {
+  buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    letterSpacing: 0.5,
   },
-  headerContainer: {
+};
 
-    margin: 20,
-    borderRadius: 10,
-    padding: 10,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  }
-  // ...rest of your styles unchanged
-});
+const darkTheme = {
+  gradient: ['#010102ff', '#000208ff', '#181a20'],
+  card: {
+    backgroundColor: '#23262f',
+    borderColor: '#333',
+    borderWidth: 1,
+    shadowColor: '#fff',
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  header: {
+    color: '#fff',
+    textShadowColor: '#23262f',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+  },
+  button: {
+    backgroundColor: '#007AFF',
+  },
+  buttonText: {
+    color: '#fff',
+  },
+};

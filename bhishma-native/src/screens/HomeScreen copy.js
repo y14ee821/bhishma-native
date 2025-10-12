@@ -1,173 +1,145 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 
-const devices = [
-    {
-        id: '1',
-        name: 'Living Room Light',
-        currentState: 'ON',
-        IE_Name: 'Living Room',
-        radioValue: '2.4GHz',
-        channelUpdatedTime: '2024-06-10 14:22',
-    },
-    {
-        id: '2',
-        name: 'Garage Door',
-        currentState: 'OFF',
-        IE_Name: 'Garage',
-        radioValue: '5GHz',
-        channelUpdatedTime: '2024-06-10 13:55',
-    },
-    {
-        id: '3',
-        name: 'Thermostat',
-        currentState: '22°C',
-        IE_Name: 'Hall',
-        radioValue: '',
-        channelUpdatedTime: '2024-06-10 12:30',
-    },
-];
+import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export const HomeScreen = ({ navigation }) => {
+export const HomeScreen = ({ navigation, darkMode, setDarkMode}) => {
+    //const [darkMode, setDarkMode] = useState(false);
+    console.log(darkMode,setDarkMode)
+    const theme = darkMode ? darkTheme : lightTheme;
     return (
-        <View style={styles.container}>
-            <Text style={styles.header}>My IoT Devices</Text>
-            <View style={styles.summary}>
-                <Text style={styles.summaryText}>
-                    Devices Connected: <Text style={styles.count}>{devices.length}</Text>
-                </Text>
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => navigation.navigate('AddDevice')}
-                >
-                    <Text style={styles.addButtonText}>+ Add Device</Text>
-                </TouchableOpacity>
-            </View>
-            <FlatList
-                data={devices}
-                keyExtractor={item => item.id}
-                renderItem={({ item }) => (
+        <LinearGradient
+            colors={theme.gradient}
+            style={styles.gradient}
+        >
+            <View style={[styles.container, { backgroundColor: 'transparent' }]}> 
+                <View style={[styles.headerContainer, theme.card]}> 
+                    <Text style={[styles.header, theme.header]}>Welcome to Remcon</Text>
+                    <Text style={[styles.header, theme.header]}>Control your devices at fingertips</Text>
+                </View>
+                <View style={styles.summary}>
                     <TouchableOpacity
-                        style={styles.deviceCard}
-                        onPress={() => navigation.navigate('DeviceDetail', { deviceId: item.id })}
+                        style={[styles.addButton, theme.button]}
+                        onPress={() => navigation.navigate('DeviceControl')}
                     >
-                        <View style={styles.deviceInfo}>
-                            <Text style={styles.deviceName}>{item.name}</Text>
-                            <Text style={styles.deviceState}>
-                                State: <Text style={{color: item.currentState === 'ON' ? '#34C759' : '#FF3B30'}}>{item.currentState}</Text>
-                            </Text>
-                            <Text style={styles.deviceDetail}>IE Name: <Text style={styles.deviceDetailValue}>{item.IE_Name}</Text></Text>
-                            {item.radioValue ? (
-                                <Text style={styles.deviceDetail}>Radio: <Text style={styles.deviceDetailValue}>{item.radioValue}</Text></Text>
-                            ) : null}
-                            <Text style={styles.deviceDetail}>Updated: <Text style={styles.deviceDetailValue}>{item.channelUpdatedTime}</Text></Text>
-                        </View>
+                        <Text style={[styles.addButtonText, theme.buttonText]}>Control</Text>
                     </TouchableOpacity>
-                )}
-                contentContainerStyle={styles.deviceList}
-            />
-            <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={() => navigation.navigate('Settings')}
-            >
-                <Text style={styles.settingsText}>Settings</Text>
-            </TouchableOpacity>
-        </View>
+                </View>
+            </View>
+        </LinearGradient>
     );
-}
+};
 
 const styles = StyleSheet.create({
+    gradient: {
+        flex: 1,
+    },
     container: {
         flex: 1,
-        backgroundColor: '#f6f8fa',
         padding: 20,
+        justifyContent: 'center',
+    },
+    headerContainer: {
+        margin: 20,
+        borderRadius: 16,
+        padding: 18,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.18,
+        shadowRadius: 8,
+        elevation: 6,
     },
     header: {
-        fontSize: 28,
+        fontSize: 22,
         fontWeight: 'bold',
-        marginBottom: 16,
-        color: '#222',
-        letterSpacing: 1,
+        marginBottom: 10,
+        letterSpacing: 1.2,
+        textAlign: 'center',
     },
     summary: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        flexDirection: 'column',
+        justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 18,
-    },
-    summaryText: {
-        fontSize: 18,
-        color: '#444',
-    },
-    count: {
-        fontWeight: 'bold',
-        color: '#007AFF',
+        gap: 18,
+        marginTop: 30,
     },
     addButton: {
-        backgroundColor: '#007AFF',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 8,
+        paddingVertical: 14,
+        paddingHorizontal: 32,
+        borderRadius: 12,
         shadowColor: '#007AFF',
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        marginTop: 10,
+        marginBottom: 10,
+        elevation: 4,
     },
     addButtonText: {
-        color: '#fff',
         fontWeight: 'bold',
-        fontSize: 16,
-        letterSpacing: 0.5,
+        fontSize: 18,
+        letterSpacing: 0.8,
+        textAlign: 'center',
     },
-    deviceList: {
-        paddingBottom: 20,
+    themeSwitchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 30,
     },
-    deviceCard: {
-        backgroundColor: '#fff',
-        borderRadius: 14,
-        padding: 20,
-        marginBottom: 16,
-        elevation: 3,
-        shadowColor: '#007AFF',
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
-        shadowOffset: { width: 0, height: 3 },
-        borderLeftWidth: 5,
-        borderLeftColor: '#007AFF',
-    },
-    deviceInfo: {
-        flexDirection: 'column',
-    },
-    deviceName: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#222',
-        marginBottom: 6,
-        letterSpacing: 0.5,
-    },
-    deviceState: {
+    themeSwitchText: {
         fontSize: 16,
         fontWeight: '500',
-        marginBottom: 4,
-    },
-    deviceDetail: {
-        fontSize: 15,
-        color: '#555',
-        marginBottom: 2,
-    },
-    deviceDetailValue: {
-        color: '#007AFF',
-        fontWeight: '500',
-    },
-    settingsButton: {
-        marginTop: 'auto',
-        alignSelf: 'center',
-        padding: 12,
-    },
-    settingsText: {
-        color: '#007AFF',
-        fontSize: 17,
-        fontWeight: 'bold',
-        letterSpacing: 0.5,
+        marginRight: 10,
     },
 });
+
+const lightTheme = {
+    gradient: ['#f6f8fa', '#e3eafc', '#f6f8fa'],
+    card: {
+        backgroundColor: '#fff',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        shadowColor: '#007AFF',
+        shadowOpacity: 0.12,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    header: {
+        color: '#007AFF',
+        textShadowColor: '#e3eafc',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 6,
+    },
+    button: {
+        backgroundColor: '#007AFF',
+    },
+    buttonText: {
+        color: '#fff',
+    },
+};
+
+const darkTheme = {
+    gradient: ['#181a20', '#23262f', '#181a20'],
+    card: {
+        backgroundColor: '#23262f',
+        borderColor: '#333',
+        borderWidth: 1,
+        shadowColor: '#fff',
+        shadowOpacity: 0.18,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    header: {
+        color: '#fff',
+        textShadowColor: '#23262f',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 6,
+    },
+    button: {
+        backgroundColor: '#007AFF',
+    },
+    buttonText: {
+        color: '#fff',
+    },
+};

@@ -1,221 +1,156 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  StatusBar,
+  Animated,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useState, useRef, useEffect } from "react";
+import { colors, lightTheme, darkTheme } from "../styles";
 
-// Simple Flash Icon using SVG (requires react-native-svg)
-import Svg, { Path } from 'react-native-svg';
-import { useWindowDimensions } from 'react-native';
+export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
+  //const [darkMode, setDarkMode] = useState(false);
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(headerAnimatedValue, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnimatedValue, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
-const FlashIcon = ({ color = '#007AFF', size = 24 }) => (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-        <Path
-            d="M7 2v11h3v9l7-12h-4l4-8z"
-            fill={color}
+  const headerAnimatedValue = useRef(new Animated.Value(0)).current;
+  const fadeAnimatedValue = useRef(new Animated.Value(0)).current;
+  const [devices, setDevices] = useState([
+    {
+      id: 1,
+      name: "Living Room Light",
+      icon: "💡",
+      isOn: true,
+      room: "Living Room",
+    },
+    { id: 2, name: "Kitchen Fan", icon: "🌀", isOn: false, room: "Kitchen" },
+    { id: 3, name: "Bedroom AC", icon: "❄️", isOn: true, room: "Bedroom" },
+    {
+      id: 4,
+      name: "Garden Sprinkler",
+      icon: "💧",
+      isOn: false,
+      room: "Garden",
+    },
+    {
+      id: 5,
+      name: "Security Camera",
+      icon: "📹",
+      isOn: true,
+      room: "Entrance",
+    },
+    { id: 6, name: "Smart TV", icon: "📺", isOn: false, room: "Living Room" },
+  ]);
+  const activeDevices = devices.filter((device) => device.isOn).length;
+
+  console.log(darkMode, setDarkMode);
+  const theme = darkMode ? darkTheme : lightTheme;
+
+  const headerTranslateY = headerAnimatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-100, 0],
+  });
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  return (
+    <LinearGradient colors={theme.gradient} style={styles.gradient}>
+      <View style={styles.container}>
+        <StatusBar
+          barStyle={darkMode ? "light-content" : "dark-content"}
+          backgroundColor={colors.background}
         />
-    </Svg>
-);
 
-// Simple Home and Control Icons using SVG
-const HomeIcon = ({ color = '#007AFF', size = 24 }) => (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-        <Path
-            d="M3 10.5V21a1 1 0 001 1h5v-6h4v6h5a1 1 0 001-1V10.5a1 1 0 00-.293-.707l-8-8a1 1 0 00-1.414 0l-8 8A1 1 0 003 10.5z"
-            fill={color}
-        />
-    </Svg>
-);
+        {/* Theme Toggle Button */}
 
-const ControlIcon = ({ color = '#007AFF', size = 24 }) => (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-        <Path
-            d="M4 13h16v-2H4v2zm0 5h10v-2H4v2zm0-10h7V6H4v2z"
-            fill={color}
-        />
-    </Svg>
-);
+        <ScrollView style={styles.container}>
+          {/* Header Section */}
+          <Animated.View
+            style={[
+              styles.header,
+              {
+                transform: [{ translateY: headerTranslateY }],
+                opacity: headerAnimatedValue,
+              },
+            ]}
+          >
+            <Text style={theme.greeting}>{getGreeting()}!</Text>
+            <Text style={theme.subtitle}>Control your smart home</Text>
 
-const NavBar = ({ current, onNavigate, darkMode, onToggleTheme }) => {
-    const { width } = useWindowDimensions();
-    // Thresholds: <600 = mobile, <900 = laptop, else desktop
-    const showIcons = width < 900;
-
-    return (
-        <View style={[styles.navBar, darkMode && styles.navBarDark]}>
-            <View style={styles.appNameContainer}>
-                <FlashIcon color={darkMode ? '#fff' : '#007AFF'} size={26} />
-                <Text style={[styles.appName, darkMode && styles.appNameDark]}>Remcon</Text>
+            {/* Stats Cards */}
+            <View style={theme.statsContainer}>
+              <View style={theme.statCard}>
+                <Text style={theme.statNumber}>{devices.length}</Text>
+                <Text style={theme.statLabel}>Total Devices</Text>
+              </View>
+              <View style={theme.statCard}>
+                <Text style={theme.statNumber}>{activeDevices}</Text>
+                <Text style={theme.statLabel}>Active Now</Text>
+              </View>
+              <View style={theme.statCard}>
+                <Text style={theme.statNumber}>
+                  {Math.round((activeDevices / devices.length) * 100)}%
+                </Text>
+                <Text style={theme.statLabel}>Usage</Text>
+              </View>
             </View>
-            <View style={styles.navLinks}>
-                <TouchableOpacity onPress={() => onNavigate('Home')}>
-                    {showIcons ? (
-                        <HomeIcon color={current === 'Home' ? '#007AFF' : darkMode ? '#fff' : '#444'} size={24} />
-                    ) : (
-                        <Text style={[
-                            styles.navLink,
-                            current === 'Home' && styles.navLinkActive,
-                            darkMode && styles.navLinkDark
-                        ]}>Home</Text>
-                    )}
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => onNavigate('Control')}>
-                    {showIcons ? (
-                        <ControlIcon color={current === 'Control' ? '#007AFF' : darkMode ? '#fff' : '#444'} size={24} />
-                    ) : (
-                        <Text style={[
-                            styles.navLink,
-                            current === 'Control' && styles.navLinkActive,
-                            darkMode && styles.navLinkDark
-                        ]}>Control</Text>
-                    )}
-                </TouchableOpacity>
-                
-            </View>
-            <Switch value={darkMode} onValueChange={onToggleTheme} />
-        </View>
-    );
-};
 
-export const HomeScreen = ({ navigation }) => {
-    const [darkMode, setDarkMode] = useState(false);
-    const themeStyles = darkMode ? styles.dark : styles.light;
-    return (
-        <View style={[styles.container, themeStyles]}>
-         
-            <View style={styles.headerContainer}>
-                <Text style={[styles.header, darkMode && styles.headerDark]}>Welcome to Remcon</Text>
-
-                <Text style={[styles.header, darkMode && styles.headerDark]}>Control your devices at fingertips</Text>
-            </View>
-            
             <View style={styles.summary}>
-
-
-
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => navigation.navigate('DeviceControl')}
-                >
-                    <Text style={styles.addButtonText}> Control</Text>
-                </TouchableOpacity>
-
-               
-
+              <TouchableOpacity
+                style={[theme.addButton]}
+                onPress={() => navigation.navigate("DeviceControl")}
+              >
+                <Text style={[theme.addButtonText,]}>
+                  Control
+                </Text>
+              </TouchableOpacity>
             </View>
-        </View>
-    );
+          </Animated.View>
+        </ScrollView>
+      </View>
+    </LinearGradient>
+  );
 };
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-    },
-    light: {
-        backgroundColor: '#f6f8fa',
-    },
-    dark: {
-        backgroundColor: '#181a20',
-    },
-    navBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 12,
-        paddingHorizontal: 8,
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        marginBottom: 18,
-        elevation: 2,
-    },
-    navBarDark: {
-        backgroundColor: '#23262f',
-    },
-    appNameContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    appName: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#007AFF',
-        letterSpacing: 1,
-        marginLeft: 6,
-    },
-    appNameDark: {
-        color: '#fff',
-    },
-    navLinks: {
-        flexDirection: 'row',
-        gap: 18,
-    },
-    navLink: {
-        fontSize: 17,
-        color: '#444',
-        fontWeight: '500',
-        marginHorizontal: 8,
-    },
-    navLinkActive: {
-        color: '#007AFF',
-        textDecorationLine: 'underline',
-    },
-    navLinkDark: {
-        color: '#fff',
-    },
-    header: {
-        fontSize: 15,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        color: '#222',
-        letterSpacing: 1,
-        textAlign: 'center',
-    },
-    headerDark: {
-        color: '#fff',
-    },
-    summary: {
-        flexDirection: 'column',
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-        gap: 12,
-    },
-    summaryText: {
-        fontSize: 18,
-        color: '#444',
-    },
-    summaryTextDark: {
-        color: '#ccc',
-    },
-    count: {
-        fontWeight: 'bold',
-        color: '#007AFF',
-    },
-    addButton: {
-        backgroundColor: '#007AFF',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        shadowColor: '#007AFF',
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        shadowOffset: { width: 0, height: 2 },
-    },
-    addButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
-        letterSpacing: 0.5,
-    },
-    headerContainer:{
-        
-        margin: 20,
-        borderRadius: 10,
-        padding: 10,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-    }
-    // ...rest of your styles unchanged
+  container:{
+    paddingTop: 20,
+  },
+  gradient: {
+    flex: 1,
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
+    letterSpacing: 1.2,
+    textAlign: "center",
+  },
+  summary: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 18,
+    marginTop: 30,
+  },
 });
