@@ -115,15 +115,15 @@ export const Routes = ({darkMode, setDarkMode}) => {
               </Stack.Screen>
 
               <Stack.Screen name="DeviceControl" options={{ headerShown: false }}>
-                {props => <DeviceControl {...props} darkMode={darkMode} setDarkMode={setDarkMode} />}
+                {props => <DeviceControl {...props} darkMode={darkMode} />}
               </Stack.Screen>
 
               <Stack.Screen name="DeviceControlScreen" options={{ headerShown: false }}>
-                {props => <DeviceControlScreen {...props} darkMode={darkMode} setDarkMode={setDarkMode} />}
+                {props => <DeviceControlScreen {...props} darkMode={darkMode} />}
               </Stack.Screen>
 
               <Stack.Screen name="DedicatedIEControl" options={{ headerShown: false }}>
-                {props => <DedicatedIEControl {...props} darkMode={darkMode} setDarkMode={setDarkMode} />}
+                {props => <DedicatedIEControl {...props} darkMode={darkMode} />}
               </Stack.Screen>
             </Stack.Navigator>
           </View>
@@ -162,7 +162,6 @@ const styles = StyleSheet.create({
   },
   navLinks: {
     flexDirection: 'row',
-    gap: 18,
   },
   navLink: {
     fontSize: 17,

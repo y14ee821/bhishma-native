@@ -4,8 +4,11 @@ import { useRoute } from '@react-navigation/native';
 import ToggleSwitch from '../components/ToggleSwitch';
 import { useDispatch } from 'react-redux';
 import { initMQTT } from '../services/mqttService';
-import { useDeviceControlState } from '../reduxstates/deviceControlStates'
+import { useDeviceControlState } from '../reduxstates/deviceControlStates';
 import mqtt from 'mqtt';
+import { LinearGradient } from 'expo-linear-gradient';
+import { lightTheme, darkTheme } from '../styles';
+
 /** 
  * DedicatedIEControl component for controlling a dedicated internet equipment (IE) via MQTT.
  * 1. Connects to an MQTT broker using WebSocket 
@@ -15,7 +18,8 @@ import mqtt from 'mqtt';
  * 5. ie_name and client are passed as props to ToggleSwitch for publishing toggle commands.
  * 6. Cleans up the MQTT connection when the component is unmounted.
  * */
-export const DedicatedIEControl = () => {
+export const DedicatedIEControl = ({ darkMode }) => {
+  const theme = darkMode ? darkTheme : lightTheme;
   const options = {
     protocol: 'wss',
     keepalive: 600,
@@ -54,28 +58,69 @@ export const DedicatedIEControl = () => {
    if(name in IE_Info)
     {
       return (
-    <ScrollView>
+    <LinearGradient colors={theme.gradient} style={styles.gradient}>
+    <ScrollView style={styles.container}>
       <View >
         <View style={styles.groupContainer}>
-          <Text style={styles.machineText}>Machine Name: {name}</Text>
-          <View style={styles.flexWrap}>
-            {Object.entries(IE_Info[name]["channels"]).map(([channelId, channelData]) => (
-              <ToggleSwitch key={channelId} index={parseInt(channelId)} data={channelData} ie_name={name} client={client} />
-            ))}
+          <Text style={styles.machineText}>
+            Machine Name: {name}
+          </Text>
+          <View style={styles.controlsWrapper}>
+            {/* Always show the controls */}
+            <View style={[
+              styles.flexWrap,
+              !connectedToBroker && styles.blurredControls
+            ]}>
+              {Object.entries(IE_Info[name]["channels"]).map(([channelId, channelData]) => (
+                <ToggleSwitch 
+                  key={channelId} 
+                  index={parseInt(channelId)} 
+                  ie_name={name} 
+                  client={client}
+                  disabled={!connectedToBroker}
+                />
+              ))}
+            </View>
+            
+            {/* Overlay when not connected */}
+            {!connectedToBroker && (
+              <View style={styles.overlay}>
+                <View style={styles.overlayContent}>
+                  <Text style={styles.overlayText}>
+                    🔌 Hold on...
+                  </Text>
+                  <Text style={styles.overlaySubtext}>
+                    Connecting to broker
+                  </Text>
+                </View>
+              </View>
+            )}
           </View>
         </View>
       </View>
     </ScrollView>
+    </LinearGradient>
   );
 } else {
   return (
-    <View>
-      <Text style={styles.errorText}>No data available for the specified IE.</Text>
-    </View>
+    <LinearGradient colors={theme.gradient} style={styles.gradient}>
+      <View style={styles.container}>
+        <Text style={styles.errorText}>
+          No data available for the specified IE.
+        </Text>
+      </View>
+    </LinearGradient>
   )
 };
 }
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+  },
   card: {
     width: 240,
     padding: 16,
@@ -114,23 +159,71 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 20,
-    color: "#dc2626",
-    fontWeight: "bold",
+    color: "#ffffff",
+    fontWeight: "800",
     margin: 8,
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   groupContainer: {
     margin: 8,
   },
   machineText: {
-    fontSize: 20,
-    color: "midnightblue",
-    fontWeight: "bold",
-    marginBottom: 8,
+    fontSize: 22,
+    color: "#ffffff",
+    fontWeight: "800",
+    marginBottom: 16,
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   flexWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
+  },
+  controlsWrapper: {
+    position: "relative",
+  },
+  blurredControls: {
+    opacity: 0.3,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+  },
+  overlayContent: {
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    padding: 24,
+    borderRadius: 16,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  overlayText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#1f2937",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  overlaySubtext: {
+    fontSize: 16,
+    color: "#6b7280",
+    textAlign: "center",
   },
   buttonWrapper: {
     marginVertical: 8,
@@ -140,7 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   deviceButton: {
-    backgroundColor: '#2563eb', // Indigo-600
+    backgroundColor: '#2d5f8d',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 10,

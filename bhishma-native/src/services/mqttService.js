@@ -1,7 +1,4 @@
-//import mqtt from 'mqtt';
-//import { updateDeviceState } from '../store/deviceSlice';
-import { updateIEsState } from '../store/deviceControlSlice';
-
+import { updateIEsState, checkBrokerConnection, setConnectingToBroker } from '../store/deviceControlSlice';
 //   const options = {
 //     protocol: 'wss',
 //      keepalive: 600,
@@ -30,15 +27,25 @@ export const parseMessage = (msg,channelCount) => {
 export const initMQTT = (dispatch,ie_name,channelCount,client) => {
 
   client.on('connect', () => {
-
+    dispatch(checkBrokerConnection(true)); // sets connectedToBroker to true
     client.subscribe(`${ie_name}/status`);
-    console.log('Connected to MQTT broker and subscribed to topic:', `${ie_name}/status`);
+    console.log('✅ Connected to MQTT broker and subscribed to topic:', `${ie_name}/status`);
   });
 
   client.on('message', (topic, message) => {
     //console.log('Received message:', message.toString());
     const parsed = parseMessage(message.toString(),channelCount);
     dispatch(updateIEsState({ie_name, valueList: parsed.channels}));
+  });
+
+  client.on('error', (error) => {
+    console.error('❌ MQTT error for', ie_name, ':', error.message);
+    dispatch(checkBrokerConnection(false));
+  });
+
+  client.on('close', () => {
+    console.log('🔴 MQTT connection closed for', ie_name);
+    dispatch(checkBrokerConnection(false));
   });
 };
 

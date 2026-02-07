@@ -1,26 +1,27 @@
-export const MqttPub = (client,topic,message) => {
-  let i = 0
-  // while(i<10)
-  //   {
-      client.publish(topic, message,(error)=>{
-        if(error)
-        {
-          console.log("error in publish: ",error)
-        }
-        else
-        {
-          console.log(`Published Message: '${message}' Published on Topic: ${topic}`)
-        }
-      })
-    //   i = i+1
-    // }
+/**
+ * MqttPub - Utility function to publish a message to an MQTT topic
+ * 
+ * @param {Object} client - MQTT client instance
+ * @param {string} topic - Topic to publish to
+ * @param {string} message - Message to publish
+ * @returns {Promise} - Resolves when published, rejects on error
+ */
+export const MqttPub = (client, topic, message) => {
+  return new Promise((resolve, reject) => {
+    if (!client) {
+      console.error('❌ MQTT client is not initialized');
+      reject(new Error('MQTT client is not initialized'));
+      return;
+    }
 
- 
-
-
-  return (
-    <div>
-      
-    </div>
-  )
-}
+    client.publish(topic, message, (error) => {
+      if (error) {
+        console.error(`❌ Error publishing to ${topic}:`, error);
+        reject(error);
+      } else {
+        console.log(`✅ Published to ${topic}: ${message}`);
+        resolve();
+      }
+    });
+  });
+};

@@ -8,7 +8,11 @@ import { modifyIE_Machines, updateIE_Mapper } from '../store/deviceControlSlice'
 import { useDeviceControlState } from '../reduxstates/deviceControlStates'
 import { Button } from 'react-native-web';
 import { useNavigation } from "@react-navigation/native";
-export const DeviceControl = () => {
+import { LinearGradient } from 'expo-linear-gradient';
+import { lightTheme, darkTheme } from '../styles';
+
+export const DeviceControl = ({ darkMode }) => {
+  const theme = darkMode ? darkTheme : lightTheme;
   const data =
   {
     "rao": {
@@ -90,20 +94,22 @@ export const DeviceControl = () => {
   const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
   //console.log(connectedToBroker, channelStates, IE_Mapper, IE_Info)
   return (
-
-    <View >
-      <Text style={styles.heading}>Select Your Device</Text>
-      <View style={styles.buttonWrapper}>
-      {Object.keys(IE_Info).map(ie => (
-        <View key={ie} >
-          <TouchableOpacity
-            style={styles.deviceButton}
-            onPress={() => navigation.navigate('DedicatedIEControl', { name: ie })} // Pass the IE name as a parameter
-          >
-            <Text style={styles.deviceButtonText}>{ie}</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
+    <LinearGradient colors={theme.gradient} style={styles.gradient}>
+      <View style={styles.container}>
+        <Text style={styles.heading}>
+          Select Your Device
+        </Text>
+        <View style={styles.buttonWrapper}>
+          {Object.keys(IE_Info).map(ie => (
+            <View key={ie}>
+              <TouchableOpacity
+                style={styles.deviceButton}
+                onPress={() => navigation.navigate('DedicatedIEControl', { name: ie })}
+              >
+                <Text style={styles.deviceButtonText}>{ie}</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
       </View>
       {/* <View style={styles.groupContainer}>
         <Text style={styles.machineText}>Machine Name:</Text>
@@ -115,10 +121,18 @@ export const DeviceControl = () => {
         </View>
       </View> */}
     </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+  },
   card: {
     width: 240,
     padding: 16,
@@ -183,7 +197,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   deviceButton: {
-    backgroundColor: '#2563eb', // Indigo-600
+    backgroundColor: '#2d5f8d',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 10,
@@ -207,13 +221,15 @@ const styles = StyleSheet.create({
   },
   heading:
   {
-    color:"midnightblue",
-    fontSize:22,
-    fontWeight:"bold",
+    color:"#ffffff",
+    fontSize:24,
+    fontWeight:"800",
     textAlign:"center",
     marginTop:20,
     marginBottom:20,
-
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   }
 
 });

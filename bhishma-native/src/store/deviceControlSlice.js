@@ -5,6 +5,7 @@ const deviceControlSlice = createSlice({
     name: 'deviceControl',
     initialState: {
         connectedToBroker: false,
+        connectingToBroker: false,
         channelStates: {},
         IE_Info: [],
         IE_Mapper: {}
@@ -14,7 +15,13 @@ const deviceControlSlice = createSlice({
         checkBrokerConnection: (state, action) => {
             //console.log("Broker connection state:", action.payload)
             state.connectedToBroker = action.payload;
-            //state.online = true;
+            if (action.payload) {
+                // If connected, stop showing connecting state
+                state.connectingToBroker = false;
+            }
+        },
+        setConnectingToBroker: (state, action) => {
+            state.connectingToBroker = action.payload;
         },
         modifyIE_Machines: (state, action) => {
             //console.log("Updating IE_Info in store:", action.payload)
@@ -54,5 +61,5 @@ const deviceControlSlice = createSlice({
 
 })
 
-export const { checkBrokerConnection, modifyIE_Machines, updateIE_Mapper,updateIEsState,updatedCurrentUIState } = deviceControlSlice.actions;
+export const { checkBrokerConnection, setConnectingToBroker, modifyIE_Machines, updateIE_Mapper, updateIEsState, updatedCurrentUIState } = deviceControlSlice.actions;
 export const deviceControlReducer = deviceControlSlice.reducer;

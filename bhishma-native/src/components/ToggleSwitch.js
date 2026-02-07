@@ -19,21 +19,25 @@ import {updatedCurrentUIState} from '../store/deviceControlSlice';
  * @param {number} props.index - The index of the channel to control.
  * @param {string} props.ie_name - The name of the device or interface.
  * @param {Object} props.client - The client object used for publishing toggle events.
+ * @param {boolean} props.disabled - External disabled state (e.g., when not connected to broker).
  *
  * @returns {React.Node} The rendered ToggleSwitch component.
  */
 // ToggleSwitch component definition
 // This component renders a toggle switch for a device channel.
 // It manages UI state, dispatches Redux actions, and handles MQTT publish events.
-const ToggleSwitch = ({ index,ie_name,client }) => {
+const ToggleSwitch = ({ index, ie_name, client, disabled: disabledFromParent = false }) => {
   const dispatch = useDispatch();
   const store = useStore();// for handling the redux values in setTimeout funtion
   const value = useSelector(state => state.deviceControl.IE_Info[ie_name]["channels"][index]["currentState"]);
-  const [disabled, setDisabled] = React.useState(false);//For disabling the switch during update
+  const [internalDisabled, setInternalDisabled] = React.useState(false);//For disabling the switch during update
+  
+  // Combine internal disabled state with parent disabled prop
+  const disabled = disabledFromParent || internalDisabled;
   const onToggle = () => {
     // Toggle the value between 0 and 1
     const newValue = value === 1 ? 0 : 1;
-    setDisabled(true);//disable the switch during update   
+    setInternalDisabled(true);//disable the switch during update   
     publishToggle(index, newValue,ie_name,client);//publish the toggle event
     // Optimistically update the UI immediately
     // In a real-world scenario, you might want to wait for a confirmation from the IE
@@ -53,7 +57,7 @@ const ToggleSwitch = ({ index,ie_name,client }) => {
         // If the UI value doesn't match the latest value, alert the user
         alert(`Failed to update channel ${index}. Please try again.`);
       }      
-      setDisabled(false)// Re-enable the switch after the timeout
+      setInternalDisabled(false)// Re-enable the switch after the timeout
     }, 3000)
   };
   // Determine colors based on state
@@ -79,7 +83,9 @@ const ToggleSwitch = ({ index,ie_name,client }) => {
 
   return (
     <View style={[styles.card, { backgroundColor: getCardBackgroundColor() }]} >
-      <Text style={[styles.channelText]}>Channel: {String(index) || "-"}</Text>
+      <Text style={[styles.channelText]}>
+        Channel: {String(index) || "-"}
+      </Text>
       <Text style={[styles.stateText, { color: getStateTextColor() }]}>
         Current State: {disabled ? "Working" : String(value) === "1" ? "ON" : "OFF"}
       </Text>

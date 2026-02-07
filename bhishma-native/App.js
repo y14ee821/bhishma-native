@@ -6,14 +6,7 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { modifyIE_Machines } from './src/store/deviceControlSlice';
 import { useSelector } from "react-redux";
-import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
-import { Platform } from 'react-native';
-import { useNavigation } from "@react-navigation/native";
-// Simple Flash Icon using SVG (requires react-native-svg)
-import Svg, { Path } from 'react-native-svg';
-import { useWindowDimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors } from './src/styles';
+import { MqttConnection } from './src/mqttcomponents';
 const data = {
   rao: {
     channels: {
@@ -44,90 +37,44 @@ const data = {
 
 function AppContent({ darkMode, setDarkMode }) {
   const dispatch = useDispatch();
-
   const LoadedIEs = useSelector(state => state.deviceControl.IE_Info);
+
   useEffect(() => {
+    // Initialize device data
     dispatch(modifyIE_Machines(data));
-    // initMQTT(dispatch);
-  }, []);
+    
+    // Log MQTT configuration
+    console.log('📡 MQTT Configuration:', {
+      host: process.env.REACT_APP_MQTT_HOST || "wss://test.mosquitto.org:8081/mqtt (default)",
+      keepalive: Number(process.env.REACT_APP_MQTT_KEEPALIVE) || 60,
+      reconnectPeriod: Number(process.env.REACT_APP_MQTT_RECONNECT_PERIOD) || 5000,
+    });
+  }, [dispatch]);
+
   if (LoadedIEs && Object.keys(LoadedIEs).length === 0) {
     //console.log("No IE_Info in store, not rendering app");
     return null;
   }
-  //console.log("IE_Info in store:", LoadedIEs);
-  return <Routes darkMode={darkMode} setDarkMode={setDarkMode} />;
+
+  const mqttConfig = {
+    brokerUrl: process.env.REACT_APP_MQTT_HOST || "wss://test.mosquitto.org:8081/mqtt",
+    keepalive: Number(process.env.REACT_APP_MQTT_KEEPALIVE) || 60,
+    reconnectPeriod: Number(process.env.REACT_APP_MQTT_RECONNECT_PERIOD) || 5000,
+  };
+
+  return (
+    <MqttConnection options={mqttConfig}>
+      <Routes darkMode={darkMode} setDarkMode={setDarkMode} />
+    </MqttConnection>
+  );
 }
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const theme = darkMode ? darkTheme : lightTheme;
-  //const theme = lightTheme
+
   return (
     <Provider store={store}>
-      
-        <AppContent darkMode={darkMode} setDarkMode={setDarkMode} />
-      
-
+      <AppContent darkMode={darkMode} setDarkMode={setDarkMode} />
     </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
-
-
-});
-
-
-
-const lightTheme = {
-  gradient: ['#46c1d1ff', '#84ccb6ff', '#0d6b77ff'],
-  card: {
-    backgroundColor: '#fff',
-    borderColor: '#e5e7eb',
-    borderWidth: 1,
-    shadowColor: '#007AFF',
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  header: {
-    color: '#007AFF',
-    textShadowColor: '#e3eafc',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 6,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-  },
-  buttonText: {
-    color: '#fff',
-  },
-};
-
-const darkTheme = {
-  gradient: ['#010102ff', '#000208ff', '#181a20'],
-  card: {
-    backgroundColor: '#23262f',
-    borderColor: '#333',
-    borderWidth: 1,
-    shadowColor: '#fff',
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  header: {
-    color: '#fff',
-    textShadowColor: '#23262f',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 6,
-  },
-  button: {
-    backgroundColor: '#007AFF',
-  },
-  buttonText: {
-    color: '#fff',
-  },
-};
