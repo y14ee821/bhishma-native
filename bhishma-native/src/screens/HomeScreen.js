@@ -1,25 +1,32 @@
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   StatusBar,
   Animated,
   ScrollView,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState, useRef, useEffect } from "react";
-import { colors, lightTheme, darkTheme } from "../styles";
-import { useSelector } from "react-redux";
+import { colors, lightTheme, darkTheme, homeScreenStyles } from "../styles";
+import { useIEInfo, useBrokerConnection, useBrokerConnecting } from "../reduxStates";
+import { useDispatch } from "react-redux";
+import { fetchIEInfo } from "../store/deviceControlSlice";
+import { deviceAPI } from "../services/apiService";
+
+const styles = homeScreenStyles;
 
 export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
   const [refreshing, setRefreshing] = useState(false);
+  const [creatingDevices, setCreatingDevices] = useState(false);
+  const dispatch = useDispatch();
   
   // Get real IoT device data from Redux
-  const IE_Info = useSelector((state) => state.deviceControl.IE_Info);
-  const connectedToBroker = useSelector((state) => state.deviceControl.connectedToBroker);
-  const connectingToBroker = useSelector((state) => state.deviceControl.connectingToBroker);
+  const IE_Info = useIEInfo();
+  const connectedToBroker = useBrokerConnection();
+  const connectingToBroker = useBrokerConnecting();
 
   useEffect(() => {
     Animated.parallel([
@@ -72,12 +79,53 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
   const stats = getDeviceStats();
   const theme = darkMode ? darkTheme : lightTheme;
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate refresh - in real app, this would reconnect to MQTT or fetch latest data
+    // Refresh device data from backend
+    await dispatch(fetchIEInfo());
     setTimeout(() => {
       setRefreshing(false);
     }, 1000);
+  };
+
+  const createSampleDevices = async () => {
+    setCreatingDevices(true);
+    try {
+      const sampleDevices = [
+        {
+          name: "Rao",
+          type: "IE Controller",
+          status: "online",
+          metadata: { channelCount: 4 }
+        },
+        {
+          name: "Venky",
+          type: "IE Controller",
+          status: "online",
+          metadata: { channelCount: 2 }
+        }
+      ];
+
+      let createdCount = 0;
+      for (const device of sampleDevices) {
+        const result = await deviceAPI.createDevice(device);
+        if (result.success) {
+          createdCount++;
+        }
+      }
+
+      if (createdCount > 0) {
+        Alert.alert("Success", `Created ${createdCount} sample device(s)!`);
+        // Refresh device list
+        await dispatch(fetchIEInfo());
+      } else {
+        Alert.alert("Error", "Failed to create devices. Please try again.");
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message || "Failed to create devices");
+    } finally {
+      setCreatingDevices(false);
+    }
   };
 
   const headerTranslateY = headerAnimatedValue.interpolate({
@@ -255,8 +303,17 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 <Text style={styles.emptyIcon}>📡</Text>
                 <Text style={theme.emptyTitle}>No Devices Found</Text>
                 <Text style={theme.emptySubtitle}>
-                  Waiting for device connection...
+                  You don't have any devices yet. Create sample devices to get started!
                 </Text>
+                <TouchableOpacity
+                  style={[styles.createButton, { opacity: creatingDevices ? 0.6 : 1 }]}
+                  onPress={createSampleDevices}
+                  disabled={creatingDevices}
+                >
+                  <Text style={styles.createButtonText}>
+                    {creatingDevices ? "Creating..." : "Create Sample Devices"}
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
           </Animated.View>
@@ -265,108 +322,3 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
     </LinearGradient>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    paddingTop: 20,
-  },
-  gradient: {
-    flex: 1,
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-  },
-  connectionBadge: {
-    alignSelf: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
-    marginTop: 16,
-    marginBottom: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    shadowColor: 'rgba(0, 0, 0, 0.1)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  connectionText: {
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  connectionSubtext: {
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 2,
-    fontWeight: '600',
-  },
-  summary: {
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 24,
-    marginBottom: 32,
-  },
-  deviceListContainer: {
-    marginTop: 8,
-  },
-  deviceCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 0,
-    shadowColor: 'rgba(0, 0, 0, 0.15)',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  deviceCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  deviceNameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  deviceIcon: {
-    fontSize: 36,
-    marginRight: 12,
-  },
-  chevron: {
-    fontSize: 32,
-    color: '#5a9fc4',
-    fontWeight: '600',
-  },
-  deviceCardBody: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#a3d5e8',
-  },
-  deviceStat: {
-    alignItems: 'center',
-  },
-  activeStatValue: {
-    color: '#2d5f8d',
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-});

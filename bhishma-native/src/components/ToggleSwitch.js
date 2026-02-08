@@ -1,11 +1,13 @@
 
 import React from 'react';
-//import { Switch } from 'react-native-paper';
 import { useStore } from 'react-redux';
-import { View, Text, Switch, StyleSheet } from "react-native";
-import { useDispatch, useSelector } from 'react-redux';
-import { publishToggle } from '../services/mqttService';
-import {updatedCurrentUIState} from '../store/deviceControlSlice';
+import { View, Text, Switch } from "react-native";
+import { useDispatch } from 'react-redux';
+import { publishToggleCommand } from '../store/deviceControlSlice';
+import { useChannelState } from '../reduxStates';
+import { toggleSwitchStyles } from '../styles';
+
+const styles = toggleSwitchStyles;
 
 
 /**
@@ -29,36 +31,41 @@ import {updatedCurrentUIState} from '../store/deviceControlSlice';
 const ToggleSwitch = ({ index, ie_name, client, disabled: disabledFromParent = false }) => {
   const dispatch = useDispatch();
   const store = useStore();// for handling the redux values in setTimeout funtion
-  const value = useSelector(state => state.deviceControl.IE_Info[ie_name]["channels"][index]["currentState"]);
+  const channelData = useChannelState(ie_name, index);
+  const value = channelData?.currentState || 0;
   const [internalDisabled, setInternalDisabled] = React.useState(false);//For disabling the switch during update
   
   // Combine internal disabled state with parent disabled prop
   const disabled = disabledFromParent || internalDisabled;
-  const onToggle = () => {
+  const onToggle = async () => {
     // Toggle the value between 0 and 1
     const newValue = value === 1 ? 0 : 1;
-    setInternalDisabled(true);//disable the switch during update   
-    publishToggle(index, newValue,ie_name,client);//publish the toggle event
-    // Optimistically update the UI immediately
-    // In a real-world scenario, you might want to wait for a confirmation from the IE
-    // before updating the UI state.
-    // Here, we assume the update is successful and update the UI state directly.
-    // If the update fails, we will revert the UI state in the setTimeout function below.
-    dispatch(updatedCurrentUIState({ie_name,index,newValue:newValue}));
-    setTimeout(() => {
-      const state = store.getState();//for handling the redux values in setTimeout funtion
-      // Check if the UI state matches the actual state after 3 seconds
-      // If they don't match, it indicates a failure in updating the state
-      // and we alert the user to try again.
-      // This is a simple way to handle failures; in a real-world app,
-      const latestValue = state.deviceControl.IE_Info[ie_name]["channels"][index]["currentState"];
-      const latestUiValue = state.deviceControl.IE_Info[ie_name]["channels"][index]["uiValue"];
-      if (latestUiValue !== latestValue) {
-        // If the UI value doesn't match the latest value, alert the user
-        alert(`Failed to update channel ${index}. Please try again.`);
-      }      
-      setInternalDisabled(false)// Re-enable the switch after the timeout
-    }, 3000)
+    setInternalDisabled(true); // Disable the switch during update
+    
+    // Dispatch the thunk to publish toggle command
+    try {
+      await dispatch(publishToggleCommand({ 
+        channel: index, 
+        state: newValue, 
+        ie_name, 
+        client 
+      })).unwrap();
+      
+      // Success - check if state matches after 3 seconds
+      setTimeout(() => {
+        const state = store.getState();
+        const latestValue = state.deviceControl.IE_Info[ie_name]["channels"][index]["currentState"];
+        const latestUiValue = state.deviceControl.IE_Info[ie_name]["channels"][index]["uiValue"];
+        if (latestUiValue !== latestValue) {
+          alert(`Failed to update channel ${index}. Please try again.`);
+        }
+        setInternalDisabled(false); // Re-enable the switch
+      }, 3000);
+    } catch (error) {
+      // Handle error from thunk
+      alert(`Failed to publish toggle command: ${error}`);
+      setInternalDisabled(false); // Re-enable the switch on error
+    }
   };
   // Determine colors based on state
   const getSwitchThumbColor = () => {
@@ -105,78 +112,5 @@ const ToggleSwitch = ({ index, ie_name, client, disabled: disabledFromParent = f
     </View>
   )
 };
-const styles = StyleSheet.create({
-  groupContainer: {
-    margin: 8,
-  },
-  machineText: {
-    fontSize: 20,
-    color: "#111827",
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  flexWrap: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-  },
-  card: {
-    width: 240,
-    padding: 16,
-    margin: 8,
-    backgroundColor: "#fff",
-    borderColor: "#e5e7eb",
-    borderWidth: 1,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  channelText: {
-    fontSize: 20,
-    color: "steelblue",
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  stateText: {
-    fontSize: 16,
-    textAlign: "center",
-    color: "#111827",
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  switchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    margin: 16,
-  },
-  switchLabel: {
-    fontSize: 18,
-    color: "#111827",
-    fontWeight: "bold",
-    marginHorizontal: 14,
-  },
-  errorText: {
-    fontSize: 20,
-    color: "#dc2626",
-    fontWeight: "bold",
-    margin: 8,
-  },
-  groupContainer: {
-    margin: 8,
-  },
-  machineText: {
-    fontSize: 20,
-    color: "#111827",
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  flexWrap: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-  },
-});
 
 export default ToggleSwitch;

@@ -1,4 +1,5 @@
 import { updateIEsState, checkBrokerConnection, setConnectingToBroker } from '../store/deviceControlSlice';
+
 //   const options = {
 //     protocol: 'wss',
 //      keepalive: 600,
@@ -12,7 +13,7 @@ import { updateIEsState, checkBrokerConnection, setConnectingToBroker } from '..
 // const url = "wss://test.mosquitto.org:8081/mqtt"
 // console.log('MQTT URL:', url);
 // const client = mqtt.connect(url, options)
-
+import { useStore } from 'react-redux';
 export const parseMessage = (msg,channelCount) => {
   let channels = new Array(channelCount).fill(0);
   //Received message: ip4:0-ip1:0-ip2:1-ip3:1
@@ -33,7 +34,7 @@ export const initMQTT = (dispatch,ie_name,channelCount,client) => {
   });
 
   client.on('message', (topic, message) => {
-    //console.log('Received message:', message.toString());
+    console.log('Received message:', message.toString());
     const parsed = parseMessage(message.toString(),channelCount);
     dispatch(updateIEsState({ie_name, valueList: parsed.channels}));
   });
@@ -56,4 +57,50 @@ export const publishToggle = (channel, state, ie_name, client) => {
   console.log('Publishing message:', message);
 
   client.publish(ie_name, message);
+};
+export const publishFullOperation = (client, ie_name, state, IE_Info,dispatch,
+  setAllChannelOperationPerforming,store,setAllChannelOperationSuccess,showSuccess,showError ) =>{
+  // state: 1 for "All On", 0 for "All Off"
+  dispatch(setAllChannelOperationPerforming(true));
+  let desiredState  = false
+  if (!IE_Info || !IE_Info[ie_name] || !IE_Info[ie_name].channels) {
+    console.error('Invalid IE_Info provided to publishFullOperation');
+    return;
+  }
+
+  const channels = IE_Info[ie_name].channels;  
+  // Build message: op1:1-op2:1-op3:1-op4:1 (for All On)
+  // or: op1:0-op2:0-op3:0-op4:0 (for All Off)
+  let message = '';
+  Object.keys(channels).forEach((channelId, index) => {
+    if (index > 0) message += '-';
+    message += `op${channelId}:${state}`;
+  });
+  client.publish(ie_name, message);
+  setTimeout(()=>{
+    const stateRedux = store.getState();
+    Object.keys(channels).forEach((channel, index) => {
+      let latestValue = stateRedux.deviceControl.IE_Info[ie_name]["channels"][channel]["currentState"];
+      if(latestValue== state)
+        {
+          desiredState = true;
+        }
+      else
+        {
+          desiredState = false;
+        }
+    })
+    dispatch(setAllChannelOperationPerforming(false));    
+    dispatch(setAllChannelOperationSuccess(desiredState));
+    if(desiredState)
+      {
+        showSuccess(`Operation completed successfully,  ${state==1?"All On":"All Off"}`);
+      }
+    else
+      {
+        showError(`Operation failed, unable to change state to ${state==1?"All On":"All Off"}`);
+      }
+  }
+  ,5000)
+  
 };

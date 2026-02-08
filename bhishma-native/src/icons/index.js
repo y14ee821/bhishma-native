@@ -1,1 +1,1 @@
-export { FlashIcon, HomeIcon, ControlIcon } from './icons';
+export { FlashIcon, HomeIcon, ControlIcon, AutoIcon } from './icons';

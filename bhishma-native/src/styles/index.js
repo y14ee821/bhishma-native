@@ -1,3 +1,11 @@
 export {BaseStyle,lightTheme, darkTheme} from './baseStyling';
 export {lightNavTheme, darkNavTheme} from './navbarStyling';
-export {colors} from './homeScreenStyling';
+export {colors, homeScreenStyles} from './homeScreenStyling';
+export {dedicatedIEControlStyles} from './dedicatedIEControlStyling';
+export {toggleSwitchStyles} from './toggleSwitchStyling';
+export {channelCardStyles} from './channelCardStyling';
+export {ioCardStyles} from './ioCardStyling';
+export {deviceControlStyles} from './deviceControlStyling';
+export {deviceControlScreenStyles} from './deviceControlScreenStyling';
+export {errorComponentStyles} from './errorComponentStyling';
+export {routesStyles} from './routesStyling';

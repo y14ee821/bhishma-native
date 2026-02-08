@@ -1,0 +1,7 @@
+cd C:\"Program Files"\mosquitto
+
+mosquitto_pub.exe -t rao -m "op0:1-op1:0" -h "DESKTOP-JGGM27M"
+
+mosquitto_sub.exe -t rao  -h "DESKTOP-JGGM27M"
+
+mosquitto.exe -v -c F:\Tesla\mpythonProjects\panchajanyam-mqtt\mosquitto.conf

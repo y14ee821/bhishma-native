@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import mqtt from 'mqtt';
 import { checkBrokerConnection, setConnectingToBroker } from '../store/deviceControlSlice';
 
 // Create Context to share MQTT client across the app
-const MqttClientContext = createContext(null);
+// Use a sentinel value to distinguish between "no provider" and "provider with null client"
+const MqttClientContext = createContext(undefined);
 
 /**
  * Custom hook to access the MQTT client from anywhere in the app
@@ -12,9 +13,12 @@ const MqttClientContext = createContext(null);
  */
 export const useMqttClient = () => {
   const context = useContext(MqttClientContext);
-  if (!context) {
+  // Check if context is undefined (not provided) vs null (provided but client not ready)
+  if (context === undefined) {
     console.warn('useMqttClient must be used within MqttConnection provider');
+    return null;
   }
+  // context can be null (client not ready yet) or the actual client object
   return context;
 };
 
@@ -27,60 +31,64 @@ export const useMqttClient = () => {
  */
 export const useMqttConnection = (options = {}) => {
   const dispatch = useDispatch();
-  const clientRef = useRef(null);
+  const [client, setClient] = useState(null); // State to trigger re-render when client is ready
 
-  const defaultOptions = {
-    protocol: 'wss',
-    keepalive: 60,
-    clean: true,
-    reconnectPeriod: 5000, // Try to reconnect every 5 seconds
-    connectTimeout: 30 * 1000, // 30 seconds
-    clientId: 'bhishma_app_' + Math.random().toString(16).substring(2, 8),
-    ...options,
-  };
+  // Extract brokerUrl to use in dependency array
+  const brokerUrl = useMemo(() => options.brokerUrl || "wss://test.mosquitto.org:8081/mqtt", [options.brokerUrl]);
 
   useEffect(() => {
-    const url = options.brokerUrl || "wss://test.mosquitto.org:8081/mqtt";
+    const url = brokerUrl;
     console.log('🔌 Connecting to MQTT Broker:', url);
+
+    // Build options inside effect to avoid dependency issues
+    const defaultOptions = {
+      protocol: 'wss',
+      keepalive: 60,
+      clean: true,
+      reconnectPeriod: 5000, // Try to reconnect every 5 seconds
+      connectTimeout: 30 * 1000, // 30 seconds
+      clientId: 'bhishma_app_' + Math.random().toString(16).substring(2, 8),
+      ...options,
+    };
 
     // Set connecting state
     dispatch(setConnectingToBroker(true));
     dispatch(checkBrokerConnection(false));
 
     // Create MQTT client
-    const client = mqtt.connect(url, defaultOptions);
-    clientRef.current = client;
+    const mqttClient = mqtt.connect(url, defaultOptions);
+    setClient(mqttClient); // Update state to trigger re-render
 
     // Connection successful
-    client.on('connect', () => {
+    mqttClient.on('connect', () => {
       console.log('✅ Successfully connected to MQTT broker');
       dispatch(checkBrokerConnection(true));
       dispatch(setConnectingToBroker(false));
     });
 
     // Connection error
-    client.on('error', (error) => {
+    mqttClient.on('error', (error) => {
       console.error('❌ MQTT connection error:', error.message);
       dispatch(checkBrokerConnection(false));
       dispatch(setConnectingToBroker(false));
     });
 
     // Connection lost
-    client.on('close', () => {
+    mqttClient.on('close', () => {
       console.log('🔴 MQTT connection closed');
       dispatch(checkBrokerConnection(false));
       dispatch(setConnectingToBroker(false));
     });
 
     // Reconnecting
-    client.on('reconnect', () => {
+    mqttClient.on('reconnect', () => {
       console.log('🔄 Attempting to reconnect to MQTT broker...');
       dispatch(setConnectingToBroker(true));
       dispatch(checkBrokerConnection(false));
     });
 
     // Offline
-    client.on('offline', () => {
+    mqttClient.on('offline', () => {
       console.log('📡 MQTT client is offline');
       dispatch(checkBrokerConnection(false));
       dispatch(setConnectingToBroker(false));
@@ -89,16 +97,17 @@ export const useMqttConnection = (options = {}) => {
     // Cleanup on unmount
     return () => {
       console.log('🧹 Cleaning up MQTT connection...');
-      if (client) {
-        client.end(false, () => {
+      if (mqttClient) {
+        mqttClient.end(false, () => {
           console.log('MQTT client disconnected');
         });
       }
+      setClient(null);
     };
-  }, [dispatch]);
+  }, [dispatch, brokerUrl]);
 
   return {
-    client: clientRef.current,
+    client: client, // Return state value, not ref
   };
 };
 

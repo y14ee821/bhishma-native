@@ -1,0 +1,1 @@
+export {getIEInfo} from './getIEInfo';

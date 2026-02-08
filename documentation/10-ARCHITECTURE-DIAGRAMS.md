@@ -1,0 +1,379 @@
+# Architecture Diagrams
+
+Visual representations of the Bhishma system architecture.
+
+## System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        User Device                          │
+│                    (Mobile/Web Browser)                     │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        │ HTTPS/REST API
+                        │ JWT Authentication
+                        │
+        ┌───────────────▼────────────────┐
+        │      Frontend (React Native)   │
+        │  - Google OAuth                │
+        │  - Redux State Management      │
+        │  - MQTT Client (WebSocket)     │
+        │  - Device Control UI           │
+        └───────┬────────────────┬───────┘
+                │                │
+                │                │
+    ┌───────────▼────┐   ┌───────▼──────────┐
+    │  Backend API   │   │   MQTT Broker    │
+    │   (FastAPI)    │   │  (Mosquitto)     │
+    │                │   │                  │
+    │ - JWT Auth     │   │ - Message Broker  │
+    │ - User Mgmt    │   │ - Topic Routing  │
+    │ - Device Mgmt  │   │ - WebSocket      │
+    │ - MongoDB      │   │   Support        │
+    └───────┬────────┘   └───────┬──────────┘
+            │                     │
+            │                     │
+    ┌───────▼──────────┐          │
+    │    MongoDB       │          │ MQTT Protocol
+    │   Database       │          │
+    │                  │          │
+    │ - Users          │          │
+    │ - Devices         │          │
+    │ - Metadata        │          │
+    └───────────────────┘          │
+                                   │
+                        ┌──────────▼──────────┐
+                        │   ESP32 Device       │
+                        │  (MicroPython)       │
+                        │                      │
+                        │ - WiFi Connection    │
+                        │ - MQTT Client        │
+                        │ - GPIO Control       │
+                        │ - Status Reporting   │
+                        └──────────────────────┘
+```
+
+## Authentication Flow
+
+```
+┌─────────┐
+│  User   │
+└────┬────┘
+     │
+     │ 1. Click "Sign in with Google"
+     ▼
+┌─────────────────┐
+│   Frontend      │
+│ LoginScreen     │
+└────┬────────────┘
+     │
+     │ 2. expo-auth-session
+     │    Opens Google OAuth
+     ▼
+┌─────────────────┐
+│  Google OAuth   │
+│   Provider      │
+└────┬────────────┘
+     │
+     │ 3. User authenticates
+     │    Returns ID token
+     ▼
+┌─────────────────┐
+│   Frontend      │
+│ Receives token  │
+└────┬────────────┘
+     │
+     │ 4. POST /api/auth/google
+     │    { token: "google-id-token" }
+     ▼
+┌─────────────────┐
+│    Backend      │
+│  FastAPI        │
+└────┬────────────┘
+     │
+     │ 5. Verify Google token
+     │    Create/update user
+     │    Generate JWT
+     ▼
+┌─────────────────┐
+│    MongoDB      │
+│  Store user     │
+└────┬────────────┘
+     │
+     │ 6. Return JWT + user info
+     ▼
+┌─────────────────┐
+│   Frontend      │
+│ Store token     │
+│ Navigate to app │
+└─────────────────┘
+```
+
+## Device Control Flow
+
+```
+┌─────────┐
+│  User   │
+└────┬────┘
+     │
+     │ 1. Toggle switch
+     ▼
+┌─────────────────┐
+│   Frontend      │
+│ UI Component    │
+└────┬────────────┘
+     │
+     │ 2. Redux Action
+     │    publishToggle()
+     ▼
+┌─────────────────┐
+│  MQTT Client    │
+│  (WebSocket)    │
+└────┬────────────┘
+     │
+     │ 3. Publish to topic
+     │    Topic: "rao"
+     │    Message: "op1:1"
+     ▼
+┌─────────────────┐
+│  MQTT Broker    │
+│  Route message  │
+└────┬────────────┘
+     │
+     │ 4. Deliver to subscriber
+     ▼
+┌─────────────────┐
+│   ESP32 Device  │
+│  MQTT Client    │
+└────┬────────────┘
+     │
+     │ 5. Parse command
+     │    Update GPIO
+     │    Pin 4 → HIGH
+     ▼
+┌─────────────────┐
+│   ESP32 GPIO    │
+│  Physical Output│
+└─────────────────┘
+```
+
+## Status Update Flow
+
+```
+┌─────────────────┐
+│   ESP32 Device  │
+│  Read GPIO      │
+└────┬────────────┘
+     │
+     │ 1. Every 1 second
+     │    Read output states
+     │    Format: "ip1:1-ip2:0"
+     ▼
+┌─────────────────┐
+│  MQTT Client    │
+│  (ESP32)        │
+└────┬────────────┘
+     │
+     │ 2. Publish status
+     │    Topic: "rao/status"
+     │    Message: "ip1:1-ip2:0-ip3:1-ip4:0"
+     ▼
+┌─────────────────┐
+│  MQTT Broker    │
+│  Route message  │
+└────┬────────────┘
+     │
+     │ 3. Deliver to subscribers
+     ▼
+┌─────────────────┐
+│  MQTT Client    │
+│  (Frontend)     │
+└────┬────────────┘
+     │
+     │ 4. Parse message
+     │    Update Redux state
+     ▼
+┌─────────────────┐
+│   Frontend      │
+│  UI Updates     │
+│  Real-time sync │
+└─────────────────┘
+```
+
+## Data Flow Diagram
+
+```
+┌──────────────┐
+│   User       │
+└──────┬───────┘
+       │
+       │ Action
+       ▼
+┌──────────────────┐         ┌──────────────┐
+│   Frontend       │────────►│   Backend    │
+│  React Native    │  HTTP   │   FastAPI    │
+│                  │         │              │
+│ - Redux Store    │         │ - JWT Auth   │
+│ - MQTT Client    │         │ - MongoDB   │
+│ - UI Components  │         │ - Business   │
+└────────┬─────────┘         │   Logic      │
+         │                   └──────┬───────┘
+         │                          │
+         │ MQTT                     │
+         │ (WebSocket)              │ MongoDB
+         │                          │
+         ▼                          ▼
+┌──────────────────┐         ┌──────────────┐
+│  MQTT Broker     │         │   MongoDB    │
+│                  │         │              │
+│ - Topic Routing  │         │ - Users      │
+│ - Message Queue  │         │ - Devices    │
+│ - Pub/Sub        │         │ - Metadata   │
+└────────┬─────────┘         └──────────────┘
+         │
+         │ MQTT
+         │ (TCP)
+         ▼
+┌──────────────────┐
+│   ESP32 Device   │
+│                  │
+│ - WiFi           │
+│ - MQTT Client    │
+│ - GPIO Control   │
+└──────────────────┘
+```
+
+## Component Interaction
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend Application                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │ LoginScreen  │  │ HomeScreen   │  │DeviceControl │    │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘    │
+│         │                 │                  │            │
+│         └─────────────────┼──────────────────┘            │
+│                           │                               │
+│                  ┌────────▼────────┐                      │
+│                  │  Redux Store    │                      │
+│                  │  - auth         │                      │
+│                  │  - deviceControl│                      │
+│                  │  - device       │                      │
+│                  └────────┬────────┘                      │
+│                           │                               │
+│         ┌──────────────────┼──────────────────┐          │
+│         │                  │                  │          │
+│  ┌──────▼──────┐  ┌────────▼────────┐  ┌─────▼──────┐  │
+│  │ apiService  │  │  mqttService    │  │  AsyncStorage│ │
+│  │             │  │                 │  │             │  │
+│  │ - authAPI   │  │ - MQTT Client   │  │ - Token     │  │
+│  │ - deviceAPI │  │ - Subscribe     │  │ - User Info │  │
+│  └──────┬──────┘  │ - Publish      │  └───────────────┘  │
+│         │         └────────┬─────────┘                   │
+└─────────┼──────────────────┼────────────────────────────┘
+          │                  │
+          │ HTTP             │ MQTT
+          │                  │
+    ┌─────▼──────┐    ┌──────▼──────┐
+    │  Backend   │    │ MQTT Broker  │
+    │  FastAPI   │    │              │
+    └─────┬──────┘    └──────┬───────┘
+          │                  │
+          │ MongoDB          │ MQTT
+          │                  │
+    ┌─────▼──────┐    ┌──────▼──────┐
+    │  MongoDB   │    │  ESP32       │
+    │            │    │  Device      │
+    └────────────┘    └──────────────┘
+```
+
+## Database Schema
+
+```
+┌─────────────────┐
+│   Users         │
+├─────────────────┤
+│ _id (ObjectId)  │
+│ name (string)   │
+│ email (string)  │
+│ google_id       │
+│ picture         │
+│ created_at      │
+│ updated_at      │
+└─────────────────┘
+        │
+        │ 1:N
+        │
+        ▼
+┌─────────────────┐
+│   Devices       │
+├─────────────────┤
+│ _id (ObjectId)  │
+│ name (string)   │
+│ type (string)   │
+│ status (string) │
+│ user_id (ref)   │──┐
+│ metadata (obj)  │  │
+│ created_at      │  │
+│ updated_at      │  │
+└─────────────────┘  │
+                     │
+                     │ References
+                     │
+                     └─── Users._id
+```
+
+## MQTT Topic Hierarchy
+
+```
+MQTT Broker
+│
+├── rao                    (Control commands)
+│   └── rao/status         (Status updates)
+│
+├── venky                  (Control commands)
+│   └── venky/status       (Status updates)
+│
+└── {device_name}          (Control commands)
+    └── {device_name}/status (Status updates)
+```
+
+## Security Layers
+
+```
+┌─────────────────────────────────────┐
+│      Application Layer              │
+│  - Input Validation                 │
+│  - Output Sanitization              │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│      Authentication Layer           │
+│  - Google OAuth                      │
+│  - JWT Tokens                        │
+│  - Token Validation                 │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│      Network Layer                  │
+│  - HTTPS/TLS                        │
+│  - Secure MQTT (TLS)                │
+│  - Firewall Rules                   │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│      Data Layer                     │
+│  - MongoDB Authentication            │
+│  - Encrypted Connections            │
+│  - Access Control                   │
+└─────────────────────────────────────┘
+```
+
+## Next Steps
+
+- [System Overview](./01-SYSTEM-OVERVIEW.md) - Detailed architecture
+- [Integration Guide](./05-INTEGRATION-GUIDE.md) - Connect components
+- [Quick Reference](./09-QUICK-REFERENCE.md) - Common commands
+
