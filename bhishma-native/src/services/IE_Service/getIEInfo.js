@@ -1,57 +1,60 @@
-import { deviceAPI } from '../apiService';
+import axios from 'axios';
+import { getAccessToken } from '../apiService';
 
+/**
+ * Get all devices (IE Info) for the authenticated user
+ * @returns {Promise<{success: boolean, data?: object, error?: string}>}
+ */
 export const getIEInfo = async () => {
+    const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+    
     try {
-        // Fetch devices from backend API
-        const result = await deviceAPI.getUserDevices();
-        
-        if (!result.success) {
-            // If API call fails, return empty data structure
-            console.warn('Failed to fetch devices from API:', result.error);
-            return { success: true, data: {} };
+        // Get authentication token
+        const token = await getAccessToken();
+        if (!token) {
+            console.error('❌ No access token found');
+            return { success: false, error: 'Authentication required. Please login again.' };
         }
 
-        // Transform devices from backend into the expected IE format
-        // Devices from backend have: id, name, type, status, user_id, metadata
-        // Expected format: { deviceName: { channels: {...}, channelCount, ... } }
-        const devices = result.data || [];
-        const transformedData = {};
-
-        devices.forEach((device) => {
-            // Use device name as the key (IE name)
-            const deviceName = device.name.toLowerCase().replace(/\s+/g, '_');
-            
-            // Get channel count from metadata or default to 4
-            const channelCount = device.metadata?.channelCount || 4;
-            
-            // Initialize channels
-            const channels = {};
-            for (let i = 1; i <= channelCount; i++) {
-                channels[i] = {
-                    id: i,
-                    name: String(i),
-                    currentState: 0,
-                    IE_Name: device.name,
-                    uiValue: 0,
-                    channelUpdatedTime: device.updated_at || ""
-                };
+        // Make authenticated request
+        const response = await axios.get(`${API_BASE_URL}/api/devices`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
-
-            transformedData[deviceName] = {
-                channels,
-                lastUpdated: device.updated_at || "",
-                channelCount,
-                faulty: device.status === "offline" ? "offline" : "",
-                running: device.status !== "offline",
-                deviceId: device.id,
-                deviceType: device.type
-            };
         });
 
-        // If no devices, return empty object (app will handle this)
-        return { success: true, data: transformedData };
+        if (response.status === 200 && response.data?.data) {
+            console.log('✅ IE info fetched successfully');
+            return { success: true, data: response.data.data };
+        } else {
+            console.warn('⚠️ Unexpected response format:', response.data);
+            return { success: false, error: 'Invalid response format from server' };
+        }
+
     } catch (error) {
-        console.error('Error fetching IE info:', error);
-        return { success: false, error: error.message };
+        console.error('❌ Error fetching IE info:', error);
+        
+        // Handle specific error cases
+        if (error.response) {
+            const status = error.response.status;
+            const detail = error.response.data?.detail || error.message;
+            
+            switch (status) {
+                case 401:
+                    return { success: false, error: 'Authentication failed. Please login again.' };
+                case 403:
+                    return { success: false, error: 'Access denied.' };
+                case 404:
+                    return { success: false, error: 'Devices endpoint not found.' };
+                case 500:
+                    return { success: false, error: 'Server error. Please try again later.' };
+                default:
+                    return { success: false, error: detail || 'Failed to fetch devices' };
+            }
+        }
+        
+        // Network or other errors
+        return { success: false, error: error.message || 'Network error. Please check your connection.' };
     }
 }

@@ -1,4 +1,5 @@
-import { updateIEsState, checkBrokerConnection, setConnectingToBroker } from '../store/deviceControlSlice';
+// Avoid static import from deviceControlSlice (creates a require cycle with deviceControlSlice → mqttService).
+const getDeviceControlActions = () => require('../store/deviceControlSlice');
 
 //   const options = {
 //     protocol: 'wss',
@@ -25,38 +26,76 @@ export const parseMessage = (msg,channelCount) => {
   return { channels };
 };
 
-export const initMQTT = (dispatch,ie_name,channelCount,client) => {
+export const initMQTT = (dispatch, ie_name, channelCount, client) => {
+  const { updateIEsState, checkBrokerConnection } = getDeviceControlActions();
 
+  // If client is already connected, subscribe immediately
+  if (client.connected) {
+    client.subscribe(`${ie_name}/status`, (err) => {
+      if (err) {
+        console.error(`Failed to subscribe to ${ie_name}/status:`, err);
+      }
+    });
+    dispatch(checkBrokerConnection(true));
+  }
+
+  // Setup event handlers
   client.on('connect', () => {
-    dispatch(checkBrokerConnection(true)); // sets connectedToBroker to true
-    client.subscribe(`${ie_name}/status`);
-    console.log('✅ Connected to MQTT broker and subscribed to topic:', `${ie_name}/status`);
+    dispatch(checkBrokerConnection(true));
+    client.subscribe(`${ie_name}/status`, (err) => {
+      if (err) {
+        console.error(`Failed to subscribe to ${ie_name}/status:`, err);
+      }
+    });
   });
 
   client.on('message', (topic, message) => {
-    console.log('Received message:', message.toString());
-    const parsed = parseMessage(message.toString(),channelCount);
-    dispatch(updateIEsState({ie_name, valueList: parsed.channels}));
+    if (topic === `${ie_name}/status`) {
+      const parsed = parseMessage(message.toString(), channelCount);
+      dispatch(updateIEsState({ie_name, valueList: parsed.channels}));
+    }
   });
 
   client.on('error', (error) => {
-    console.error('❌ MQTT error for', ie_name, ':', error.message);
+    console.error(`MQTT error for ${ie_name}:`, error.message);
     dispatch(checkBrokerConnection(false));
   });
 
   client.on('close', () => {
-    console.log('🔴 MQTT connection closed for', ie_name);
+    dispatch(checkBrokerConnection(false));
+  });
+
+  client.on('disconnect', () => {
+    dispatch(checkBrokerConnection(false));
+  });
+
+  client.on('reconnect', () => {
+    dispatch(checkBrokerConnection(true));
+  });
+
+  client.on('offline', () => {
     dispatch(checkBrokerConnection(false));
   });
 };
 
 export const publishToggle = (channel, state, ie_name, client) => {
-
   const message = `op${channel}:${state}`;
-  
-  console.log('Publishing message:', message);
-
   client.publish(ie_name, message);
+};
+export const subscribeToIE = (client, ie_name) => {
+  client.subscribe(`${ie_name}/status`);
+};
+export const unsubscribeFromIE = (client, ie_name) => {
+  if (!client) {
+    return;
+  }
+
+  const topic = `${ie_name}/status`;
+  client.unsubscribe(topic, (err) => {
+    if (err) {
+      console.error(`Failed to unsubscribe from ${topic}:`, err);
+    }
+  });
 };
 export const publishFullOperation = (client, ie_name, state, IE_Info,dispatch,
   setAllChannelOperationPerforming,store,setAllChannelOperationSuccess,showSuccess,showError ) =>{
@@ -80,7 +119,7 @@ export const publishFullOperation = (client, ie_name, state, IE_Info,dispatch,
   setTimeout(()=>{
     const stateRedux = store.getState();
     Object.keys(channels).forEach((channel, index) => {
-      let latestValue = stateRedux.deviceControl.IE_Info[ie_name]["channels"][channel]["currentState"];
+      let latestValue = stateRedux.deviceControl.currentIEInfo[ie_name]["channels"][channel]["currentState"];
       if(latestValue== state)
         {
           desiredState = true;

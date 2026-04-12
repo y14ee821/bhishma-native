@@ -33,4 +33,26 @@ class DeviceResponse(BaseModel):
     class Config:
         from_attributes = True
         json_encoders = {ObjectId: str}
-
+class getDeviceResponse(BaseModel):
+    data: Dict[str, Any]  # Format: {device_name: {"channels": [...]}}
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "data": {
+                    "Remcon": {
+                        "channels": [
+                            {"id": 1, "name": "Channel 1", "status": "on"},
+                            {"id": 2, "name": "Channel 2", "status": "off"}
+                        ]
+                    }
+                }
+            }
+        }
+class userDeviceMap(BaseModel):
+    name: str
+    security_key: str
+class userDeviceMapResponse(BaseModel):
+    device_name: str
+    message: str
+    success: bool = False

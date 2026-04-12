@@ -9,3 +9,4 @@ export {deviceControlStyles} from './deviceControlStyling';
 export {deviceControlScreenStyles} from './deviceControlScreenStyling';
 export {errorComponentStyles} from './errorComponentStyling';
 export {routesStyles} from './routesStyling';
+export {addDeviceStyles} from './addDeviceStyling';

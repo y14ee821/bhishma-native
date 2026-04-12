@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from bson import ObjectId
 
@@ -40,7 +40,7 @@ class UserResponse(BaseModel):
     picture: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-
+    my_devices: Optional[List[dict]] = None
     class Config:
         from_attributes = True
         json_encoders = {ObjectId: str}

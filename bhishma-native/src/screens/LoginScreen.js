@@ -5,61 +5,66 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  Alert,
   Platform,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginWithGoogle } from '../store/authSlice';
-import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-
-// Complete auth session for Google
-WebBrowser.maybeCompleteAuthSession();
 
 export const LoginScreen = ({ darkMode }) => {
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth);
   const [localError, setLocalError] = useState(null);
 
-  // Google OAuth configuration
-  // You need to set these in your app.json or environment variables
+  React.useEffect(() => {
+    try {
+      const { maybeCompleteAuthSession } = require('expo-web-browser');
+      maybeCompleteAuthSession();
+    } catch {
+      /* optional */
+    }
+  }, []);
+
   const expoClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
   const webClientIdEnv = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
   const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
 
-  // For web, webClientId is REQUIRED - must be a non-empty string
-  // Use webClientIdEnv if provided, otherwise fall back to expoClientId
   const webClientId = webClientIdEnv || expoClientId;
+  const iosClientIdFinal = iosClientId || expoClientId;
 
-  // Build config object
+  const responseType = Platform.OS === 'web' ? 'id_token' : 'code';
+
   const googleConfig = {
-    // Request scopes to get id_token
     scopes: ['openid', 'profile', 'email'],
-    // Request id_token in response
-    responseType: 'id_token',
+    responseType: responseType,
   };
-  
+
   if (expoClientId) googleConfig.expoClientId = expoClientId;
-  if (iosClientId) googleConfig.iosClientId = iosClientId;
-  if (androidClientId) googleConfig.androidClientId = androidClientId;
-  
-  // webClientId is REQUIRED for web platform - MUST be set and non-empty
-  // The library will throw an error if webClientId is undefined, empty, or invalid
+  if (Platform.OS === 'android') {
+    googleConfig.androidClientId = androidClientId || expoClientId;
+  } else if (androidClientId) {
+    googleConfig.androidClientId = androidClientId;
+  }
+
+  if (Platform.OS === 'ios') {
+    if (webClientId) {
+      googleConfig.webClientId = webClientId;
+    }
+    if (iosClientIdFinal) {
+      googleConfig.iosClientId = iosClientIdFinal;
+    }
+  } else if (iosClientIdFinal) {
+    googleConfig.iosClientId = iosClientIdFinal;
+  }
+
   if (Platform.OS === 'web') {
-    // On web, webClientId property MUST exist and be a valid Google Client ID string
-    // Always set it - use expoClientId as fallback if webClientIdEnv not provided
-    // If neither is set, this will cause an error (user needs to configure env vars)
     googleConfig.webClientId = webClientIdEnv || expoClientId || '';
-    
-    // For web, we can specify a custom redirect URI
-    // This should match what's in Google Cloud Console
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
       googleConfig.redirectUri = `${origin}`;
     }
-  } else if (webClientId) {
-    // Include webClientId for other platforms if available
+  } else if (webClientId && Platform.OS !== 'ios') {
     googleConfig.webClientId = webClientId;
   }
 
@@ -68,21 +73,22 @@ export const LoginScreen = ({ darkMode }) => {
   React.useEffect(() => {
     if (response?.type === 'success') {
       console.log('✅ Google OAuth response:', response);
-      
-      // Try multiple ways to get the id_token
+
       let idToken = null;
-      
-      // Method 1: Check response.params.id_token
+
       if (response.params?.id_token) {
         idToken = response.params.id_token;
-      }
-      // Method 2: Check response.authentication.idToken
-      else if (response.authentication?.idToken) {
+      } else if (response.authentication?.idToken) {
         idToken = response.authentication.idToken;
-      }
-      // Method 3: Check response.params directly
-      else if (response.params && typeof response.params === 'string') {
-        // Sometimes params is a string that needs parsing
+      } else if (response.params?.code && Platform.OS !== 'web') {
+        if (response.authentication?.idToken) {
+          idToken = response.authentication.idToken;
+        } else {
+          console.warn(
+            '⚠️ Received authorization code but idToken not found. expo-auth-session should handle exchange automatically.'
+          );
+        }
+      } else if (response.params && typeof response.params === 'string') {
         try {
           const parsed = JSON.parse(response.params);
           idToken = parsed.id_token || parsed.idToken;
@@ -90,7 +96,7 @@ export const LoginScreen = ({ darkMode }) => {
           console.log('Could not parse params as JSON');
         }
       }
-      
+
       if (idToken) {
         console.log('✅ Found ID token, proceeding with login');
         handleGoogleLogin(idToken);
@@ -111,8 +117,8 @@ export const LoginScreen = ({ darkMode }) => {
       if (loginWithGoogle.rejected.match(result)) {
         setLocalError(result.payload || 'Login failed');
       }
-    } catch (error) {
-      setLocalError(error.message || 'An error occurred');
+    } catch (err) {
+      setLocalError(err.message || 'An error occurred');
     }
   };
 
@@ -120,8 +126,8 @@ export const LoginScreen = ({ darkMode }) => {
     try {
       setLocalError(null);
       await promptAsync();
-    } catch (error) {
-      setLocalError(error.message || 'Failed to start Google Sign-In');
+    } catch (err) {
+      setLocalError(err.message || 'Failed to start Google Sign-In');
     }
   };
 
@@ -131,9 +137,7 @@ export const LoginScreen = ({ darkMode }) => {
     <View style={[styles.container, theme.container]}>
       <View style={[styles.content, theme.content]}>
         <Text style={[styles.title, theme.title]}>Welcome to Bhishma</Text>
-        <Text style={[styles.subtitle, theme.subtitle]}>
-          Sign in with your Google account to continue
-        </Text>
+        <Text style={[styles.subtitle, theme.subtitle]}>Sign in with your Google account to continue</Text>
 
         {(error || localError) && (
           <View style={styles.errorContainer}>
@@ -153,17 +157,29 @@ export const LoginScreen = ({ darkMode }) => {
           )}
         </TouchableOpacity>
 
-        {(!request || !expoClientId || (Platform.OS === 'web' && !webClientIdEnv && !expoClientId)) && (
+        {(!request ||
+          (Platform.OS === 'web' && !webClientIdEnv && !expoClientId) ||
+          (Platform.OS === 'ios' && !iosClientId && !expoClientId) ||
+          (Platform.OS === 'android' && !androidClientId && !expoClientId)) && (
           <View style={styles.warningContainer}>
-            <Text style={[styles.warning, theme.warning]}>
-              Google Sign-In is not configured.
-            </Text>
-            <Text style={[styles.warning, theme.warning]}>
-              Please set EXPO_PUBLIC_GOOGLE_CLIENT_ID in your .env file.
-            </Text>
+            <Text style={[styles.warning, theme.warning]}>Google Sign-In is not configured.</Text>
+            <Text style={[styles.warning, theme.warning]}>Please set EXPO_PUBLIC_GOOGLE_CLIENT_ID in your .env file.</Text>
             {Platform.OS === 'web' && (
               <Text style={[styles.warning, theme.warning]}>
-                For web platform, also set EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID (or use the same value as EXPO_PUBLIC_GOOGLE_CLIENT_ID).
+                For web platform, also set EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID (or use the same value as
+                EXPO_PUBLIC_GOOGLE_CLIENT_ID).
+              </Text>
+            )}
+            {Platform.OS === 'ios' && (
+              <Text style={[styles.warning, theme.warning]}>
+                For iOS platform, also set EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID (or use the same value as
+                EXPO_PUBLIC_GOOGLE_CLIENT_ID).
+              </Text>
+            )}
+            {Platform.OS === 'android' && (
+              <Text style={[styles.warning, theme.warning]}>
+                For Android, set EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID (Android OAuth client) with package
+                com.bhishma.bhishmanative and your SHA-1.
               </Text>
             )}
             <Text style={[styles.warning, { marginTop: 8, fontSize: 11 }]}>
@@ -279,4 +295,3 @@ const darkTheme = {
     color: '#ffb74d',
   },
 };
-

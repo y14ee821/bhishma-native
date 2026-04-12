@@ -28,3 +28,7 @@ export {
   useError
 } from './utilsStates';
 
+// Auth State Hooks
+export {
+  useGetCurrentUser
+} from './authStates';

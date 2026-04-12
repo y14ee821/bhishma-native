@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import { View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import mqtt from 'mqtt';
 import { checkBrokerConnection, setConnectingToBroker } from '../store/deviceControlSlice';
@@ -128,7 +129,7 @@ export const MqttConnection = ({ children, options }) => {
   
   return (
     <MqttClientContext.Provider value={client}>
-      {children}
+      <View style={{ flex: 1, backgroundColor: '#ffffff' }}>{children}</View>
     </MqttClientContext.Provider>
   );
 };

@@ -1,0 +1,7 @@
+$env:ANDROID_HOME = "C:\Users\lchinta\AppData\Local\Android\Sdk"
+$env:Path += ";C:\Users\lchinta\AppData\Local\Android\Sdk\platform-tools;C:\Users\lchinta\AppData\Local\Android\Sdk\emulator"
+
+npx expo start
+
+
+https://console.cloud.google.com/apis/credentials?project=fresh-sanctuary-448004-t2

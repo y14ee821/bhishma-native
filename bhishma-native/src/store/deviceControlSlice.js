@@ -49,6 +49,7 @@ const deviceControlSlice = createSlice({
         connectingToBroker: false,
         channelStates: {},
         IE_Info: {},
+        currentIEInfo: {},
         IE_Mapper: {},
         loadingIEInfo: false,
         errorIEInfo: null,
@@ -56,6 +57,7 @@ const deviceControlSlice = createSlice({
         toggleError: null,
         allChannelOperationPerforming: false,
         allChannelOperationSuccess:false,
+    
     },
 
     reducers: {
@@ -88,31 +90,42 @@ const deviceControlSlice = createSlice({
             state.IE_Mapper = action.payload.data;
 
         },
+        updateCurrentIEInfo: (state, action) =>
+        {
+            state.currentIEInfo = action.payload?.data;
+        },
         toggleChannel: (state, action) => {
             console.log("Updating IE_Info in store:", action.payload)
             const {ie_name,channelId,value} = action.payload;
-            state.IE_Info[ie_name]["channels"][channelId]["currentState"] = value
+            state.currentIEInfo[ie_name]["channels"][channelId]["currentState"] = value
 
         },    
         updateIEsState: (state,action) =>
         {
             const {ie_name,valueList} = action.payload;
             //console.log("from updateIEsState",ie_name,valueList);
+            if(state.currentIEInfo && state.currentIEInfo[ie_name])
+            {   
             valueList.forEach((value,index) => 
-            {
+            {   
+                state.currentIEInfo[ie_name]["channels"][index+1]["currentState"] = value
+                state.currentIEInfo[ie_name]["channels"][index+1]["uiValue"] = value
                 state.IE_Info[ie_name]["channels"][index+1]["currentState"] = value
-                state.IE_Info[ie_name]["channels"][index+1]["uiValue"] = value
+                state.IE_Info[ie_name]["channels"][index+1]["uiValue"] = value                
             }
+
             
             )
+        }
             
         },
         updatedCurrentUIState: (state, action) => 
             {
                 const {ie_name,index,newValue} = action.payload;
                 //console.log("from updateIEsState",ie_name,valueList);
-                //console.log("ie_name,channelId,value",ie_name,channelId,value,action.payload)
-                state.IE_Info[ie_name]["channels"][index]["uiValue"] = newValue
+                console.log("ie_name,index,newValue", ie_name,index,newValue)
+
+                state.currentIEInfo[ie_name]["channels"][index]["uiValue"] = newValue
             }
     },
     extraReducers: (builder) => {
@@ -149,5 +162,5 @@ const deviceControlSlice = createSlice({
 
 })
 
-export const { checkBrokerConnection, setConnectingToBroker, modifyIE_Machines, updateIE_Mapper, updateIEsState, updatedCurrentUIState, setAllChannelOperationPerforming, setAllChannelOperationSuccess } = deviceControlSlice.actions;
+export const { checkBrokerConnection, setConnectingToBroker, modifyIE_Machines, updateIE_Mapper, updateIEsState, updatedCurrentUIState, setAllChannelOperationPerforming, setAllChannelOperationSuccess, updateCurrentIEInfo } = deviceControlSlice.actions;
 export const deviceControlReducer = deviceControlSlice.reducer;

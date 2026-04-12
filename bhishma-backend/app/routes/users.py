@@ -26,6 +26,7 @@ async def create_user(user: UserCreate):
     user_dict = user.dict()
     # Remove None values
     user_dict = {k: v for k, v in user_dict.items() if v is not None}
+    user_dict["my_devices"] = []
     user_dict["created_at"] = datetime.utcnow()
     user_dict["updated_at"] = datetime.utcnow()
     
@@ -37,6 +38,8 @@ async def create_user(user: UserCreate):
     del created_user["_id"]
     if "password" in created_user:
         del created_user["password"]  # Don't return password
+    if "my_devices" not in created_user:
+        created_user["my_devices"] = []
     
     return UserResponse(**created_user)
 
@@ -53,6 +56,8 @@ async def get_all_users():
         del user["_id"]
         if "password" in user:
             del user["password"]
+        if "my_devices" not in user:
+            user["my_devices"] = []
         users.append(UserResponse(**user))
     
     return users
@@ -75,6 +80,8 @@ async def get_user(user_id: str):
     del user["_id"]
     if "password" in user:
         del user["password"]
+    if "my_devices" not in user:
+        user["my_devices"] = []
     
     return UserResponse(**user)
 
@@ -111,6 +118,8 @@ async def update_user(user_id: str, user_update: UserUpdate):
     del updated_user["_id"]
     if "password" in updated_user:
         del updated_user["password"]
+    if "my_devices" not in updated_user:
+        updated_user["my_devices"] = []
     
     return UserResponse(**updated_user)
 

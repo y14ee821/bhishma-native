@@ -102,6 +102,9 @@ async def get_or_create_user(google_user_info: Dict) -> Dict:
         if "password" in updated_user:
             del updated_user["password"]
         
+        if "my_devices" not in updated_user:
+            updated_user["my_devices"] = []
+        
         return updated_user
     else:
         # Create new user
@@ -110,6 +113,7 @@ async def get_or_create_user(google_user_info: Dict) -> Dict:
             "email": google_user_info['email'],
             "google_id": google_user_info['google_id'],
             "picture": google_user_info.get('picture'),
+            "my_devices": [],
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }

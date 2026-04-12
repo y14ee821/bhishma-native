@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Routes } from "./src/routes/Routes";
 import { Provider } from "react-redux";
 import { store } from "./src/store/store";
+import { RootErrorBoundary } from './src/components/RootErrorBoundary';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchIEInfo } from './src/store/deviceControlSlice';
@@ -37,11 +40,6 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
     }
   }, [dispatch, isAuthenticated]);
 
-  // Show loading state while fetching IE info (only if authenticated)
-  if (isAuthenticated && loadingIEInfo) {
-    return null; // Or return a loading component
-  }
-
   // Show error state if fetch failed
   if (errorIEInfo) {
     console.error('Error loading IE info:', errorIEInfo);
@@ -63,7 +61,21 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
 
   return (
     <MqttConnection options={mqttConfig}>
-      <Routes darkMode={darkMode} setDarkMode={setDarkMode} autoDarkMode={autoDarkMode} setAutoDarkMode={setAutoDarkMode} />
+      {isAuthenticated && loadingIEInfo ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#f5f5f5',
+          }}
+        >
+          <ActivityIndicator size="large" />
+          <Text style={{ marginTop: 12, color: '#666' }}>Loading your devices…</Text>
+        </View>
+      ) : (
+        <Routes darkMode={darkMode} setDarkMode={setDarkMode} autoDarkMode={autoDarkMode} setAutoDarkMode={setAutoDarkMode} />
+      )}
     </MqttConnection>
   );
 }
@@ -71,7 +83,7 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
 export default function App() {
   const [autoDarkMode, setAutoDarkMode] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  
+
   useEffect(() => {
     const checkDarkMode = () => {
       const now = new Date();
@@ -95,10 +107,14 @@ export default function App() {
     return () => clearInterval(interval);
   }, [darkMode, autoDarkMode]);
   return (
-    <Provider store={store}>
-      <SnackbarProvider>
-        <AppContent darkMode={darkMode} setDarkMode={setDarkMode} autoDarkMode={autoDarkMode} setAutoDarkMode={setAutoDarkMode} />
-      </SnackbarProvider>
-    </Provider>
+    <RootErrorBoundary>
+      <SafeAreaProvider style={{ flex: 1, backgroundColor: '#ffffff' }}>
+        <Provider store={store}>
+          <SnackbarProvider>
+            <AppContent darkMode={darkMode} setDarkMode={setDarkMode} autoDarkMode={autoDarkMode} setAutoDarkMode={setAutoDarkMode} />
+          </SnackbarProvider>
+        </Provider>
+      </SafeAreaProvider>
+    </RootErrorBoundary>
   );
 }

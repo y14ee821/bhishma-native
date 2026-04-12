@@ -1,18 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Switch, TouchableOpacity, ScrollView } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useFocusEffect } from '@react-navigation/native';
 import ToggleSwitch from '../components/ToggleSwitch';
 import { useDispatch } from 'react-redux';
 import { initMQTT } from '../services/mqttService';
 import { useDeviceControlState } from '../reduxStates';
-import mqtt from 'mqtt';
 import { LinearGradient } from 'expo-linear-gradient';
 import { lightTheme, darkTheme, dedicatedIEControlStyles } from '../styles';
-import { publishFullOperation } from '../services/mqttService';
-import { setAllChannelOperationPerforming, setAllChannelOperationSuccess} from '../store/deviceControlSlice';
+import { publishFullOperation, unsubscribeFromIE } from '../services/mqttService';
+import { setAllChannelOperationPerforming, setAllChannelOperationSuccess, updateCurrentIEInfo} from '../store/deviceControlSlice';
 import { useStore } from 'react-redux';
 import { useSnackbar } from '../utils/common';
 import { useMqttClient } from '../mqttcomponents/MqttConnection';
+import { getDedicatedIEInfo } from '../services/IE_Service';
 const styles = dedicatedIEControlStyles;
 
 /** 
@@ -33,32 +33,48 @@ export const DedicatedIEControl = ({ darkMode }) => {
 
   const dispatch = useDispatch();
   const route = useRoute();
-  const { name } = route.params || {};// Get the IE name from navigation parameters
-  const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
-  useEffect(() => {
-    if (!client) {
-      console.warn('MQTT client not available');
-      return;
-    }
-
-    if(name in IE_Info)
-    {
-      const channelCount = Object.keys(IE_Info[name]["channels"]).length;
-      initMQTT(dispatch, name, channelCount, client);// Initialize MQTT connection and subscriptions
-    }
-    else
-    {
-      console.log(`No IE_Info for the name:${name}, mqtt not initialized.`);
-    }
-    
-    // Note: Don't disconnect the global client here - it's shared across the app
-    // The cleanup is handled by the MqttConnection provider
-    return () => {
-      console.log("Screen unfocused - MQTT subscriptions will be cleaned up");
-    };
-  }, [client, name, IE_Info, dispatch])
   
-   if(name in IE_Info)
+  const { name, device_id } = route.params || {};// Get the IE name from navigation parameters
+  const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
+  const [dedicatedIEInfo, setDedicatedIEInfo] = useState(null);
+
+  // Fetch device info on mount
+  useEffect(() => {
+    const fetchDeviceInfo = async () => {
+      const result = await getDedicatedIEInfo(device_id);
+      
+      if (result.success) {
+        setDedicatedIEInfo(result.data?.data);
+        dispatch(updateCurrentIEInfo({data: result.data?.data}));
+      } else {
+        showError(result.error);
+        console.error('Failed to load device info:', result.error);
+      }
+    };
+    
+    fetchDeviceInfo();
+  }, [device_id, dispatch, showError, name]);
+
+  // Setup MQTT subscription when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!client || !dedicatedIEInfo || !dedicatedIEInfo[name]) {
+        return;
+      }
+
+      const channelCount = Object.keys(dedicatedIEInfo[name]["channels"]).length;
+      initMQTT(dispatch, name, channelCount, client);
+      
+      // Cleanup: Unsubscribe when screen loses focus
+      return () => {
+        if (client && name) {
+          unsubscribeFromIE(client, name);
+        }
+      };
+    }, [client, name, dedicatedIEInfo, dispatch])
+  )
+  
+   if(dedicatedIEInfo)
     {
       return (
     <LinearGradient colors={theme.gradient} style={styles.gradient}>
@@ -74,7 +90,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
               styles.flexWrap,
               !connectedToBroker && styles.blurredControls
             ]}>
-              {Object.entries(IE_Info[name]["channels"]).map(([channelId, channelData]) => (
+              {Object.entries(dedicatedIEInfo[name]["channels"]).map(([channelId, channelData]) => (
                 <ToggleSwitch 
                   key={channelId} 
                   index={parseInt(channelId)} 
@@ -116,7 +132,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
             style={styles.fullOperationButton} 
             onPress={() => {
               if (client) {
-                publishFullOperation(client, name, 1, IE_Info, dispatch, setAllChannelOperationPerforming, store, setAllChannelOperationSuccess, showSuccess, showError);
+                publishFullOperation(client, name, 1, dedicatedIEInfo, dispatch, setAllChannelOperationPerforming, store, setAllChannelOperationSuccess, showSuccess, showError);
               } else {
                 showError('MQTT client not connected');
               }
@@ -129,7 +145,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
             style={styles.fullOperationButton} 
             onPress={() => {
               if (client) {
-                publishFullOperation(client, name, 0, IE_Info, dispatch, setAllChannelOperationPerforming, store, setAllChannelOperationSuccess, showSuccess, showError);
+                publishFullOperation(client, name, 0, dedicatedIEInfo, dispatch, setAllChannelOperationPerforming, store, setAllChannelOperationSuccess, showSuccess, showError);
               } else {
                 showError('MQTT client not connected');
               }

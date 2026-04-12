@@ -121,6 +121,6 @@ export const useIEByName = (ieName) => {
  */
 export const useChannelState = (ieName, channelId) => {
   return useSelector(state => 
-    state.deviceControl.IE_Info[ieName]?.channels?.[channelId] || null
+    state.deviceControl.currentIEInfo[ieName]?.channels?.[channelId] || null
   );
 };

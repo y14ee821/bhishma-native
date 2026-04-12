@@ -92,10 +92,21 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    # Debug: Print raw user data
+    print(f"DEBUG - Raw user from DB: {user}")
+    print(f"DEBUG - my_devices in user: {'my_devices' in user}")
+    print(f"DEBUG - my_devices value: {user.get('my_devices')}")
+    
     user["id"] = str(user["_id"])
     del user["_id"]
+    
     if "password" in user:
         del user["password"]
+    
+    if "my_devices" not in user:
+        user["my_devices"] = []
+    
+    print(f"DEBUG - User before UserResponse: {user}")
     
     return UserResponse(**user)
 

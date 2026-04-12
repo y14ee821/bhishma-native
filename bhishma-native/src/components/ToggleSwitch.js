@@ -54,8 +54,9 @@ const ToggleSwitch = ({ index, ie_name, client, disabled: disabledFromParent = f
       // Success - check if state matches after 3 seconds
       setTimeout(() => {
         const state = store.getState();
-        const latestValue = state.deviceControl.IE_Info[ie_name]["channels"][index]["currentState"];
-        const latestUiValue = state.deviceControl.IE_Info[ie_name]["channels"][index]["uiValue"];
+        console.log("state",state.deviceControl.currentIEInfo);
+        const latestValue = state.deviceControl.currentIEInfo[ie_name]["channels"][index]["currentState"];
+        const latestUiValue = state.deviceControl.currentIEInfo[ie_name]["channels"][index]["uiValue"];
         if (latestUiValue !== latestValue) {
           alert(`Failed to update channel ${index}. Please try again.`);
         }
@@ -63,7 +64,7 @@ const ToggleSwitch = ({ index, ie_name, client, disabled: disabledFromParent = f
       }, 3000);
     } catch (error) {
       // Handle error from thunk
-      alert(`Failed to publish toggle command: ${error}`);
+      console.log(`Failed to publish toggle command: ${error}`);
       setInternalDisabled(false); // Re-enable the switch on error
     }
   };

@@ -29,6 +29,7 @@ export const getCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const result = await authAPI.getCurrentUser();
+      console.log("result from aysncthuink",result);
       if (result.success) {
         await AsyncStorage.setItem('user', JSON.stringify(result.data));
         return result.data;
@@ -59,26 +60,17 @@ export const checkAuthStatus = createAsyncThunk(
 
       console.log('✅ Token found, verifying...');
 
-      // Try to get user from storage first (faster)
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser) {
-        try {
-          const user = JSON.parse(storedUser);
-          // Verify token is still valid (quick check)
-          const verifyResult = await authAPI.verifyToken();
-          if (verifyResult.success) {
-            console.log('✅ Token valid, using stored user');
-            return user;
-          } else {
-            console.log('⚠️ Token invalid, fetching from API');
-          }
-        } catch (e) {
-          console.log('⚠️ Stored user invalid, fetching from API:', e.message);
-        }
+      // Verify token is still valid
+      const verifyResult = await authAPI.verifyToken();
+      if (!verifyResult.success) {
+        console.log('❌ Token invalid');
+        await removeAccessToken();
+        await AsyncStorage.removeItem('user');
+        return rejectWithValue('Token invalid');
       }
       
-      // If no stored user or token invalid, try to get from API
-      console.log('📡 Fetching user from API...');
+      // Always fetch fresh user data from API to get latest my_devices
+      console.log('📡 Fetching fresh user data from API...');
       const result = await authAPI.getCurrentUser();
       if (result.success) {
         console.log('✅ User fetched successfully');
@@ -121,7 +113,9 @@ const authSlice = createSlice({
     user: null,
     accessToken: null,
     isAuthenticated: false,
-    isLoading: false,
+    // Start true so the first paint does not load auth UI before checkAuthStatus runs
+    // (avoids requiring native modules like ExpoWebBrowser before the RN runtime is ready).
+    isLoading: true,
     error: null,
   },
   reducers: {

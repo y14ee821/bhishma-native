@@ -1,7 +1,7 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { HomeScreen, DeviceControl, DedicatedIEControl, IoTHomeScreen, LoginScreen } from "../screens";
+import { HomeScreen, DeviceControl, DedicatedIEControl, IoTHomeScreen, AddDevice } from "../screens";
 import { ErrorComponent } from "../components";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -19,7 +19,18 @@ import {
   Switch,
   ActivityIndicator,
 } from "react-native";
-console.log("Platform.OS", Platform.OS)
+
+const LoginScreen = lazy(() =>
+  import("../screens/LoginScreen").then((m) => {
+    const C = m.LoginScreen;
+    if (typeof C !== "function") {
+      throw new Error("LoginScreen export is missing or invalid.");
+    }
+    return { default: C };
+  })
+);
+
+console.log("Platform.OS", Platform.OS);
 
 const NavBar = ({ current, onNavigate, darkMode, setDarkMode, autoDarkMode, setAutoDarkMode, user, onLogout }) => {
   const navigation = useNavigation();
@@ -132,6 +143,7 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
         },
         DeviceControlScreen: "DeviceControlScreen",
         DeviceControl: "DeviceControl",
+        AddDevice: "AddDevice",
       },
     },
   };
@@ -139,7 +151,12 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
   // Show loading while checking auth
   if (isLoading) {
     return (
-      <View style={[BaseStyle.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View
+        style={[
+          BaseStyle.container,
+          { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' },
+        ]}
+      >
         <ActivityIndicator size="large" />
         <Text style={{ marginTop: 10 }}>Loading...</Text>
         <Text style={{ marginTop: 10, fontSize: 12, color: '#666' }}>
@@ -149,9 +166,24 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
     );
   }
 
-  // Show login screen if not authenticated
+  // Show login screen if not authenticated (lazy so expo-web-browser loads after native is ready)
   if (!isAuthenticated) {
-    return <LoginScreen darkMode={darkMode} />;
+    return (
+      <Suspense
+        fallback={
+          <View
+            style={[
+              BaseStyle.container,
+              { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f5f5f5" },
+            ]}
+          >
+            <ActivityIndicator size="large" />
+          </View>
+        }
+      >
+        <LoginScreen darkMode={darkMode} />
+      </Suspense>
+    );
   }
 
   return (
@@ -159,9 +191,16 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
       {errorState ? (
         <ErrorComponent errorMessage={<Text>Please Try Again</Text>} onRetry={handleRetry} />
       ) : (
-        <NavigationContainer linking={linking}
-          fallback={<View><Text>Loading...</Text></View>}>
-          <View style={[BaseStyle.container]}>
+        <NavigationContainer
+          linking={linking}
+          fallback={
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f0f0f0" }}>
+              <ActivityIndicator size="large" />
+              <Text style={{ marginTop: 10 }}>Loading navigation…</Text>
+            </View>
+          }
+        >
+          <View style={[BaseStyle.container, { flex: 1 }]}>
             <NavBar
               current=""
               darkMode={darkMode}
@@ -171,19 +210,25 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
               user={user}
               onLogout={handleLogout}
             />
-            <Stack.Navigator>
-              <Stack.Screen name="HomeScreen" options={{ headerShown: false }}>
-                {props => <HomeScreen {...props} darkMode={darkMode} setDarkMode={setDarkMode} />}
-              </Stack.Screen>
+            <View style={{ flex: 1, minHeight: 0 }}>
+              <Stack.Navigator>
+                <Stack.Screen name="HomeScreen" options={{ headerShown: false }}>
+                  {props => <HomeScreen {...props} darkMode={darkMode} setDarkMode={setDarkMode} />}
+                </Stack.Screen>
 
-              <Stack.Screen name="DeviceControl" options={{ headerShown: false }}>
-                {props => <DeviceControl {...props} darkMode={darkMode} />}
-              </Stack.Screen>
+                <Stack.Screen name="DeviceControl" options={{ headerShown: false }}>
+                  {props => <DeviceControl {...props} darkMode={darkMode} />}
+                </Stack.Screen>
 
-              <Stack.Screen name="DedicatedIEControl" options={{ headerShown: false }}>
-                {props => <DedicatedIEControl {...props} darkMode={darkMode} />}
-              </Stack.Screen>
-            </Stack.Navigator>
+                <Stack.Screen name="DedicatedIEControl" options={{ headerShown: false }}>
+                  {props => <DedicatedIEControl {...props} darkMode={darkMode} />}
+                </Stack.Screen>
+
+                <Stack.Screen name="AddDevice" options={{ headerShown: false }}>
+                  {props => <AddDevice {...props} darkMode={darkMode} />}
+                </Stack.Screen>
+              </Stack.Navigator>
+            </View>
           </View>
         </NavigationContainer>
       )}
