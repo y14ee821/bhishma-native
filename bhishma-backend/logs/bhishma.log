@@ -1194,3 +1194,246 @@ data
 2026-04-12 21:36:07 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
 2026-04-12 21:52:48 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
 2026-04-12 21:52:48 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:31:45 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:31:45 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:31:45 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:31:45 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:31:49 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:31:49 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:33:23 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:33:23 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:33:23 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:33:23 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:33:31 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:33:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:33:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:33:32 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:38:40 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:38:40 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:38:40 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:38:40 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:39:04 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:39:04 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:39:04 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:39:04 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:39:11 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:39:11 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:39:11 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:39:11 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:39:25 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:39:25 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:40:22 - bhishma.routes.devices - INFO - devices.py:map_device:235 - Attempting to map device 'rao' to user 6988b2962b2684c0b8196322
+2026-04-13 00:40:22 - bhishma.app.utils.db_operations - WARNING - db_operations.py:find_one:41 - No document found in devices with query {'name': 'rao', 'security_key': 'qwert'}
+2026-04-13 00:40:22 - bhishma.routes.devices - WARNING - devices.py:map_device:249 - Device 'rao' not found or security key mismatch
+2026-04-13 00:40:29 - bhishma.routes.devices - INFO - devices.py:map_device:235 - Attempting to map device 'rao' to user 6988b2962b2684c0b8196322
+2026-04-13 00:40:29 - bhishma.routes.devices - WARNING - devices.py:map_device:256 - Device 'rao' already mapped to user 6988b2962b2684c0b8196322
+2026-04-13 00:40:38 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:40:38 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:40:38 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:40:38 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:40:53 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:40:53 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:40:53 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:40:53 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:40:57 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:40:57 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:40:57 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:40:57 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:42:50 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:42:50 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:42:58 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:42:58 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:43:22 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:43:22 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:43:22 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:43:22 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:43:22 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:43:22 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:43:23 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:43:23 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:44:06 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:06 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:44:06 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:06 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:44:08 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:08 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:44:08 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:08 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:44:26 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58e218b78cd40b362ba2
+2026-04-13 00:44:26 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58e218b78cd40b362ba2 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:35 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:44:35 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:37 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:44:37 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:38 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:44:38 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:40 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:44:40 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:41 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:44:41 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:49 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:49 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:44:49 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:44:49 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:45:15 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:45:15 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:45:15 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:45:16 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:45:16 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:45:16 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:45:16 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:45:16 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:45:21 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:45:21 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:45:21 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:45:21 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:45:31 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:45:31 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:45:31 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:45:31 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:47:50 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:47:50 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:10 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:10 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:48:10 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:10 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:48:24 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:24 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:48:24 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:24 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:48:28 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:28 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:48:28 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:28 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:48:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:48:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:32 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:48:35 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:48:35 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:40 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:48:40 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:41 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:42 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:48:42 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:42 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:48:48 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:48:48 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:50 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:48:50 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:51 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:48:51 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:53 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:48:53 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:55 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:55 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:48:55 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:48:55 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:48:58 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 00:48:58 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:02 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:02 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:49:02 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:02 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:49:09 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:09 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:49:09 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:09 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:49:28 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:28 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:49:28 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:28 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:49:38 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:38 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:49:38 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:38 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:49:45 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:45 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:49:45 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:49:45 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:51:30 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:51:30 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:51:31 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:51:31 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:52:16 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:52:16 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:52:16 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:52:16 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:52:55 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:52:55 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:52:55 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:52:55 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:53:15 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:53:15 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:53:15 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:53:15 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:55:15 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:55:15 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:55:15 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:55:15 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:56:46 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:56:46 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:56:46 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:56:46 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:56:58 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:56:58 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:56:58 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:56:58 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:58:05 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:58:05 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:58:05 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:58:05 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:58:25 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:58:25 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:58:25 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:58:25 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:58:34 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:58:34 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:58:34 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:58:34 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:59:28 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:59:28 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:59:28 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:59:28 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:59:44 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:59:44 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 00:59:44 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 00:59:44 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 00:59:55 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58e218b78cd40b362ba2
+2026-04-13 00:59:55 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58e218b78cd40b362ba2 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 01:00:02 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 01:00:02 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 01:00:07 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 01:00:07 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 01:00:12 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:00:12 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 01:00:12 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:00:12 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 01:00:20 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:00:20 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 01:00:20 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:00:20 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 01:02:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:02:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 01:02:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:02:32 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 01:03:34 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:03:34 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 01:03:35 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:03:35 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 01:05:43 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:05:43 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 01:05:44 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:05:44 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 01:08:57 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 01:08:57 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 01:09:09 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 01:09:09 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 01:10:36 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 01:10:36 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 01:10:42 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 01:10:42 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 01:12:31 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:12:31 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 01:12:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:12:32 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}

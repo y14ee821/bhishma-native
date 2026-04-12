@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const routesStyles = StyleSheet.create({
   light: {
@@ -62,13 +62,66 @@ export const routesStyles = StyleSheet.create({
     // Switch component styling if needed
   },
   rightContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
+    flexShrink: 1,
+    minWidth: 0,
   },
   userInfo: {
     marginRight: 8,
     maxWidth: 150,
+    minWidth: 0,
+    flexShrink: 1,
+  },
+  /** Native narrow width: two rows so Logout and actions stay on-screen */
+  navBarStacked: {
+    flexDirection: "column",
+    alignItems: "stretch",
+  },
+  navBarTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  navBarBottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "rgba(255, 255, 255, 0.22)",
+  },
+  userInfoStacked: {
+    flex: 1,
+    minWidth: 0,
+    marginRight: 10,
+    justifyContent: "center",
+  },
+  navBarBottomRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexShrink: 0,
+    gap: 8,
+  },
+  appNameNative: {
+    fontSize: 22,
+    maxWidth: "100%",
+  },
+  logoutButtonCompact: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  logoutCompactInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  logoutTextCompact: {
+    fontSize: 13,
   },
   userName: {
     fontSize: 14,

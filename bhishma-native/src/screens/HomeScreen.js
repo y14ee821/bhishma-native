@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Alert,
   Platform,
+  useWindowDimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,6 +22,9 @@ import { deviceAPI } from "../services/apiService";
 const styles = homeScreenStyles;
 
 const webPointer = Platform.OS === "web" ? { cursor: "pointer" } : {};
+
+/** Native narrow width: stack greeting + MQTT so copy is not crushed by the badge */
+const HERO_STACK_BREAKPOINT = 440;
 
 /** Subtle layered gradients — dark panels + light cards */
 const HOME_GRAD = {
@@ -39,6 +43,8 @@ const HOME_GRAD = {
 };
 
 export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
+  const { width: windowWidth } = useWindowDimensions();
+  const heroStacked = Platform.OS !== "web" && windowWidth < HERO_STACK_BREAKPOINT;
   const [refreshing, setRefreshing] = useState(false);
   const [creatingDevices, setCreatingDevices] = useState(false);
   const [hoverActionPrimary, setHoverActionPrimary] = useState(false);
@@ -289,8 +295,13 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
               end={{ x: 1, y: 1 }}
               style={styles.headerUnifiedCard}
             >
-              <View style={styles.headerSection}>
-                <View style={styles.headerGreetingColumn}>
+              <View style={[styles.headerSection, heroStacked && styles.headerSectionStacked]}>
+                <View
+                  style={[
+                    styles.headerGreetingColumn,
+                    heroStacked && styles.headerGreetingColumnStacked,
+                  ]}
+                >
                   <View style={styles.greetingStack}>
                     <View style={styles.greetingTitleRow}>
                       <View style={[styles.greetingIconSlot, styles.greetingSciFiIconBubble]}>
@@ -300,9 +311,15 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                           color="rgba(186, 230, 253, 0.98)"
                         />
                       </View>
-                      <Text style={[theme.greeting, styles.homeGreetingText]}>
-                        {getGreeting()}!
-                      </Text>
+                      <View style={styles.greetingRowTextCol}>
+                        <Text
+                          style={[theme.greeting, styles.homeGreetingText]}
+                          numberOfLines={heroStacked ? 3 : 2}
+                          {...(Platform.OS === "android" ? { includeFontPadding: false } : {})}
+                        >
+                          {getGreeting()}!
+                        </Text>
+                      </View>
                     </View>
                     <View style={styles.greetingAccentLine} />
                     <View style={styles.subtitleRow}>
@@ -313,17 +330,34 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                           color="rgba(186, 230, 253, 0.98)"
                         />
                       </View>
-                      <Text style={[theme.subtitle, styles.homeSubtitleText]}>
-                        Control your IoT devices
-                      </Text>
+                      <View style={styles.greetingRowTextCol}>
+                        <Text
+                          style={[theme.subtitle, styles.homeSubtitleText]}
+                          numberOfLines={heroStacked ? 4 : 2}
+                          {...(Platform.OS === "android" ? { includeFontPadding: false } : {})}
+                        >
+                          Control your IoT devices
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
 
-                <View style={styles.headerColumnDivider} />
+                {heroStacked ? (
+                  <View style={styles.heroDividerHorizontal} />
+                ) : (
+                  <View style={styles.headerColumnDivider} />
+                )}
 
-                <View style={styles.headerBrokerColumn}>
-                  <View style={styles.connectionBadge}>
+                <View
+                  style={[
+                    styles.headerBrokerColumn,
+                    heroStacked && styles.headerBrokerColumnStacked,
+                  ]}
+                >
+                  <View
+                    style={[styles.connectionBadge, heroStacked && styles.connectionBadgeStacked]}
+                  >
                     <View
                       style={[
                         styles.connectionIconBubble,
@@ -344,7 +378,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                             ? "wifi"
                             : "cloud-offline-outline"
                         }
-                        size={26}
+                        size={Platform.OS === "android" ? 22 : 26}
                         color={
                           connectingToBroker
                             ? "#d97706"
@@ -356,6 +390,8 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                     </View>
                     <View style={styles.connectionBadgeTextBlock}>
                       <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
                         style={[
                           styles.connectionText,
                           {
@@ -369,7 +405,9 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                       >
                         {getConnectionStatus()}
                       </Text>
-                      <Text style={styles.connectionSubtext}>MQTT Broker</Text>
+                      <Text style={styles.connectionSubtext} numberOfLines={1}>
+                        MQTT Broker
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -469,7 +507,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Add device"
-                  android_ripple={{ color: "rgba(20, 184, 166, 0.22)", foreground: true }}
+                  android_ripple={{ color: "rgba(20, 184, 166, 0.22)", foreground: false }}
                   onHoverIn={() => setHoverActionPrimary(true)}
                   onHoverOut={() => setHoverActionPrimary(false)}
                   onPress={() => navigation.navigate("AddDevice")}
@@ -506,7 +544,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Device control"
-                  android_ripple={{ color: "rgba(37, 99, 235, 0.22)", foreground: true }}
+                  android_ripple={{ color: "rgba(37, 99, 235, 0.22)", foreground: false }}
                   onHoverIn={() => setHoverActionSecondary(true)}
                   onHoverOut={() => setHoverActionSecondary(false)}
                   onPress={() => navigation.navigate("DeviceControl")}
@@ -554,7 +592,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 <View style={[styles.devicesSectionHeader, styles.devicesSectionHeaderInPanel]}>
                   <Ionicons
                     name="layers-outline"
-                    size={24}
+                    size={Platform.OS === "android" ? 26 : 24}
                     color="rgba(221, 214, 254, 0.98)"
                     style={styles.devicesSectionHeaderIcon}
                   />
@@ -587,7 +625,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                         <Pressable
                           accessibilityRole="button"
                           accessibilityLabel={`Open device ${deviceName}`}
-                          android_ripple={{ color: "rgba(59, 130, 246, 0.18)", foreground: true }}
+                          android_ripple={{ color: "rgba(59, 130, 246, 0.18)", foreground: false }}
                           onHoverIn={() => setHoveredDeviceName(deviceName)}
                           onHoverOut={() =>
                             setHoveredDeviceName((current) =>
@@ -632,23 +670,37 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                                 <Text
                                   style={[theme.deviceName, styles.deviceCardNameText, styles.deviceCardNameInline]}
                                   numberOfLines={1}
+                                  ellipsizeMode="tail"
+                                  {...(Platform.OS === "android" ? { includeFontPadding: false } : {})}
                                 >
                                   {deviceName.toUpperCase()}
                                 </Text>
                               </View>
                               <View style={styles.deviceNameChannelSep} />
                               <View style={styles.deviceCardRightZone}>
-                                <View style={styles.deviceCardChannelsRow}>
-                                  <View style={styles.deviceChannelEmojiWrap}>
-                                    <Ionicons name="radio-outline" size={24} color="#4338ca" />
+                                {Platform.OS === "android" ? (
+                                  <>
+                                    <Ionicons
+                                      name="radio-outline"
+                                      size={18}
+                                      color="#4338ca"
+                                      style={styles.deviceChannelIcon}
+                                    />
+                                    <Text style={styles.deviceChannelCount}>{channelCount}</Text>
+                                  </>
+                                ) : (
+                                  <View style={styles.deviceCardChannelsRow}>
+                                    <View style={styles.deviceChannelEmojiWrap}>
+                                      <Ionicons name="radio-outline" size={24} color="#4338ca" />
+                                    </View>
+                                    <Text style={styles.deviceChannelLabel}>Channels</Text>
+                                    <Text style={styles.deviceChannelCount}>{channelCount}</Text>
                                   </View>
-                                  <Text style={styles.deviceChannelLabel}>Channels</Text>
-                                  <Text style={styles.deviceChannelCount}>{channelCount}</Text>
-                                </View>
+                                )}
                               </View>
                               <Ionicons
                                 name="chevron-forward"
-                                size={30}
+                                size={Platform.OS === "android" ? 22 : 30}
                                 color="#334155"
                                 style={styles.deviceCardChevron}
                               />
@@ -681,7 +733,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 <View style={[styles.devicesSectionHeader, styles.devicesSectionHeaderInPanel]}>
                   <Ionicons
                     name="layers-outline"
-                    size={24}
+                    size={Platform.OS === "android" ? 26 : 24}
                     color="rgba(221, 214, 254, 0.98)"
                     style={styles.devicesSectionHeaderIcon}
                   />

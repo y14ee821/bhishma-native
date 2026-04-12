@@ -12,8 +12,19 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
 # Google OAuth Configuration
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+# ID tokens from Android / iOS / web each use that platform's OAuth client id as JWT "aud".
+# Set GOOGLE_CLIENT_ID to a comma-separated list of allowed client ids, and/or use the optional vars below.
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+
+
+def _google_token_audiences() -> list[str]:
+    raw = os.getenv("GOOGLE_CLIENT_ID", "")
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
+    for key in ("GOOGLE_ANDROID_CLIENT_ID", "GOOGLE_IOS_CLIENT_ID", "GOOGLE_WEB_CLIENT_ID"):
+        extra = os.getenv(key, "").strip()
+        if extra and extra not in parts:
+            parts.append(extra)
+    return parts
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create JWT access token"""
@@ -38,33 +49,46 @@ def verify_token(token: str) -> Optional[Dict]:
         return None
 
 async def verify_google_token(token: str) -> Optional[Dict]:
-    """Verify Google ID token and return user info"""
-    if not GOOGLE_CLIENT_ID:
-        raise ValueError("GOOGLE_CLIENT_ID is not configured")
-    
-    try:
-        # Verify the token
-        idinfo = id_token.verify_oauth2_token(
-            token, 
-            requests.Request(), 
-            GOOGLE_CLIENT_ID
+    """Verify Google ID token and return user info."""
+    audiences = _google_token_audiences()
+    if not audiences:
+        raise ValueError(
+            "Configure GOOGLE_CLIENT_ID (comma-separated allowed OAuth client ids) and/or "
+            "GOOGLE_ANDROID_CLIENT_ID / GOOGLE_IOS_CLIENT_ID / GOOGLE_WEB_CLIENT_ID"
         )
-        
-        # Verify the issuer
-        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-            raise ValueError('Wrong issuer.')
-        
-        return {
-            'google_id': idinfo['sub'],
-            'email': idinfo['email'],
-            'name': idinfo.get('name', ''),
-            'picture': idinfo.get('picture', '')
-        }
-    except ValueError as e:
-        print(f"Token verification error: {e}")
+
+    idinfo = None
+    last_error: Optional[Exception] = None
+    for aud in audiences:
+        try:
+            idinfo = id_token.verify_oauth2_token(
+                token,
+                requests.Request(),
+                aud,
+            )
+            break
+        except (ValueError, Exception) as e:
+            last_error = e
+            idinfo = None
+            continue
+
+    if not idinfo:
+        print(f"Token verification failed for all audiences ({len(audiences)}): {last_error}")
         return None
-    except Exception as e:
-        print(f"Unexpected error during token verification: {e}")
+
+    try:
+        if idinfo["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+            print("Token verification error: wrong issuer")
+            return None
+
+        return {
+            "google_id": idinfo["sub"],
+            "email": idinfo["email"],
+            "name": idinfo.get("name", ""),
+            "picture": idinfo.get("picture", ""),
+        }
+    except (KeyError, TypeError) as e:
+        print(f"Token payload error: {e}")
         return None
 
 async def get_or_create_user(google_user_info: Dict) -> Dict:

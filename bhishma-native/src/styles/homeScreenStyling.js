@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 export const colors = {
   light: {
@@ -38,21 +38,25 @@ export const homeScreenStyles = StyleSheet.create({
     flex: 1,
   },
   scrollContainer: {
-    paddingTop: 8,
-    paddingBottom: 36,
+    paddingTop: 10,
+    paddingBottom: 40,
   },
   gradient: {
     flex: 1,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingTop: 18,
+    paddingBottom: 12,
+    ...Platform.select({
+      android: { paddingHorizontal: 14 },
+      default: { paddingHorizontal: 20 },
+    }),
   },
   /** Groups main blocks on the gradient with clear visual hierarchy */
   contentSection: {
     marginBottom: 20,
-    padding: 14,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
     borderRadius: 20,
     backgroundColor: 'transparent',
     borderWidth: 1,
@@ -83,8 +87,8 @@ export const homeScreenStyles = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: 'rgba(56, 189, 248, 0.75)',
     backgroundColor: 'transparent',
-    paddingVertical: 14,
-    paddingHorizontal: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
     shadowColor: '#020617',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.22,
@@ -98,11 +102,25 @@ export const homeScreenStyles = StyleSheet.create({
     alignItems: 'stretch',
     width: '100%',
   },
+  /** Narrow phones: greeting full width, broker chip below (no side-by-side squeeze) */
+  headerSectionStacked: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
   headerGreetingColumn: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
     minWidth: 0,
     paddingRight: 8,
     justifyContent: 'center',
+  },
+  headerGreetingColumnStacked: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+    width: '100%',
+    paddingRight: 0,
   },
   greetingStack: {
     width: '100%',
@@ -112,7 +130,15 @@ export const homeScreenStyles = StyleSheet.create({
     alignSelf: 'stretch',
     minHeight: 72,
     backgroundColor: 'rgba(255, 255, 255, 0.18)',
-    marginHorizontal: 10,
+    marginHorizontal: 8,
+    flexShrink: 0,
+  },
+  heroDividerHorizontal: {
+    height: StyleSheet.hairlineWidth * 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginTop: 12,
+    marginBottom: 12,
+    alignSelf: 'stretch',
   },
   greetingIconSlot: {
     width: 40,
@@ -136,21 +162,29 @@ export const homeScreenStyles = StyleSheet.create({
   greetingTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
+    width: '100%',
+  },
+  /** Text column beside icon — keeps multi-line copy aligned, not under the icon */
+  greetingRowTextCol: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
   },
   greetingAccentLine: {
     height: 2,
     borderRadius: 1,
     backgroundColor: 'rgba(56, 189, 248, 0.35)',
     marginVertical: 10,
-    marginLeft: 50,
-    marginRight: 4,
+    marginLeft: 0,
+    marginRight: 0,
+    alignSelf: 'stretch',
   },
   homeGreetingText: {
     textAlign: 'left',
-    flexShrink: 1,
-    fontSize: 30,
-    letterSpacing: 0.4,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: 0.35,
+    fontWeight: '800',
     textShadowColor: 'rgba(15, 23, 42, 0.35)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
@@ -158,41 +192,58 @@ export const homeScreenStyles = StyleSheet.create({
   subtitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
+    width: '100%',
   },
   homeSubtitleText: {
     textAlign: 'left',
-    flexShrink: 1,
-    fontSize: 15,
-    lineHeight: 22,
-    color: 'rgba(255, 255, 255, 0.92)',
-    fontWeight: '500',
+    fontSize: 14,
+    lineHeight: 20,
+    color: 'rgba(255, 255, 255, 0.88)',
+    fontWeight: '600',
     textShadowColor: 'rgba(15, 23, 42, 0.25)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
   headerBrokerColumn: {
-    flexShrink: 0,
-    alignItems: 'center',
+    flexGrow: 0,
+    flexShrink: 1,
+    minWidth: 0,
+    maxWidth: '36%',
+    alignItems: 'stretch',
     justifyContent: 'center',
-    maxWidth: '44%',
+    alignSelf: 'center',
+  },
+  headerBrokerColumnStacked: {
+    flexGrow: 0,
+    flexShrink: 0,
+    maxWidth: '100%',
+    width: '100%',
+    alignItems: 'center',
+    alignSelf: 'stretch',
   },
   connectionBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(241, 245, 249, 0.92)',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: 'rgba(148, 163, 184, 0.32)',
     borderStyle: 'solid',
-    minWidth: 148,
+    minWidth: 0,
+    maxWidth: '100%',
+    alignSelf: 'center',
     shadowColor: '#0f172a',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 4,
+  },
+  connectionBadgeStacked: {
+    width: '100%',
+    maxWidth: 320,
+    alignSelf: 'center',
   },
   connectionIconBubble: {
     width: 46,
@@ -200,8 +251,17 @@ export const homeScreenStyles = StyleSheet.create({
     borderRadius: 23,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 10,
     backgroundColor: '#f1f5f9',
+    flexShrink: 0,
+    ...Platform.select({
+      android: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        marginRight: 8,
+      },
+    }),
   },
   connectionIconBubbleOk: {
     backgroundColor: 'rgba(5, 150, 105, 0.12)',
@@ -214,10 +274,14 @@ export const homeScreenStyles = StyleSheet.create({
   },
   connectionBadgeTextBlock: {
     flexShrink: 1,
+    minWidth: 0,
   },
   connectionText: {
     fontSize: 15,
     fontWeight: '700',
+    ...Platform.select({
+      android: { fontSize: 13 },
+    }),
   },
   connectionSubtext: {
     fontSize: 11,
@@ -237,8 +301,8 @@ export const homeScreenStyles = StyleSheet.create({
   overviewCard: {
     backgroundColor: 'transparent',
     borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
     marginBottom: 0,
     borderWidth: 1,
     borderColor: 'rgba(100, 116, 139, 0.35)',
@@ -279,7 +343,7 @@ export const homeScreenStyles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    marginRight: 10,
+    marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(59, 130, 246, 0.14)',
@@ -306,11 +370,11 @@ export const homeScreenStyles = StyleSheet.create({
   },
   overviewStatsBand: {
     marginTop: 6,
-    marginHorizontal: -16,
-    marginBottom: -14,
+    marginHorizontal: -18,
+    marginBottom: -16,
     paddingTop: 10,
     paddingBottom: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     borderBottomLeftRadius: 13,
     borderBottomRightRadius: 13,
     overflow: 'hidden',
@@ -325,7 +389,7 @@ export const homeScreenStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 6,
+    paddingHorizontal: 10,
     minHeight: 72,
   },
   overviewStatLabelRow: {
@@ -394,8 +458,8 @@ export const homeScreenStyles = StyleSheet.create({
   actionButtonCard: {
     flex: 1,
     minHeight: 156,
-    paddingVertical: 18,
-    paddingHorizontal: 14,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -509,15 +573,17 @@ export const homeScreenStyles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     marginTop: 0,
+    paddingHorizontal: 2,
   },
   devicesSectionHeaderInPanel: {
     paddingBottom: 12,
+    paddingTop: 2,
     marginBottom: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: 'rgba(255, 255, 255, 0.28)',
   },
   devicesSectionHeaderIcon: {
-    marginRight: 10,
+    marginRight: 12,
   },
   /** Same clarity idea as greeting: bright label + light shadow on dark glass */
   devicesSectionTitle: {
@@ -530,6 +596,9 @@ export const homeScreenStyles = StyleSheet.create({
     textShadowColor: 'rgba(15, 23, 42, 0.55)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 6,
+    ...Platform.select({
+      android: { fontSize: 19 },
+    }),
   },
   deviceListContainer: {
     marginTop: 0,
@@ -537,12 +606,22 @@ export const homeScreenStyles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     rowGap: 12,
+    width: '100%',
+    alignSelf: 'stretch',
   },
   deviceCardWrap: {
-    width: '48%',
-    maxWidth: '48%',
     flexGrow: 0,
     flexShrink: 0,
+    ...Platform.select({
+      android: {
+        width: '100%',
+        maxWidth: '100%',
+      },
+      default: {
+        width: '48%',
+        maxWidth: '48%',
+      },
+    }),
   },
   /** Fill the wrap — do not use % width here (was 40% of 40% of row, crushing layout) */
   deviceCard: {
@@ -552,7 +631,10 @@ export const homeScreenStyles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 12,
     paddingVertical: 14,
-    paddingHorizontal: 10,
+    paddingHorizontal: 14,
+    ...Platform.select({
+      android: { paddingVertical: 14, paddingHorizontal: 12 },
+    }),
     marginBottom: 0,
     borderWidth: 1,
     borderColor: 'rgba(100, 116, 139, 0.38)',
@@ -583,21 +665,33 @@ export const homeScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
+    flexWrap: 'nowrap',
   },
   deviceCardLeftZone: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
     minWidth: 0,
-  },
-  deviceCardRightZone: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    minWidth: 0,
+    ...Platform.select({
+      android: { flexShrink: 0 },
+    }),
   },
+  deviceCardRightZone: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    ...Platform.select({
+      android: {
+        flex: 0,
+        flexGrow: 0,
+        flexShrink: 0,
+      },
+    }),
+  },
+  /** Web/iOS: channels row inner wrapper */
   deviceCardChannelsRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -606,15 +700,25 @@ export const homeScreenStyles = StyleSheet.create({
   deviceCardChevron: {
     marginLeft: 6,
     flexShrink: 0,
+    ...Platform.select({
+      android: { marginLeft: 4 },
+    }),
   },
   deviceCardNameText: {
+    flex: 1,
     flexShrink: 1,
     minWidth: 0,
+    ...Platform.select({
+      android: { flex: 0, flexShrink: 0 },
+    }),
   },
   deviceCardNameInline: {
     fontSize: 20,
     fontWeight: '800',
     color: '#0f172a',
+    ...Platform.select({
+      android: { fontSize: 18 },
+    }),
   },
   deviceNameChannelSep: {
     width: 1,
@@ -622,6 +726,9 @@ export const homeScreenStyles = StyleSheet.create({
     backgroundColor: 'rgba(148, 163, 184, 0.55)',
     marginHorizontal: 10,
     flexShrink: 0,
+    ...Platform.select({
+      android: { marginHorizontal: 6, height: 28 },
+    }),
   },
   deviceIcon: {
     fontSize: 26,
@@ -636,7 +743,23 @@ export const homeScreenStyles = StyleSheet.create({
     lineHeight: 54,
     overflow: 'hidden',
     flexShrink: 0,
+    ...Platform.select({
+      android: {
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        lineHeight: 42,
+        fontSize: 22,
+        marginRight: 6,
+      },
+    }),
   },
+  /** Inline channel icon (Android only — no wrap box) */
+  deviceChannelIcon: {
+    marginRight: 4,
+    flexShrink: 0,
+  },
+  /** Web/iOS: channel icon inside a decorative tile */
   deviceChannelEmojiWrap: {
     width: 40,
     height: 40,
@@ -663,6 +786,10 @@ export const homeScreenStyles = StyleSheet.create({
     color: '#1d4ed8',
     marginLeft: 5,
     fontVariant: ['tabular-nums'],
+    flexShrink: 0,
+    ...Platform.select({
+      android: { fontSize: 18, marginLeft: 3 },
+    }),
   },
   deviceCardUpdated: {
     marginTop: 8,
@@ -688,7 +815,7 @@ export const homeScreenStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 28,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     borderRadius: 16,
     backgroundColor: 'transparent',
     borderWidth: 1,

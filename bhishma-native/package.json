@@ -10,9 +10,9 @@
     "web": "expo start --web",
     "start:tunnel": "expo start --tunnel",
     "start:lan": "expo start --lan",
-        "prebuild": "expo prebuild",
-        "prebuild:android": "expo prebuild --platform android",
-        "build:android:local": "expo run:android --variant release"
+    "prebuild": "expo prebuild",
+    "prebuild:android": "expo prebuild --platform android",
+    "build:android:local": "expo run:android --variant release"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
@@ -24,8 +24,10 @@
     "axios": "^1.13.6",
     "expo": "~54.0.10",
     "expo-auth-session": "~6.0.2",
+    "expo-constants": "~18.0.13",
     "expo-crypto": "~14.0.1",
     "expo-linear-gradient": "~15.0.7",
+    "expo-linking": "~8.0.11",
     "expo-status-bar": "~3.0.8",
     "expo-web-browser": "~14.0.1",
     "mqtt": "^5.14.1",

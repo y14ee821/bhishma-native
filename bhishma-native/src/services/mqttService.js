@@ -27,7 +27,8 @@ export const parseMessage = (msg,channelCount) => {
 };
 
 export const initMQTT = (dispatch, ie_name, channelCount, client) => {
-  const { updateIEsState, checkBrokerConnection } = getDeviceControlActions();
+  const { updateIEsState, checkBrokerConnection, setConnectingToBroker } =
+    getDeviceControlActions();
 
   // If client is already connected, subscribe immediately
   if (client.connected) {
@@ -37,11 +38,13 @@ export const initMQTT = (dispatch, ie_name, channelCount, client) => {
       }
     });
     dispatch(checkBrokerConnection(true));
+    dispatch(setConnectingToBroker(false));
   }
 
   // Setup event handlers
   client.on('connect', () => {
     dispatch(checkBrokerConnection(true));
+    dispatch(setConnectingToBroker(false));
     client.subscribe(`${ie_name}/status`, (err) => {
       if (err) {
         console.error(`Failed to subscribe to ${ie_name}/status:`, err);
@@ -70,7 +73,8 @@ export const initMQTT = (dispatch, ie_name, channelCount, client) => {
   });
 
   client.on('reconnect', () => {
-    dispatch(checkBrokerConnection(true));
+    dispatch(setConnectingToBroker(true));
+    dispatch(checkBrokerConnection(false));
   });
 
   client.on('offline', () => {

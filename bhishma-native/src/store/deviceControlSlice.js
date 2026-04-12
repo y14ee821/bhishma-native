@@ -62,10 +62,9 @@ const deviceControlSlice = createSlice({
 
     reducers: {
         checkBrokerConnection: (state, action) => {
-            //console.log("Broker connection state:", action.payload)
-            state.connectedToBroker = action.payload;
-            if (action.payload) {
-                // If connected, stop showing connecting state
+            const connected = Boolean(action.payload);
+            state.connectedToBroker = connected;
+            if (connected) {
                 state.connectingToBroker = false;
             }
         },
@@ -78,7 +77,7 @@ const deviceControlSlice = createSlice({
             state.allChannelOperationSuccess = action.payload;
         },
         setConnectingToBroker: (state, action) => {
-            state.connectingToBroker = action.payload;
+            state.connectingToBroker = Boolean(action.payload);
         },
         modifyIE_Machines: (state, action) => {
             //console.log("Updating IE_Info in store:", action.payload)
