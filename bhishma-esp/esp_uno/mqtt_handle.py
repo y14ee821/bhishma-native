@@ -11,7 +11,21 @@ class mqttOperations:
       self.inputs = kwargs
       self.jsonParams = utils.jsonHandler()
       
+      # Track pin numbers to detect conflicts
+      input_pin_nums = set()
       output_pin_nums = set()
+      
+      # Initialize input pins from config.json
+      self.inputsFromUno = {}
+      for i in range(1, 5):  # ip1 to ip4
+          ip_key = "ip%s" % i
+          if ip_key in self.jsonParams and self.jsonParams[ip_key] != "":
+              pin_num = int(self.jsonParams[ip_key])
+              if pin_num in output_pin_nums:
+                  print("WARNING: Pin %d is already configured as output! Skipping input %s" % (pin_num, ip_key))
+              else:
+                  input_pin_nums.add(pin_num)
+                  self.inputsFromUno[ip_key] = machine.Pin(pin_num, machine.Pin.IN)
       
       # Initialize output pins from config.json
       self.outputs = {}
@@ -20,16 +34,20 @@ class mqttOperations:
           op_key = "op%s" % i
           if op_key in self.jsonParams and self.jsonParams[op_key] != "":
               pin_num = int(self.jsonParams[op_key])
-              output_pin_nums.add(pin_num)
-              self.outputs[op_key] = machine.Pin(pin_num, machine.Pin.OUT)
-              self.outputs[op_key].off()  # Initialize all outputs to OFF
+              if pin_num in input_pin_nums:
+                  print("WARNING: Pin %d is already configured as input! Skipping output %s" % (pin_num, op_key))
+              else:
+                  output_pin_nums.add(pin_num)
+                  self.outputs[op_key] = machine.Pin(pin_num, machine.Pin.OUT)
+                  self.outputs[op_key].off()  # Initialize all outputs to OFF
       
       # Cache for output states - updated when we write, used for publishing
       # This avoids reading pins and potential race conditions
       self.output_states_cache = {}
       for op_key in self.outputs:
           self.output_states_cache[op_key] = 0  # All start as OFF
-    
+      
+      print("Inputs initialized:", self.inputsFromUno)
       print("Outputs initialized:", self.outputs)
       print(self.inputs)     
     def sub_cb(self,topic, msg):

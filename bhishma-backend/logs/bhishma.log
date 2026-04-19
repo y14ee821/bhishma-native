@@ -1437,3 +1437,13 @@ data
 2026-04-13 01:12:31 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
 2026-04-13 01:12:32 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
 2026-04-13 01:12:32 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 01:14:58 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 01:14:58 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 01:15:04 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 01:15:04 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
+2026-04-13 01:15:51 - bhishma.routes.devices - INFO - devices.py:get_user_devices:67 - Fetching devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:15:51 - bhishma.routes.devices - INFO - devices.py:get_user_devices:89 - User has 2 mapped devices
+2026-04-13 01:15:51 - bhishma.routes.devices - INFO - devices.py:get_user_devices:117 - Successfully retrieved 2 devices for user 6988b2962b2684c0b8196322
+2026-04-13 01:15:51 - bhishma - INFO - logger.py:log_db_operation:154 - DB QUERY on devices - SUCCESS | {'user_id': '6988b2962b2684c0b8196322', 'devices_count': 2, 'failed_count': 0}
+2026-04-13 01:15:56 - bhishma.routes.devices - INFO - devices.py:get_device:136 - User 6988b2962b2684c0b8196322 requesting device 69bd58b718b78cd40b362ba1
+2026-04-13 01:15:56 - bhishma.routes.devices - INFO - devices.py:get_device:171 - Device 69bd58b718b78cd40b362ba1 retrieved successfully for user 6988b2962b2684c0b8196322
