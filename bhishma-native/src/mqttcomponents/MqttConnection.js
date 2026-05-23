@@ -41,9 +41,10 @@ export const useMqttConnection = (options = {}) => {
     const url = brokerUrl;
     console.log('🔌 Connecting to MQTT Broker:', url);
 
-    // Build options inside effect to avoid dependency issues
+    // Build options inside effect to avoid dependency issues.
+    // We intentionally don't set `protocol` here — mqtt.js will pick ws/wss
+    // from the URL scheme, so a single env var controls everything.
     const defaultOptions = {
-      protocol: 'wss',
       keepalive: 60,
       clean: true,
       reconnectPeriod: 5000, // Try to reconnect every 5 seconds
@@ -51,6 +52,15 @@ export const useMqttConnection = (options = {}) => {
       clientId: 'bhishma_app_' + Math.random().toString(16).substring(2, 8),
       ...options,
     };
+
+    // TEMP debug — verify credentials are actually reaching mqtt.js
+    // (logs only metadata, never the password value)
+    console.log('🔐 MQTT auth:', {
+      username: defaultOptions.username ?? '(missing)',
+      passwordLength: defaultOptions.password ? defaultOptions.password.length : 0,
+      passwordFirstChar: defaultOptions.password ? defaultOptions.password[0] : '',
+      passwordLastChar: defaultOptions.password ? defaultOptions.password[defaultOptions.password.length - 1] : '',
+    });
 
     // Set connecting state
     dispatch(setConnectingToBroker(true));

@@ -31,11 +31,12 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
     if (isAuthenticated) {
       dispatch(fetchIEInfo());
       
-      // Log MQTT configuration
+      // Log MQTT configuration (never log the password)
       console.log('📡 MQTT Configuration:', {
-        host: process.env.REACT_APP_MQTT_HOST || "wss://test.mosquitto.org:8081/mqtt (default)",
-        keepalive: Number(process.env.REACT_APP_MQTT_KEEPALIVE) || 60,
-        reconnectPeriod: Number(process.env.REACT_APP_MQTT_RECONNECT_PERIOD) || 5000,
+        host: process.env.EXPO_PUBLIC_MQTT_HOST || "wss://test.mosquitto.org:8081/mqtt (default)",
+        username: process.env.EXPO_PUBLIC_MQTT_USERNAME || "(none)",
+        keepalive: Number(process.env.EXPO_PUBLIC_MQTT_KEEPALIVE) || 60,
+        reconnectPeriod: Number(process.env.EXPO_PUBLIC_MQTT_RECONNECT_PERIOD) || 5000,
       });
     }
   }, [dispatch, isAuthenticated]);
@@ -54,9 +55,11 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
   }
 
   const mqttConfig = {
-    brokerUrl: process.env.REACT_APP_MQTT_HOST || "wss://test.mosquitto.org:8081/mqtt",
-    keepalive: Number(process.env.REACT_APP_MQTT_KEEPALIVE) || 60,
-    reconnectPeriod: Number(process.env.REACT_APP_MQTT_RECONNECT_PERIOD) || 5000,
+    brokerUrl: process.env.EXPO_PUBLIC_MQTT_HOST || "wss://test.mosquitto.org:8081/mqtt",
+    username: process.env.EXPO_PUBLIC_MQTT_USERNAME,
+    password: process.env.EXPO_PUBLIC_MQTT_PASSWORD,
+    keepalive: Number(process.env.EXPO_PUBLIC_MQTT_KEEPALIVE) || 60,
+    reconnectPeriod: Number(process.env.EXPO_PUBLIC_MQTT_RECONNECT_PERIOD) || 5000,
   };
 
   return (

@@ -1,6 +1,9 @@
 {
-    "broker": "test.mosquitto.org",
-    "port": 1883,
+    "broker": "0f6ed993bc1e42aa97a5fa6922b16994.s1.eu.hivemq.cloud",
+    "port": 8883,
+    "ssl": true,
+    "mqtt_username": "lohit",
+    "mqtt_password": "<PASTE_YOUR_HIVEMQ_PASSWORD_HERE>",
     "connectionType": "publish",
     "topic":"rao",
     "client":"lohit-automationClient",

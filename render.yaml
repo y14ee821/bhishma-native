@@ -1,0 +1,37 @@
+# Render Blueprint for the Bhishma FastAPI backend.
+# Free Web Service tier: 750 hrs/mo, sleeps after 15 min idle (~30s cold start on first hit).
+# Repo: https://github.com/y14ee821/bhishma-native
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: bhishma-backend
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: bhishma-backend
+    branch: main
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      # Secrets — set these in the Render dashboard (sync: false keeps them out of git).
+      - key: MONGODB_URI
+        sync: false
+      - key: DATABASE_NAME
+        value: bhishma_db
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_ANDROID_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # Comma-separated list of allowed CORS origins, e.g.
+      #   https://bhishma-native.vercel.app,https://your-custom-domain.com
+      # If unset, the backend falls back to "*" (open) — fine for dev, tighten in prod.
+      - key: ALLOWED_ORIGINS
+        sync: false

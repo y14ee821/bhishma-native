@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import users, devices, auth
@@ -9,11 +11,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware - allow React Native app
+# CORS: read a comma-separated list from ALLOWED_ORIGINS (e.g. set in Render).
+# Falls back to "*" for local dev. Note: when allow_origins=["*"],
+# allow_credentials must be False per the CORS spec.
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "*").strip()
+if _raw_origins == "*" or not _raw_origins:
+    _allowed_origins = ["*"]
+    _allow_credentials = False
+else:
+    _allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+    _allow_credentials = True
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your React Native app URL
-    allow_credentials=True,
+    allow_origins=_allowed_origins,
+    allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )

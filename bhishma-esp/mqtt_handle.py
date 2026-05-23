@@ -41,7 +41,19 @@ class mqttOperations:
       clientName = self.inputs["client"]+str(time.ticks_ms())
       try:
         gc.collect()
-        client = MQTTClient(clientName, self.inputs["broker"],port=self.inputs["port"])
+        use_ssl = bool(self.inputs.get("ssl", False))
+        # HiveMQ (and most cloud brokers) sit behind a shared TLS frontend,
+        # so SNI (server_hostname) is required during the handshake.
+        ssl_params = {"server_hostname": self.inputs["broker"]} if use_ssl else {}
+        client = MQTTClient(
+          clientName,
+          self.inputs["broker"],
+          port=self.inputs["port"],
+          user=self.inputs.get("mqtt_username"),
+          password=self.inputs.get("mqtt_password"),
+          ssl=use_ssl,
+          ssl_params=ssl_params,
+        )
         client.set_callback(self.sub_cb)
         client.connect()
         client.subscribe(self.inputs["topic"])

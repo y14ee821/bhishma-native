@@ -25,5 +25,8 @@ obj = mqttOperations(
         broker = jsonInputs["broker"],
         port = jsonInputs["port"],
         topic = jsonInputs["topic"],
+        mqtt_username = jsonInputs.get("mqtt_username"),
+        mqtt_password = jsonInputs.get("mqtt_password"),
+        ssl = jsonInputs.get("ssl", False),
         REPL_FLAG = dettach_attach_REPL)
 obj.executor()

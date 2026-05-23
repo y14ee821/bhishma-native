@@ -12,7 +12,9 @@
     "start:lan": "expo start --lan",
     "prebuild": "expo prebuild",
     "prebuild:android": "expo prebuild --platform android",
-    "build:android:local": "expo run:android --variant release"
+    "build:android:local": "expo run:android --variant release",
+    "build:web": "expo export --platform web --output-dir dist",
+    "vercel-build": "expo export --platform web --output-dir dist"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
