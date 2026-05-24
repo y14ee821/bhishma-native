@@ -4,7 +4,16 @@ from typing import List
 from datetime import datetime
 from bson import ObjectId
 from app.database import get_database
-from app.models.device import DeviceCreate, DeviceUpdate, DeviceResponse, userDeviceMap, userDeviceMapResponse, getDeviceResponse
+from app.models.device import (
+    DeviceCreate,
+    DeviceUpdate,
+    DeviceResponse,
+    userDeviceMap,
+    userDeviceMapResponse,
+    getDeviceResponse,
+    ChangeChannelName,
+    ChangeChannelNameResponse,
+)
 from app.services.auth_service import verify_token
 from app.utils.db_operations import DBOperations
 from app.utils.logger import get_logger, log_error, log_db_operation
@@ -176,6 +185,94 @@ async def get_device(device_id: str, user_id: str = Depends(get_current_user_id)
     except Exception as e:
         log_error(e, {"user_id": user_id, "device_id": device_id})
         raise HTTPException(status_code=500, detail="Failed to retrieve device")
+
+
+
+@router.patch(
+    "/{device_id}/channels/{channel_id}",
+    response_model=ChangeChannelNameResponse,
+)
+async def change_channel_name(
+    device_id: str,
+    channel_id: int,
+    data: ChangeChannelName,
+    user_id: str = Depends(get_current_user_id),
+):
+    """Rename a single channel on a device the current user is authorised for.
+
+    Args:
+        device_id: Mongo ObjectId of the target device (URL path).
+        channel_id: Numeric channel key on that device (URL path).
+        data: Body containing the new channel name.
+        user_id: Resolved from the bearer token.
+
+    Returns:
+        ChangeChannelNameResponse: success flag + human-readable message.
+
+    Raises:
+        HTTPException 400: invalid `device_id` format.
+        HTTPException 403: user is not in the device's `using_by` list.
+        HTTPException 404: device or channel does not exist.
+        HTTPException 500: DB connection / unexpected failure.
+    """
+    db = get_database()
+    if db is None:
+        logger.error("Database connection failed")
+        raise HTTPException(status_code=500, detail="Database not connected")
+
+    if not ObjectId.is_valid(device_id):
+        raise HTTPException(status_code=400, detail="Invalid device ID")
+
+    logger.info(
+        f"User {user_id} renaming channel {channel_id} on device {device_id} -> '{data.name}'"
+    )
+
+    try:
+        current_device = await db.devices.find_one({"_id": ObjectId(device_id)})
+        if not current_device:
+            raise HTTPException(status_code=404, detail="Device not found")
+
+        if user_id not in current_device.get("using_by", []):
+            raise HTTPException(
+                status_code=403,
+                detail="User not authorized to change channel name",
+            )
+
+        # Guard against silently creating phantom channels via $set on missing paths.
+        channels = current_device.get("channels", {}) or {}
+        if str(channel_id) not in {str(k) for k in channels.keys()}:
+            raise HTTPException(status_code=404, detail="Channel not found on device")
+
+        result = await db.devices.update_one(
+            {"_id": ObjectId(device_id)},
+            {
+                "$set": {
+                    f"channels.{channel_id}.name": data.name,
+                    "updated_at": datetime.utcnow(),
+                }
+            },
+        )
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Device not found during update")
+
+        log_db_operation(
+            "UPDATE",
+            "devices",
+            True,
+            {"device_id": device_id, "channel_id": channel_id, "field": "name"},
+        )
+        return ChangeChannelNameResponse(
+            message="Channel name changed successfully", success=True
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_error(
+            e,
+            {"user_id": user_id, "device_id": device_id, "channel_id": channel_id},
+        )
+        raise HTTPException(status_code=500, detail="Failed to change channel name")
 
 @router.put("/{device_id}", response_model=DeviceResponse)
 async def update_device(device_id: str, device_update: DeviceUpdate, user_id: str = Depends(get_current_user_id)):

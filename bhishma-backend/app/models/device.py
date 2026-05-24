@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 from datetime import datetime
 from bson import ObjectId
@@ -20,6 +20,17 @@ class DeviceUpdate(BaseModel):
     user_id: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
 
+class ChangeChannelName(BaseModel):
+    """Request body for `PATCH /devices/{device_id}/channels/{channel_id}`.
+
+    `device_id` and `channel_id` live in the URL path; the body only carries
+    the new display name for the channel.
+    """
+    name: str = Field(..., min_length=1, max_length=50)
+
+class ChangeChannelNameResponse(BaseModel):
+    message: str
+    success: bool = False
 class DeviceResponse(BaseModel):
     id: str
     name: str

@@ -1,12 +1,9 @@
-
 import React from 'react';
 import { useStore } from 'react-redux';
-import { View, Text, Switch } from "react-native";
-import { useDispatch } from 'react-redux';
-import { publishToggleCommand } from '../store/deviceControlSlice';
+import { View, Text, Switch, TouchableOpacity } from "react-native";
+import { publishToggleCommand, updateChannelConfig } from '../store/deviceControlSlice';
 import { useChannelState } from '../reduxStates';
 import { toggleSwitchStyles } from '../styles';
-
 const styles = toggleSwitchStyles;
 
 
@@ -28,15 +25,31 @@ const styles = toggleSwitchStyles;
 // ToggleSwitch component definition
 // This component renders a toggle switch for a device channel.
 // It manages UI state, dispatches Redux actions, and handles MQTT publish events.
-const ToggleSwitch = ({ index, ie_name, client, disabled: disabledFromParent = false }) => {
-  const dispatch = useDispatch();
+const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, disabled: disabledFromParent = false, channelDataInfo }) => {
+  const { id } = channelDataInfo;
   const store = useStore();// for handling the redux values in setTimeout funtion
   const channelData = useChannelState(ie_name, index);
   const value = channelData?.currentState || 0;
+  // Prefer the Redux-backed name so renames (which patch currentIEInfo via
+  // applyChannelNameUpdate) reflect immediately without a screen reload.
+  // Fall back to the prop for the first paint before currentIEInfo is hydrated.
+  const name = channelData?.name ?? channelDataInfo.name;
   const [internalDisabled, setInternalDisabled] = React.useState(false);//For disabling the switch during update
-  
   // Combine internal disabled state with parent disabled prop
   const disabled = disabledFromParent || internalDisabled;
+
+  // Open the singleton ChannelRenameModal pre-filled with this channel's current
+  // name. The modal lives in DedicatedIEControl and reads everything from Redux.
+  const openRenameModal = () => {
+    dispatch(updateChannelConfig({
+      openModal: true,
+      device_id,
+      channel_id: id,
+      ie_name,
+      new_name: name ?? '',
+      error: null,
+    }));
+  };
   const onToggle = async () => {
     // Toggle the value between 0 and 1
     const newValue = value === 1 ? 0 : 1;
@@ -88,11 +101,10 @@ const ToggleSwitch = ({ index, ie_name, client, disabled: disabledFromParent = f
     if (disabled) return "#dbeafe"; // light blue
     return "#fff";
   };
-
   return (
     <View style={[styles.card, { backgroundColor: getCardBackgroundColor() }]} >
       <Text style={[styles.channelText]}>
-        Channel: {String(index) || "-"}
+        Channel: {String(name) || '-'}
       </Text>
       <Text style={[styles.stateText, { color: getStateTextColor() }]}>
         Current State: {disabled ? "Working" : String(value) === "1" ? "ON" : "OFF"}
@@ -110,6 +122,16 @@ const ToggleSwitch = ({ index, ie_name, client, disabled: disabledFromParent = f
         />
         <Text style={[styles.switchLabel, { color: value === 1 ? "#22c55e" : "#dc2626" }]}>ON</Text>
       </View>
+      {/* Rendered last so it draws on top of the flow-positioned children; its
+          visual position is still top-right thanks to absolute positioning. */}
+      <TouchableOpacity
+        onPress={openRenameModal}
+        style={styles.editButton}
+        accessibilityLabel={`Rename channel ${index}`}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <Text style={styles.editButtonText}>Edit</Text>
+      </TouchableOpacity>
     </View>
   )
 };

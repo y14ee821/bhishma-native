@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Switch, TouchableOpacity, ScrollView } from 'react-native';
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 import ToggleSwitch from '../components/ToggleSwitch';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { initMQTT } from '../services/mqttService';
 import { useDeviceControlState } from '../reduxStates';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,6 +13,7 @@ import { useStore } from 'react-redux';
 import { useSnackbar } from '../utils/common';
 import { useMqttClient } from '../mqttcomponents/MqttConnection';
 import { getDedicatedIEInfo } from '../services/IE_Service';
+import { ChannelRenameModal } from '../components/utils';
 const styles = dedicatedIEControlStyles;
 
 /** 
@@ -33,7 +34,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
 
   const dispatch = useDispatch();
   const route = useRoute();
-  
+  const user_id = useSelector(state => state.auth.user_id);
   const { name, device_id } = route.params || {};// Get the IE name from navigation parameters
   const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
   const [dedicatedIEInfo, setDedicatedIEInfo] = useState(null);
@@ -92,11 +93,15 @@ export const DedicatedIEControl = ({ darkMode }) => {
             ]}>
               {Object.entries(dedicatedIEInfo[name]["channels"]).map(([channelId, channelData]) => (
                 <ToggleSwitch 
+                  dispatch={dispatch}
+                  user_id={user_id}
+                  device_id={device_id}
                   key={channelId} 
                   index={parseInt(channelId)} 
                   ie_name={name} 
                   client={client}
                   disabled={!connectedToBroker || allChannelOperationPerforming || !client}
+                  channelDataInfo={channelData}
                 />
               ))}
             </View>
@@ -157,6 +162,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
         </View>
       </View>
     </ScrollView>
+    <ChannelRenameModal />
     </LinearGradient>
   );
 } else {

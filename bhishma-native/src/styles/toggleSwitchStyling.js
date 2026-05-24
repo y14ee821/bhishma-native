@@ -27,6 +27,28 @@ export const toggleSwitchStyles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    position: "relative",
+  },
+  editButton: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "#eff6ff",
+    borderWidth: 1,
+    borderColor: "#bfdbfe",
+    // Keep the pill above the flow-rendered Text/Switch children so taps land
+    // on the button, not on the channel label that overlaps it. zIndex covers
+    // iOS, elevation covers Android.
+    zIndex: 10,
+    elevation: 4,
+  },
+  editButtonText: {
+    color: "#2563eb",
+    fontSize: 12,
+    fontWeight: "600",
   },
   channelText: {
     fontSize: 20,

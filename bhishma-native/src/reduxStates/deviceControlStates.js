@@ -30,7 +30,10 @@ export const useDeviceControlState = () => {
     allChannelOperationSuccess,
   };
 };
-
+export const useUpdateChannelDetails = ()=>
+{
+  return useSelector(state=>state.deviceControl.updateChannelDetails);
+}
 /**
  * Hook to get IE Info only
  * @returns {Object} IE_Info object

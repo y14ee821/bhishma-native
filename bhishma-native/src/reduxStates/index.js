@@ -11,7 +11,8 @@ export {
   useTogglePublishing,
   useToggleError,
   useIEByName,
-  useChannelState
+  useChannelState,
+  useUpdateChannelDetails
 } from './deviceControlStates';
 
 // Device State Hooks

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getIEInfo } from "../services/IE_Service";
+import { getIEInfo, changeChannelName } from "../services/IE_Service";
 import { publishToggle } from "../services/mqttService";
 
 // Async thunk for fetching IE info
@@ -16,6 +16,35 @@ export const fetchIEInfo = createAsyncThunk(
         } catch (error) {
             return rejectWithValue(error.message || 'An error occurred while fetching IE info');
         }
+    }
+);
+
+// Async thunk for renaming a channel. Pulls device_id / channel_id / ie_name /
+// new_name from `updateChannelDetails`, calls the backend, then patches both
+// IE_Info and currentIEInfo so the UI updates without a refetch.
+export const renameChannel = createAsyncThunk(
+    'deviceControl/renameChannel',
+    async (_, { getState, dispatch, rejectWithValue }) => {
+        const { device_id, channel_id, new_name, ie_name } =
+            getState().deviceControl.updateChannelDetails;
+
+        if (!device_id || channel_id == null || !ie_name) {
+            return rejectWithValue('Missing channel context');
+        }
+
+        const trimmed = (new_name ?? '').trim();
+        if (!trimmed) {
+            return rejectWithValue('Channel name cannot be empty');
+        }
+
+        const result = await changeChannelName(device_id, channel_id, trimmed);
+        if (!result.success) {
+            return rejectWithValue(result.error || 'Failed to rename channel');
+        }
+
+        dispatch(applyChannelNameUpdate({ ie_name, channel_id, new_name: trimmed }));
+        dispatch(resetUpdateChannelConfig());
+        return result.data;
     }
 );
 
@@ -57,10 +86,60 @@ const deviceControlSlice = createSlice({
         toggleError: null,
         allChannelOperationPerforming: false,
         allChannelOperationSuccess:false,
-    
+        updateChannelDetails: {
+            openModal: false,
+            new_name: '',
+            device_id: null,
+            channel_id: null,
+            ie_name: null,
+            saving: false,
+            error: null,
+        }
     },
 
     reducers: {
+        // Partial setter for any field on `updateChannelDetails`. Only updates
+        // keys that are explicitly present in the payload.
+        updateChannelConfig: (state, action) => {
+            const allowed = [
+                'openModal',
+                'new_name',
+                'device_id',
+                'channel_id',
+                'ie_name',
+                'saving',
+                'error',
+            ];
+            allowed.forEach((key) => {
+                if (key in action.payload) {
+                    state.updateChannelDetails[key] = action.payload[key];
+                }
+            });
+        },
+        // Reset modal back to closed/empty defaults (used on Cancel + after Save).
+        resetUpdateChannelConfig: (state) => {
+            state.updateChannelDetails = {
+                openModal: false,
+                new_name: '',
+                device_id: null,
+                channel_id: null,
+                ie_name: null,
+                saving: false,
+                error: null,
+            };
+        },
+        // After a successful rename, patch the channel name locally in both
+        // IE_Info (source) and currentIEInfo (rendered slice) so toggles stay
+        // mounted and the new label appears immediately.
+        applyChannelNameUpdate: (state, action) => {
+            const { ie_name, channel_id, new_name } = action.payload;
+            if (state.IE_Info?.[ie_name]?.channels?.[channel_id]) {
+                state.IE_Info[ie_name].channels[channel_id].name = new_name;
+            }
+            if (state.currentIEInfo?.[ie_name]?.channels?.[channel_id]) {
+                state.currentIEInfo[ie_name].channels[channel_id].name = new_name;
+            }
+        },
         checkBrokerConnection: (state, action) => {
             const connected = Boolean(action.payload);
             state.connectedToBroker = connected;
@@ -156,10 +235,37 @@ const deviceControlSlice = createSlice({
             .addCase(publishToggleCommand.rejected, (state, action) => {
                 state.publishingToggle = false;
                 state.toggleError = action.payload || 'Failed to publish toggle command';
+            })
+            // Rename Channel
+            .addCase(renameChannel.pending, (state) => {
+                state.updateChannelDetails.saving = true;
+                state.updateChannelDetails.error = null;
+            })
+            .addCase(renameChannel.fulfilled, (state) => {
+                state.updateChannelDetails.saving = false;
+                state.updateChannelDetails.error = null;
+            })
+            .addCase(renameChannel.rejected, (state, action) => {
+                state.updateChannelDetails.saving = false;
+                state.updateChannelDetails.error =
+                    action.payload || 'Failed to rename channel';
             });
     },
 
 })
 
-export const { checkBrokerConnection, setConnectingToBroker, modifyIE_Machines, updateIE_Mapper, updateIEsState, updatedCurrentUIState, setAllChannelOperationPerforming, setAllChannelOperationSuccess, updateCurrentIEInfo } = deviceControlSlice.actions;
+export const {
+    checkBrokerConnection,
+    setConnectingToBroker,
+    modifyIE_Machines,
+    updateIE_Mapper,
+    updateIEsState,
+    updatedCurrentUIState,
+    setAllChannelOperationPerforming,
+    setAllChannelOperationSuccess,
+    updateCurrentIEInfo,
+    updateChannelConfig,
+    resetUpdateChannelConfig,
+    applyChannelNameUpdate,
+} = deviceControlSlice.actions;
 export const deviceControlReducer = deviceControlSlice.reducer;

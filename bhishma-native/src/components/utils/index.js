@@ -1,0 +1,1 @@
+export { ChannelRenameModal } from './ChannelRenameModal';
