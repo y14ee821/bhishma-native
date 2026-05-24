@@ -56,9 +56,9 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
   // Android already renders each device row full-width; on web/iOS we collapse
   // the 2-column grid to a single column once the viewport is narrow.
   const devicesStacked =
-    Platform.OS !== "android" && windowWidth < DEVICE_STACK_BREAKPOINT;
+    windowWidth < DEVICE_STACK_BREAKPOINT;
   const devicesCompact =
-    Platform.OS !== "android" && windowWidth < DEVICE_COMPACT_BREAKPOINT;
+     windowWidth < DEVICE_COMPACT_BREAKPOINT;
   const [refreshing, setRefreshing] = useState(false);
   const [creatingDevices, setCreatingDevices] = useState(false);
   const [hoverActionPrimary, setHoverActionPrimary] = useState(false);
