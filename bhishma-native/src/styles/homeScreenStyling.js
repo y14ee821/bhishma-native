@@ -623,6 +623,11 @@ export const homeScreenStyles = StyleSheet.create({
       },
     }),
   },
+  /** Web/iOS narrow viewports: force one card per row so name + channels do not clip. */
+  deviceCardWrapStacked: {
+    width: '100%',
+    maxWidth: '100%',
+  },
   /** Fill the wrap — do not use % width here (was 40% of 40% of row, crushing layout) */
   deviceCard: {
     width: '100%',

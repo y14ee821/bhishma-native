@@ -26,6 +26,14 @@ const webPointer = Platform.OS === "web" ? { cursor: "pointer" } : {};
 /** Native narrow width: stack greeting + MQTT so copy is not crushed by the badge */
 const HERO_STACK_BREAKPOINT = 440;
 
+/** Web/iOS narrow width: collapse "Your Devices" grid from 2 columns to 1 so
+ *  device names and channel counts no longer get clipped on small screens. */
+const DEVICE_STACK_BREAKPOINT = 720;
+
+/** Even narrower width: drop the "Channels" word and just show the icon + count
+ *  so the card content does not overflow on very small screens. */
+const DEVICE_COMPACT_BREAKPOINT = 380;
+
 /** Subtle layered gradients — dark panels + light cards */
 const HOME_GRAD = {
   hero: ["rgba(44, 78, 118, 0.62)", "rgba(14, 26, 44, 0.52)", "rgba(28, 54, 92, 0.66)"],
@@ -45,6 +53,12 @@ const HOME_GRAD = {
 export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
   const { width: windowWidth } = useWindowDimensions();
   const heroStacked = Platform.OS !== "web" && windowWidth < HERO_STACK_BREAKPOINT;
+  // Android already renders each device row full-width; on web/iOS we collapse
+  // the 2-column grid to a single column once the viewport is narrow.
+  const devicesStacked =
+    Platform.OS !== "android" && windowWidth < DEVICE_STACK_BREAKPOINT;
+  const devicesCompact =
+    Platform.OS !== "android" && windowWidth < DEVICE_COMPACT_BREAKPOINT;
   const [refreshing, setRefreshing] = useState(false);
   const [creatingDevices, setCreatingDevices] = useState(false);
   const [hoverActionPrimary, setHoverActionPrimary] = useState(false);
@@ -609,6 +623,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                         key={deviceName}
                         style={[
                           styles.deviceCardWrap,
+                          devicesStacked && styles.deviceCardWrapStacked,
                           {
                             opacity: rowAnim,
                             transform: [
@@ -693,7 +708,9 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                                     <View style={styles.deviceChannelEmojiWrap}>
                                       <Ionicons name="radio-outline" size={24} color="#4338ca" />
                                     </View>
-                                    <Text style={styles.deviceChannelLabel}>Channels</Text>
+                                    {!devicesCompact && (
+                                      <Text style={styles.deviceChannelLabel}>Channels</Text>
+                                    )}
                                     <Text style={styles.deviceChannelCount}>{channelCount}</Text>
                                   </View>
                                 )}
