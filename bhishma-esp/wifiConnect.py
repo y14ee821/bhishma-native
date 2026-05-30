@@ -1,37 +1,29 @@
 import network
 from machine import Pin
-from utils import utilities
 import time
 import gc
-gc.collect()
-jsonInputs = utilities().jsonHandler()
-print("json inputs")
-print(jsonInputs)
-def connect():
+
+
+def connect(config):
+    gc.collect()
     startTime = time.time()
-    wifiConnect = network.WLAN(network.STA_IF)
-    wifiConnect.active(1)
-    ssid = jsonInputs['ssid']
-    password= jsonInputs['password']
-    connectionIndicatorPin = Pin(jsonInputs['connectionIndicatorPin'],Pin.OUT)
-    connectionIndicatorPin.off()
-    if not wifiConnect.isconnected():
-        print('connecting to network...')
-        #self.file.write("Connecting to network"+str(time.localtime()))
-        wifiConnect.connect(ssid, password)
-        while not wifiConnect.isconnected():
-            if(time.time()-startTime>jsonInputs['connectivityTimeout']):
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    ssid = config["ssid"]
+    password = config["password"]
+    indicator = Pin(config["connectionIndicatorPin"], Pin.OUT)
+    indicator.off()
+    if not wlan.isconnected():
+        print("connecting to network...")
+        wlan.connect(ssid, password)
+        while not wlan.isconnected():
+            if time.time() - startTime > config["connectivityTimeout"]:
                 break
             time.sleep(0.15)
             print("wait..")
-            pass
-
-    if(wifiConnect.isconnected()):
-        print('network config:', wifiConnect.ifconfig())
-        connectionIndicatorPin.on()
-        print("Wifi connected",wifiConnect.ifconfig())        
+    if wlan.isconnected():
+        print("network config:", wlan.ifconfig())
+        indicator.on()
         return True
-    else:
-        connectionIndicatorPin.off()
-        return False
-    
+    indicator.off()
+    return False

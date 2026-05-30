@@ -4,19 +4,14 @@ import machine
 
 
 class utilities:
-    def __init__(self):
-        self.jsonParams = self.jsonHandler()
-    def jsonHandler(self):       
-        path=""
-        print(path)
+    def __init__(self, config=None):
+        self.jsonParams = config if config is not None else self.jsonHandler()
+
+    def jsonHandler(self):
         try:
-            if(path==""):
-                path = "config.json"
-            jsonFilePath = open(path)
-            return json.load(jsonFilePath)
-        except Exception as error:
-            #log.error(f"unable to parse the Json File: ", extra={"className":"jsonLoad"})
-            #log.info("Exiting...", extra={"className":"jsonLoad"})
+            with open("config.json") as jsonFilePath:
+                return json.load(jsonFilePath)
+        except Exception:
             exit()
     def restart_and_reconnect(self):
       print('Failed to connect to MQTT broker. Reconnecting...')

@@ -2,8 +2,8 @@
     "broker": "0f6ed993bc1e42aa97a5fa6922b16994.s1.eu.hivemq.cloud",
     "port": 8883,
     "ssl": true,
-    "mqtt_username": "lohit",
-    "mqtt_password": "<PASTE_YOUR_HIVEMQ_PASSWORD_HERE>",
+    "mqtt_username": "krishna",
+    "mqtt_password": "Lohit.123",
     "connectionType": "publish",
     "topic":"rao",
     "client":"lohit-automationClient",
@@ -29,5 +29,11 @@
     "connectionIndicatorPin": 2,
     "connectivityTimeout": 10,
     "reconnectTimeout": 5,
-    "loads":4    
+    "loads": 4,
+    "setup_button_pin": 0,
+    "setup_button_hold_ms": 3000,
+    "setup_button_watch_ms": 10000,
+    "setup_button_active_low": true,
+    "ap_setup_ssid": "Bhishma-Setup",
+    "ap_setup_password": "bhishma123"
 }
