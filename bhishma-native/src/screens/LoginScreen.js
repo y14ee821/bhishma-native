@@ -1,9 +1,11 @@
 import React, { Suspense } from 'react';
 import { View, ActivityIndicator, InteractionManager, Platform } from 'react-native';
+import { getTheme } from '../styles';
 
 const GooglePanel = React.lazy(() => import('./LoginGooglePanel'));
 
 export default function LoginScreen({ darkMode }) {
+  const t = getTheme(darkMode);
   const [deferred, setDeferred] = React.useState(Platform.OS === 'web');
 
   React.useEffect(() => {
@@ -16,8 +18,8 @@ export default function LoginScreen({ darkMode }) {
 
   if (!deferred) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' }}>
-        <ActivityIndicator size="large" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: t.loaderBg }}>
+        <ActivityIndicator size="large" color={t.primary} />
       </View>
     );
   }
@@ -25,8 +27,8 @@ export default function LoginScreen({ darkMode }) {
   return (
     <Suspense
       fallback={
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' }}>
-          <ActivityIndicator size="large" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: t.loaderBg }}>
+          <ActivityIndicator size="large" color={t.primary} />
         </View>
       }
     >

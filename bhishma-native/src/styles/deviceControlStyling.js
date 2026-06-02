@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export const deviceControlStyles = StyleSheet.create({
+export const makeDeviceControlStyles = (t) => StyleSheet.create({
   gradient: {
     flex: 1,
   },
@@ -12,25 +12,25 @@ export const deviceControlStyles = StyleSheet.create({
     width: 240,
     padding: 16,
     margin: 8,
-    backgroundColor: "#fff",
-    borderColor: "#e5e7eb",
+    backgroundColor: t.card,
+    borderColor: t.cardBorder,
     borderWidth: 1,
     borderRadius: 12,
-    shadowColor: "#000",
+    shadowColor: t.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
   channelText: {
     fontSize: 20,
-    color: "#111827",
+    color: t.textPrimary,
     fontWeight: "bold",
     marginBottom: 8,
   },
   stateText: {
     fontSize: 16,
     textAlign: "center",
-    color: "#111827",
+    color: t.textPrimary,
     fontWeight: "bold",
     marginBottom: 8,
   },
@@ -41,12 +41,12 @@ export const deviceControlStyles = StyleSheet.create({
   },
   switchLabel: {
     fontSize: 14,
-    color: "#111827",
+    color: t.textPrimary,
     marginHorizontal: 8,
   },
   errorText: {
     fontSize: 20,
-    color: "#dc2626",
+    color: t.danger,
     fontWeight: "bold",
     margin: 8,
   },
@@ -55,7 +55,7 @@ export const deviceControlStyles = StyleSheet.create({
   },
   machineText: {
     fontSize: 20,
-    color: "#111827",
+    color: t.textPrimary,
     fontWeight: "bold",
     marginBottom: 8,
   },
@@ -94,7 +94,7 @@ export const deviceControlStyles = StyleSheet.create({
     marginTop: 50,
   },
   heading: {
-    color: "#ffffff",
+    color: t.textOnGradient,
     fontSize: 24,
     fontWeight: "800",
     textAlign: "center",
@@ -104,26 +104,20 @@ export const deviceControlStyles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
-  /** Modern device tile — avatar + name + Control chip (theme-aware) */
+  /** Modern device tile — avatar + name + Control chip (token-driven) */
   deviceCard: {
     width: 160,
     minHeight: 168,
     margin: 10,
     borderRadius: 20,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: t.cardBorderStrong,
     shadowColor: "#020617",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 16,
     elevation: 8,
-  },
-  deviceCardLight: {
-    borderWidth: 1,
-    borderColor: "rgba(148, 163, 184, 0.4)",
-  },
-  deviceCardDark: {
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.12)",
   },
   deviceCardGradient: {
     flex: 1,
@@ -140,24 +134,13 @@ export const deviceControlStyles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 14,
     borderWidth: 1,
-  },
-  deviceAvatarLight: {
-    backgroundColor: "rgba(191, 219, 254, 0.95)",
-    borderColor: "rgba(37, 99, 235, 0.35)",
-  },
-  deviceAvatarDark: {
-    backgroundColor: "rgba(56, 189, 248, 0.16)",
-    borderColor: "rgba(56, 189, 248, 0.45)",
+    backgroundColor: t.avatarBg,
+    borderColor: t.avatarBorder,
   },
   deviceAvatarText: {
     fontSize: 26,
     fontWeight: "800",
-  },
-  deviceAvatarTextLight: {
-    color: "#1e3a8a",
-  },
-  deviceAvatarTextDark: {
-    color: "#e0f2fe",
+    color: t.avatarText,
   },
   deviceCardName: {
     fontSize: 18,
@@ -165,12 +148,7 @@ export const deviceControlStyles = StyleSheet.create({
     letterSpacing: 0.3,
     textAlign: "center",
     maxWidth: "100%",
-  },
-  deviceCardNameLight: {
-    color: "#0f172a",
-  },
-  deviceCardNameDark: {
-    color: "#ffffff",
+    color: t.textPrimary,
   },
   deviceCardChip: {
     flexDirection: "row",
@@ -181,25 +159,13 @@ export const deviceControlStyles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 999,
     borderWidth: 1,
-  },
-  deviceCardChipLight: {
-    backgroundColor: "rgba(37, 99, 235, 0.10)",
-    borderColor: "rgba(37, 99, 235, 0.28)",
-  },
-  deviceCardChipDark: {
-    backgroundColor: "rgba(56, 189, 248, 0.14)",
-    borderColor: "rgba(56, 189, 248, 0.4)",
+    backgroundColor: t.chipBg,
+    borderColor: t.chipBorder,
   },
   deviceCardChipText: {
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 0.2,
-  },
-  deviceCardChipTextLight: {
-    color: "#2563eb",
-  },
-  deviceCardChipTextDark: {
-    color: "#7dd3fc",
+    color: t.chipText,
   },
 });
-

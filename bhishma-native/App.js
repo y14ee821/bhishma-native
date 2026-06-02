@@ -13,13 +13,33 @@ import { useSelector } from 'react-redux';
 import { useIEInfo, useIEInfoLoading, useIEInfoError } from './src/reduxStates';
 import { MqttConnection } from './src/mqttcomponents';
 import { SnackbarProvider } from './src/utils/common';
-
-function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
+import {useTheme} from './src/reduxStates/utilsStates';
+import { getTheme } from './src/styles';
+function AppContent() {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const LoadedIEs = useIEInfo();
   const loadingIEInfo = useIEInfoLoading();
   const errorIEInfo = useIEInfoError();
+  const theme = useTheme();
+  const [autoDarkMode, setAutoDarkMode] = useState(theme === "auto");
+  const [darkMode, setDarkMode] = useState(theme === "dark");
+  const t = getTheme(darkMode);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const now = new Date();
+      const currentHour = now.getHours();
+      if (currentHour >= 19 || currentHour < 9) {
+        if (autoDarkMode) setDarkMode(true);
+      } else {
+        if (autoDarkMode) setDarkMode(false);
+      }
+    };
+    checkDarkMode();
+    const interval = setInterval(checkDarkMode, 60000);
+    return () => clearInterval(interval);
+  }, [darkMode, autoDarkMode]);
 
   useEffect(() => {
     // Check authentication status on app start
@@ -60,11 +80,11 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#f5f5f5',
+            backgroundColor: t.loaderBg,
           }}
         >
-          <ActivityIndicator size="large" />
-          <Text style={{ marginTop: 12, color: '#666' }}>Loading your devices…</Text>
+          <ActivityIndicator size="large" color={t.primary} />
+          <Text style={{ marginTop: 12, color: t.textMuted }}>Loading your devices…</Text>
         </View>
       ) : (
         <Routes darkMode={darkMode} setDarkMode={setDarkMode} autoDarkMode={autoDarkMode} setAutoDarkMode={setAutoDarkMode} />
@@ -74,37 +94,12 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
 }
 
 export default function App() {
-  const [autoDarkMode, setAutoDarkMode] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const checkDarkMode = () => {
-      const now = new Date();
-      const currentHour = now.getHours(); // Returns 0-23
-      // Dark mode: 7 PM (19:00) to 9 AM (09:00)
-      // If hour >= 19 OR hour < 9, then dark mode
-      if (currentHour >= 19 || currentHour < 9) {
-        if(autoDarkMode)
-          setDarkMode(true);
-      } else {
-        if(autoDarkMode)
-          setDarkMode(false);
-      }
-    };
-    // Check immediately
-    checkDarkMode();
-    
-    // Check every minute to update if time crosses threshold
-    const interval = setInterval(checkDarkMode, 60000);
-    
-    return () => clearInterval(interval);
-  }, [darkMode, autoDarkMode]);
   return (
     <RootErrorBoundary>
       <SafeAreaProvider style={{ flex: 1, backgroundColor: '#ffffff' }}>
         <Provider store={store}>
           <SnackbarProvider>
-            <AppContent darkMode={darkMode} setDarkMode={setDarkMode} autoDarkMode={autoDarkMode} setAutoDarkMode={setAutoDarkMode} />
+            <AppContent />
           </SnackbarProvider>
         </Provider>
       </SafeAreaProvider>

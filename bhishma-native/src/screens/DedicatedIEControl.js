@@ -7,7 +7,7 @@ import { initMQTT } from '../services/mqttService';
 import { useDeviceControlState } from '../reduxStates';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { lightTheme, darkTheme, dedicatedIEControlStyles } from '../styles';
+import { lightTheme, darkTheme, useThemedStyles, makeDedicatedIEControlStyles } from '../styles';
 import { publishFullOperation, unsubscribeFromIE } from '../services/mqttService';
 import { setAllChannelOperationPerforming, setAllChannelOperationSuccess, updateCurrentIEInfo} from '../store/deviceControlSlice';
 import { useStore } from 'react-redux';
@@ -15,7 +15,6 @@ import { useSnackbar } from '../utils/common';
 import { useMqttClient } from '../mqttcomponents/MqttConnection';
 import { getDedicatedIEInfo } from '../services/IE_Service';
 import { ChannelRenameModal } from '../components/utils';
-const styles = dedicatedIEControlStyles;
 
 /** 
  * DedicatedIEControl component for controlling a dedicated internet equipment (IE) via MQTT.
@@ -31,6 +30,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
   const { showSuccess, showError } = useSnackbar();
   const client = useMqttClient();
   const theme = darkMode ? darkTheme : lightTheme;
+  const styles = useThemedStyles(makeDedicatedIEControlStyles, darkMode);
   const { allChannelOperationPerforming, allChannelOperationSuccess } = useDeviceControlState();
 
   const dispatch = useDispatch();

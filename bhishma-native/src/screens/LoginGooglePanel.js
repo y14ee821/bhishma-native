@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginWithGoogle } from '../store/authSlice';
 import * as Google from 'expo-auth-session/providers/google';
 import { styles, lightTheme, darkTheme } from './loginGoogleShared';
+import { getTheme } from '../styles';
 
 export default function LoginGooglePanel({ darkMode }) {
   const dispatch = useDispatch();
@@ -117,6 +118,7 @@ export default function LoginGooglePanel({ darkMode }) {
   };
 
   const theme = darkMode ? darkTheme : lightTheme;
+  const t = getTheme(darkMode);
 
   return (
     <View style={[styles.container, theme.container]}>
@@ -125,8 +127,8 @@ export default function LoginGooglePanel({ darkMode }) {
         <Text style={[styles.subtitle, theme.subtitle]}>Sign in with your Google account to continue</Text>
 
         {(error || localError) && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error || localError}</Text>
+          <View style={[styles.errorContainer, { backgroundColor: t.dangerSurface, borderWidth: 1, borderColor: t.dangerBorder }]}>
+            <Text style={[styles.errorText, { color: t.dangerText }]}>{error || localError}</Text>
           </View>
         )}
 

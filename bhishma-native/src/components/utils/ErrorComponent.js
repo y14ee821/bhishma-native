@@ -1,9 +1,8 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import { errorComponentStyles } from "../../styles";
+import { useThemedStyles, makeErrorComponentStyles } from "../../styles";
 
-const styles = errorComponentStyles;
-
-export const ErrorComponent = ({ errorMessage, onRetry }) => {
+export const ErrorComponent = ({ errorMessage, onRetry, darkMode = true }) => {
+  const styles = useThemedStyles(makeErrorComponentStyles, darkMode);
   return (
     <View style={styles.container}>
       <Text style={styles.errorText}>Something went wrong!</Text>

@@ -18,3 +18,7 @@ export const useError = () => {
   return useSelector(state => state.utils.error);
 };
 
+export const useTheme = ()=>
+{
+  return useSelector(state=>state.utils.theme);
+}

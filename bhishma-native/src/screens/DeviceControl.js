@@ -4,16 +4,14 @@ import { useDeviceControlState } from '../reduxStates'
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { lightTheme, darkTheme, deviceControlStyles } from '../styles';
+import { lightTheme, darkTheme, getTheme, useThemedStyles, makeDeviceControlStyles } from '../styles';
 
 import { useGetCurrentUser } from '../reduxStates/authStates';
-const styles = deviceControlStyles;
-
-const CARD_GRAD_LIGHT = ["#ffffff", "#f8fafc", "#edf2f7"];
-const CARD_GRAD_DARK = ["#1c1c20", "#161619", "#0f0f12"];
 
 export const DeviceControl = ({ darkMode }) => {
   const theme = darkMode ? darkTheme : lightTheme;
+  const t = getTheme(darkMode);
+  const styles = useThemedStyles(makeDeviceControlStyles, darkMode);
   const navigation = useNavigation();
   const { IE_Info } = useDeviceControlState();
   const currentUser = useGetCurrentUser();
@@ -32,61 +30,34 @@ export const DeviceControl = ({ darkMode }) => {
               <TouchableOpacity
                 key={ie}
                 activeOpacity={0.85}
-                style={[
-                  styles.deviceCard,
-                  darkMode ? styles.deviceCardDark : styles.deviceCardLight,
-                ]}
+                style={styles.deviceCard}
                 onPress={() => navigation.navigate('DedicatedIEControl', { name: device.device_name, device_id: device.device_id })}
               >
                 <LinearGradient
-                  colors={darkMode ? CARD_GRAD_DARK : CARD_GRAD_LIGHT}
+                  colors={t.cardGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.deviceCardGradient}
                 >
-                  <View
-                    style={[
-                      styles.deviceAvatar,
-                      darkMode ? styles.deviceAvatarDark : styles.deviceAvatarLight,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.deviceAvatarText,
-                        darkMode ? styles.deviceAvatarTextDark : styles.deviceAvatarTextLight,
-                      ]}
-                      allowFontScaling={false}
-                    >
+                  <View style={styles.deviceAvatar}>
+                    <Text style={styles.deviceAvatarText} allowFontScaling={false}>
                       {initial}
                     </Text>
                   </View>
                   <Text
-                    style={[
-                      styles.deviceCardName,
-                      darkMode ? styles.deviceCardNameDark : styles.deviceCardNameLight,
-                    ]}
+                    style={styles.deviceCardName}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
                     {deviceName.toUpperCase()}
                   </Text>
-                  <View
-                    style={[
-                      styles.deviceCardChip,
-                      darkMode ? styles.deviceCardChipDark : styles.deviceCardChipLight,
-                    ]}
-                  >
+                  <View style={styles.deviceCardChip}>
                     <Ionicons
                       name="options-outline"
                       size={14}
-                      color={darkMode ? "#7dd3fc" : "#2563eb"}
+                      color={t.chipText}
                     />
-                    <Text
-                      style={[
-                        styles.deviceCardChipText,
-                        darkMode ? styles.deviceCardChipTextDark : styles.deviceCardChipTextLight,
-                      ]}
-                    >
+                    <Text style={styles.deviceCardChipText}>
                       Control
                     </Text>
                   </View>

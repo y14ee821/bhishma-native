@@ -33,7 +33,7 @@ export const colors = {
   },
 };
 
-export const homeScreenStyles = StyleSheet.create({
+export const makeHomeScreenStyles = (t) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -281,12 +281,12 @@ export const homeScreenStyles = StyleSheet.create({
   connectionBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(241, 245, 249, 0.92)',
+    backgroundColor: t.home.badgeBg,
     paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.32)',
+    borderColor: t.home.badgeBorder,
     borderStyle: 'solid',
     minWidth: 0,
     maxWidth: '100%',
@@ -309,7 +309,7 @@ export const homeScreenStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: t.home.iconBubbleBg,
     flexShrink: 0,
     ...Platform.select({
       android: {
@@ -381,7 +381,7 @@ export const homeScreenStyles = StyleSheet.create({
   },
   connectionSubtext: {
     fontSize: 11,
-    color: '#475569',
+    color: t.textSecondary,
     fontWeight: '700',
     marginTop: 2,
     letterSpacing: 0.2,
@@ -454,14 +454,14 @@ export const homeScreenStyles = StyleSheet.create({
   overviewTitle: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#0f172a',
+    color: t.textPrimary,
     letterSpacing: 0.15,
     flex: 1,
   },
   overviewHint: {
     fontSize: 12,
     lineHeight: 18,
-    color: '#475569',
+    color: t.textSecondary,
     fontWeight: '600',
   },
   overviewStatsBand: {
@@ -513,14 +513,14 @@ export const homeScreenStyles = StyleSheet.create({
   overviewStatNumber: {
     fontSize: 30,
     fontWeight: '800',
-    color: '#1d4ed8',
+    color: t.accentText,
     lineHeight: 34,
     marginTop: 2,
   },
   overviewStatLabel: {
     fontSize: 14,
     lineHeight: 20,
-    color: '#1e293b',
+    color: t.textPrimary,
     fontWeight: '700',
     textAlign: 'center',
     flexShrink: 1,
@@ -657,11 +657,11 @@ export const homeScreenStyles = StyleSheet.create({
     shadowOpacity: 0.06,
   },
   actionCardTitle: {
-    color: '#0f172a',
+    color: t.textPrimary,
     fontWeight: '800',
   },
   actionCardHint: {
-    color: '#475569',
+    color: t.textSecondary,
     fontWeight: '600',
   },
   devicesSectionHeader: {
@@ -859,7 +859,7 @@ export const homeScreenStyles = StyleSheet.create({
   deviceCardNameInline: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#0f172a',
+    color: t.textPrimary,
     ...Platform.select({
       android: { fontSize: 18 },
     }),
@@ -878,8 +878,8 @@ export const homeScreenStyles = StyleSheet.create({
     fontSize: 26,
     marginRight: 8,
     fontWeight: '800',
-    color: '#1e3a8a',
-    backgroundColor: 'rgba(191, 219, 254, 0.92)',
+    color: t.home.avatarText,
+    backgroundColor: t.home.avatarBg,
     width: 54,
     height: 54,
     borderRadius: 27,
@@ -919,7 +919,7 @@ export const homeScreenStyles = StyleSheet.create({
   deviceChannelLabel: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1e293b',
+    color: t.textPrimary,
     letterSpacing: 0.15,
     marginRight: 0,
     flexShrink: 0,
@@ -927,7 +927,7 @@ export const homeScreenStyles = StyleSheet.create({
   deviceChannelCount: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#1d4ed8',
+    color: t.accentText,
     marginLeft: 5,
     fontVariant: ['tabular-nums'],
     flexShrink: 0,
@@ -940,12 +940,12 @@ export const homeScreenStyles = StyleSheet.create({
     textAlign: 'left',
     fontStyle: 'normal',
     fontSize: 12,
-    color: '#64748b',
+    color: t.textMuted,
     fontWeight: '600',
   },
   chevron: {
     fontSize: 24,
-    color: '#94a3b8',
+    color: t.textMuted,
     fontWeight: '300',
   },
   deviceStat: {
@@ -969,14 +969,14 @@ export const homeScreenStyles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#0f172a',
+    color: t.textPrimary,
     marginBottom: 8,
     textAlign: 'center',
   },
   emptyStateSubtitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#475569',
+    color: t.textSecondary,
     textAlign: 'center',
     lineHeight: 21,
   },
@@ -1014,5 +1014,35 @@ export const homeScreenStyles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
+  },
+});
+
+/**
+ * Theme-independent decorative styles used by module-level helper components
+ * (SectionBadge / FloatingIcon / FloatingIconField) that cannot access the
+ * themed factory output. These carry no light/dark colors.
+ */
+export const homeScreenStaticStyles = StyleSheet.create({
+  floatingLayer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
+  floatingIcon: {
+    position: 'absolute',
+  },
+  sectionIconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
 });

@@ -5,13 +5,14 @@ import { HomeScreen, DeviceControl, DedicatedIEControl, IoTHomeScreen, AddDevice
 import { ErrorComponent } from "../components";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { clearError } from "../store/utilsSlice"
+import { clearError, setTheme } from "../store/utilsSlice"
 import { logout } from "../store/authSlice"
 import { useNavigation } from "@react-navigation/native";
 import { useWindowDimensions } from 'react-native';
-import { BaseStyle, lightNavTheme, darkNavTheme, routesStyles } from '../styles';
+import { BaseStyle, lightNavTheme, darkNavTheme, routesStyles, getTheme } from '../styles';
 import { Platform } from "react-native";
 import {FlashIcon, HomeIcon, ControlIcon, AutoIcon} from '../icons';
+
 import {
   View,
   Text,
@@ -32,7 +33,7 @@ const NAV_GRAD_DARK = ["#050507", "#0f0f12", "#050507"];
 const LOGO_GRAD = ["#38bdf8", "#2563eb"];
 const LOGOUT_GRAD = ["#fb7185", "#e11d48"];
 
-const NavBar = ({ current, onNavigate, darkMode, setDarkMode, autoDarkMode, setAutoDarkMode, user, onLogout }) => {
+const NavBar = ({ current, onNavigate, darkMode, setDarkMode, autoDarkMode, setAutoDarkMode, user, onLogout, dispatch }) => {
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -107,10 +108,14 @@ const NavBar = ({ current, onNavigate, darkMode, setDarkMode, autoDarkMode, setA
     if (autoDarkMode) {
       setAutoDarkMode(false);
       setDarkMode(true);
+      dispatch(setTheme({theme:"dark"}));
+
     } else if (darkMode) {
       setDarkMode(false);
+      dispatch(setTheme({theme:"light"}));
     } else {
       setAutoDarkMode(true);
+      dispatch(setTheme({theme:"auto"}));
     }
   };
 
@@ -218,6 +223,7 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
   const dispatch = useDispatch();
   const errorState = useSelector((state) => state.utils.error);
   const { isAuthenticated, user, isLoading } = useSelector((state) => state.auth);
+  const t = getTheme(darkMode);
 
   const handleRetry = () => {
     dispatch(clearError(false));
@@ -253,12 +259,12 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
       <View
         style={[
           BaseStyle.container,
-          { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' },
+          { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: t.loaderBg },
         ]}
       >
-        <ActivityIndicator size="large" />
-        <Text style={{ marginTop: 10 }}>Loading...</Text>
-        <Text style={{ marginTop: 10, fontSize: 12, color: '#666' }}>
+        <ActivityIndicator size="large" color={t.primary} />
+        <Text style={{ marginTop: 10, color: t.textPrimary }}>Loading...</Text>
+        <Text style={{ marginTop: 10, fontSize: 12, color: t.textMuted }}>
           Checking authentication...
         </Text>
       </View>
@@ -273,10 +279,10 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
           <View
             style={[
               BaseStyle.container,
-              { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f5f5f5" },
+              { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: t.loaderBg },
             ]}
           >
-            <ActivityIndicator size="large" />
+            <ActivityIndicator size="large" color={t.primary} />
           </View>
         }
       >
@@ -288,20 +294,21 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
   return (
     <>
       {errorState ? (
-        <ErrorComponent errorMessage={<Text>Please Try Again</Text>} onRetry={handleRetry} />
+        <ErrorComponent errorMessage={<Text>Please Try Again</Text>} onRetry={handleRetry} darkMode={darkMode} />
       ) : (
         <NavigationContainer
           linking={linking}
           fallback={
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f0f0f0" }}>
-              <ActivityIndicator size="large" />
-              <Text style={{ marginTop: 10 }}>Loading navigation…</Text>
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: t.loaderBg }}>
+              <ActivityIndicator size="large" color={t.primary} />
+              <Text style={{ marginTop: 10, color: t.textPrimary }}>Loading navigation…</Text>
             </View>
           }
         >
           <View style={[BaseStyle.container, { flex: 1 }]}>
             <NavBar
               current=""
+              dispatch={dispatch}
               darkMode={darkMode}
               setDarkMode={setDarkMode}
               autoDarkMode={autoDarkMode}

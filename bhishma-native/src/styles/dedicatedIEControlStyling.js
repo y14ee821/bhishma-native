@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export const dedicatedIEControlStyles = StyleSheet.create({
+export const makeDedicatedIEControlStyles = (t) => StyleSheet.create({
   gradient: {
     flex: 1,
   },
@@ -12,25 +12,25 @@ export const dedicatedIEControlStyles = StyleSheet.create({
     width: 240,
     padding: 16,
     margin: 8,
-    backgroundColor: "#fff",
-    borderColor: "#e5e7eb",
+    backgroundColor: t.card,
+    borderColor: t.cardBorder,
     borderWidth: 1,
     borderRadius: 12,
-    shadowColor: "#000",
+    shadowColor: t.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
   channelText: {
     fontSize: 20,
-    color: "#111827",
+    color: t.textPrimary,
     fontWeight: "bold",
     marginBottom: 8,
   },
   stateText: {
     fontSize: 16,
     textAlign: "center",
-    color: "#111827",
+    color: t.textPrimary,
     fontWeight: "bold",
     marginBottom: 8,
   },
@@ -41,12 +41,12 @@ export const dedicatedIEControlStyles = StyleSheet.create({
   },
   switchLabel: {
     fontSize: 14,
-    color: "#111827",
+    color: t.textPrimary,
     marginHorizontal: 8,
   },
   errorText: {
     fontSize: 20,
-    color: "#ffffff",
+    color: t.textOnGradient,
     fontWeight: "800",
     margin: 8,
     textAlign: "center",
@@ -97,7 +97,7 @@ export const dedicatedIEControlStyles = StyleSheet.create({
   loadingTitle: {
     fontSize: 20,
     fontWeight: "800",
-    color: "#ffffff",
+    color: t.textOnGradient,
     letterSpacing: 0.3,
     marginBottom: 6,
     textAlign: "center",
@@ -128,7 +128,7 @@ export const dedicatedIEControlStyles = StyleSheet.create({
   },
   machineText: {
     fontSize: 22,
-    color: "#ffffff",
+    color: t.textOnGradient,
     fontWeight: "800",
     marginBottom: 16,
     textAlign: "center",
@@ -153,17 +153,19 @@ export const dedicatedIEControlStyles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: t.scrim,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 12,
   },
   overlayContent: {
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    backgroundColor: t.overlayCard,
+    borderWidth: 1,
+    borderColor: t.overlayCardBorder,
     padding: 24,
     borderRadius: 16,
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: t.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -172,13 +174,13 @@ export const dedicatedIEControlStyles = StyleSheet.create({
   overlayText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1f2937",
+    color: t.overlayTitle,
     marginBottom: 8,
     textAlign: "center",
   },
   overlaySubtext: {
     fontSize: 16,
-    color: "#6b7280",
+    color: t.overlaySubtext,
     textAlign: "center",
   },
   buttonWrapper: {
@@ -270,4 +272,3 @@ export const dedicatedIEControlStyles = StyleSheet.create({
     textShadowRadius: 3,
   },
 });
-

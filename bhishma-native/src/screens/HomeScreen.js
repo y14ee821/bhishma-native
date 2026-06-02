@@ -14,13 +14,11 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useRef, useEffect, useMemo } from "react";
-import { colors, lightTheme, darkTheme, homeScreenStyles } from "../styles";
+import { getTheme, useThemedStyles, makeHomeScreenStyles, homeScreenStaticStyles, lightTheme, darkTheme } from "../styles";
 import { useIEInfo, useBrokerConnection, useBrokerConnecting } from "../reduxStates";
 import { useDispatch } from "react-redux";
 import { fetchIEInfo } from "../store/deviceControlSlice";
 import { deviceAPI } from "../services/apiService";
-
-const styles = homeScreenStyles;
 
 const webPointer = Platform.OS === "web" ? { cursor: "pointer" } : {};
 
@@ -63,7 +61,7 @@ const SectionBadge = ({ colors: badgeColors, name, size = 22 }) => (
     colors={badgeColors}
     start={{ x: 0, y: 0 }}
     end={{ x: 1, y: 1 }}
-    style={homeScreenStyles.sectionIconBadge}
+    style={homeScreenStaticStyles.sectionIconBadge}
   >
     <Ionicons name={name} size={size} color="#ffffff" />
   </LinearGradient>
@@ -121,7 +119,7 @@ const FloatingIcon = ({ name, size, color, position, duration = 6000, range = 18
     <Animated.View
       pointerEvents="none"
       style={[
-        homeScreenStyles.floatingIcon,
+        homeScreenStaticStyles.floatingIcon,
         position,
         {
           opacity: v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.16, 0.34, 0.16] }),
@@ -139,7 +137,7 @@ const FloatingIcon = ({ name, size, color, position, duration = 6000, range = 18
 
 /** Background field of drifting IoT icons — purely decorative */
 const FloatingIconField = () => (
-  <View pointerEvents="none" style={homeScreenStyles.floatingLayer}>
+  <View pointerEvents="none" style={homeScreenStaticStyles.floatingLayer}>
     <FloatingIcon name="wifi" size={34} color="#7dd3fc" position={{ top: "7%", left: "8%" }} duration={5200} range={20} rotate={6} />
     <FloatingIcon name="bulb-outline" size={30} color="#fcd34d" position={{ top: "20%", right: "10%" }} duration={6400} range={16} rotate={-8} delay={400} />
     <FloatingIcon name="hardware-chip-outline" size={38} color="#a5b4fc" position={{ top: "44%", left: "5%" }} duration={7000} range={24} rotate={10} delay={200} />
@@ -329,6 +327,8 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
 
   const stats = getDeviceStats();
   const theme = darkMode ? darkTheme : lightTheme;
+  const t = getTheme(darkMode);
+  const styles = useThemedStyles(makeHomeScreenStyles, darkMode);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -442,7 +442,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
       <View style={styles.container}>
         <StatusBar
           barStyle={darkMode ? "light-content" : "dark-content"}
-          backgroundColor={colors.background}
+          backgroundColor={t.gradient[0]}
         />
 
         <FloatingIconField />
@@ -695,7 +695,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 <Text style={[theme.sectionTitle, styles.devicesSectionTitle]}>Overview</Text>
               </View>
               <LinearGradient
-                colors={HOME_GRAD.overviewCard}
+                colors={t.home.overviewCardGradient}
                 locations={[0, 0.28, 0.62, 1]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -716,7 +716,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                   </Text>
                 </View>
                 <LinearGradient
-                  colors={HOME_GRAD.overviewStatsStrip}
+                  colors={t.home.statsStripGradient}
                   start={{ x: 0, y: 0.5 }}
                   end={{ x: 1, y: 0.5 }}
                   style={styles.overviewStatsBand}
@@ -778,7 +778,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 >
                   <LinearGradient
                     pointerEvents="none"
-                    colors={HOME_GRAD.actionPrimary}
+                    colors={t.home.actionPrimaryGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.actionCardGradient}
@@ -815,7 +815,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 >
                   <LinearGradient
                     pointerEvents="none"
-                    colors={HOME_GRAD.actionSecondary}
+                    colors={t.home.actionSecondaryGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.actionCardGradient}
@@ -905,7 +905,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                         >
                           <LinearGradient
                             pointerEvents="none"
-                            colors={HOME_GRAD.deviceCard}
+                            colors={t.home.deviceCardGradient}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 1 }}
                             style={styles.deviceCardGradient}
@@ -931,7 +931,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                               </View>
                               <View style={styles.deviceNameChannelSep} />
                               <LinearGradient
-                                colors={["#eef2ff", "#e0e7ff", "#ede9fe"]}
+                                colors={t.home.channelPillGradient}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 1 }}
                                 style={styles.deviceChannelsPill}
@@ -978,7 +978,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                   <Text style={[theme.sectionTitle, styles.devicesSectionTitle]}>Your Devices</Text>
                 </View>
                 <LinearGradient
-                  colors={HOME_GRAD.emptyWell}
+                  colors={t.home.emptyWellGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.emptyState}

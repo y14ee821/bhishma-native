@@ -2,17 +2,16 @@ import React, { useState,useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { lightTheme, darkTheme, addDeviceStyles } from "../styles";
+import { getTheme, useThemedStyles, makeAddDeviceStyles } from "../styles";
 import { addDeviceService } from '../services/user_services';
 import { useSnackbar } from '../utils/common/SnackbarContext';
 import { getCurrentUser } from '../store/authSlice';
 
-const styles = addDeviceStyles;
-
 export const AddDevice = ({ darkMode, navigation }) => {
   const dispatch = useDispatch();
   const { showSuccess, showError } = useSnackbar();
-  const theme = darkMode ? darkTheme : lightTheme;
+  const theme = getTheme(darkMode);
+  const styles = useThemedStyles(makeAddDeviceStyles, darkMode);
   const [deviceName, setDeviceName] = useState('');
   const [secretKey, setSecretKey] = useState('');
   const [deviceNameFocused, setDeviceNameFocused] = useState(false);
@@ -62,7 +61,7 @@ export const AddDevice = ({ darkMode, navigation }) => {
               <Text style={styles.label}>Device Name</Text>
               <TextInput
                 placeholder="e.g., Remcon"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.placeholder}
                 style={[styles.input, deviceNameFocused && styles.inputFocused]}
                 value={deviceName}
                 onChangeText={setDeviceName}
@@ -77,7 +76,7 @@ export const AddDevice = ({ darkMode, navigation }) => {
               <Text style={styles.label}>Secret Key</Text>
               <TextInput
                 placeholder="Enter device secret key"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.placeholder}
                 style={[styles.input, secretKeyFocused && styles.inputFocused]}
                 value={secretKey}
                 onChangeText={setSecretKey}

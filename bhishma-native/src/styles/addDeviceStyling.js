@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export const addDeviceStyles = StyleSheet.create({
+export const makeAddDeviceStyles = (t) => StyleSheet.create({
   gradient: {
     flex: 1,
   },
@@ -16,19 +16,21 @@ export const addDeviceStyles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: t.textOnGradient,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: t.textOnGradient,
     opacity: 0.9,
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: t.card,
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: t.cardBorder,
+    shadowColor: t.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -40,29 +42,29 @@ export const addDeviceStyles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: t.textPrimary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: t.inputBg,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#333',
+    color: t.textPrimary,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: t.inputBorder,
   },
   inputFocused: {
-    borderColor: '#6200EE',
-    backgroundColor: '#FFFFFF',
+    borderColor: t.inputBorderFocused,
+    backgroundColor: t.inputBg,
   },
   button: {
-    backgroundColor: '#6200EE',
+    backgroundColor: t.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     marginTop: 10,
-    shadowColor: '#6200EE',
+    shadowColor: t.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -74,7 +76,7 @@ export const addDeviceStyles = StyleSheet.create({
     elevation: 0,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: t.onPrimary,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -85,22 +87,22 @@ export const addDeviceStyles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
     borderWidth: 1,
-    borderColor: '#6200EE',
+    borderColor: t.primary,
   },
   cancelButtonText: {
-    color: '#6200EE',
+    color: t.primary,
     fontSize: 16,
     fontWeight: '600',
   },
   helperText: {
     fontSize: 12,
-    color: '#666',
+    color: t.textMuted,
     marginTop: 6,
     fontStyle: 'italic',
   },
   errorText: {
     fontSize: 12,
-    color: '#F44336',
+    color: t.danger,
     marginTop: 6,
   },
 });

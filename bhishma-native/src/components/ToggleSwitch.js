@@ -3,8 +3,7 @@ import { useStore } from 'react-redux';
 import { View, Text, Switch, TouchableOpacity } from "react-native";
 import { publishToggleCommand, updateChannelConfig } from '../store/deviceControlSlice';
 import { useChannelState } from '../reduxStates';
-import { toggleSwitchStyles } from '../styles';
-const styles = toggleSwitchStyles;
+import { getTheme, useThemedStyles, makeToggleSwitchStyles } from '../styles';
 
 
 /**
@@ -27,6 +26,8 @@ const styles = toggleSwitchStyles;
 // It manages UI state, dispatches Redux actions, and handles MQTT publish events.
 const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, disabled: disabledFromParent = false, channelDataInfo, darkMode = false }) => {
   const { id } = channelDataInfo;
+  const t = getTheme(darkMode);
+  const styles = useThemedStyles(makeToggleSwitchStyles, darkMode);
   const store = useStore();// for handling the redux values in setTimeout funtion
   const channelData = useChannelState(ie_name, index);
   const value = channelData?.currentState || 0;
@@ -79,10 +80,10 @@ const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, di
       setInternalDisabled(false); // Re-enable the switch on error
     }
   };
-  // Determine colors based on state
+  // Determine colors based on state (state colors are shared across themes)
   const getSwitchThumbColor = () => {
-    if (disabled) return "#2563eb"; // blue for working
-    return value === 1 ? "#22c55e" : "#dc2626"; // green for ON, red for OFF
+    if (disabled) return t.switchWorking;
+    return value === 1 ? t.switchOn : t.switchOff;
   };
   const getSwitchTrackColor = () => {
     if (disabled) return { false: "#93c5fd", true: "#93c5fd" }; // blue-ish track for working
@@ -92,29 +93,28 @@ const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, di
     };
   };
   const getStateTextColor = () => {
-    if (disabled) return "#2563eb"; // blue
-    return value === 1 ? "#22c55e" : "#dc2626"; // green or red
+    if (disabled) return t.switchWorking;
+    return value === 1 ? t.switchOn : t.switchOff;
   };
   const getCardBackgroundColor = () => {
-    if (disabled) return darkMode ? "rgba(37, 99, 235, 0.22)" : "#dbeafe"; // working
-    return darkMode ? "#1c1c20" : "#fff";
+    if (disabled) return t.switchWorkingBg; // working
+    return t.switchCardBg;
   };
   return (
     <View
       style={[
         styles.card,
-        darkMode && styles.cardDark,
         { backgroundColor: getCardBackgroundColor() },
       ]}
     >
-      <Text style={[styles.channelText, darkMode && styles.channelTextDark]}>
+      <Text style={styles.channelText}>
         Channel: {String(name) || '-'}
       </Text>
       <Text style={[styles.stateText, { color: getStateTextColor() }]}>
         Current State: {disabled ? "Working" : String(value) === "1" ? "ON" : "OFF"}
       </Text>
       <View style={styles.switchContainer}>
-        <Text style={[styles.switchLabel, { color: value === 1 ? "#22c55e" : "#dc2626" }]}>OFF</Text>
+        <Text style={[styles.switchLabel, { color: value === 1 ? t.switchOn : t.switchOff }]}>OFF</Text>
         <Switch
           style={{ transform: [{ scaleX: 1.1 }, { scaleY: 1.1 }] }}
           disabled={disabled}
@@ -124,17 +124,17 @@ const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, di
           thumbColor={getSwitchThumbColor()}
           trackColor={getSwitchTrackColor()}
         />
-        <Text style={[styles.switchLabel, { color: value === 1 ? "#22c55e" : "#dc2626" }]}>ON</Text>
+        <Text style={[styles.switchLabel, { color: value === 1 ? t.switchOn : t.switchOff }]}>ON</Text>
       </View>
       {/* Rendered last so it draws on top of the flow-positioned children; its
           visual position is still top-right thanks to absolute positioning. */}
       <TouchableOpacity
         onPress={openRenameModal}
-        style={[styles.editButton, darkMode && styles.editButtonDark]}
+        style={styles.editButton}
         accessibilityLabel={`Rename channel ${index}`}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <Text style={[styles.editButtonText, darkMode && styles.editButtonTextDark]}>Edit</Text>
+        <Text style={styles.editButtonText}>Edit</Text>
       </TouchableOpacity>
     </View>
   )
