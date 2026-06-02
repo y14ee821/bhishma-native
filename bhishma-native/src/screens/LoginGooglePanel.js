@@ -76,27 +76,21 @@ export default function LoginGooglePanel({ darkMode }) {
         if (response.authentication?.idToken) {
           idToken = response.authentication.idToken;
         } else {
-          console.warn(
-            'Received authorization code but idToken not found. expo-auth-session should exchange automatically.'
-          );
         }
       } else if (response.params && typeof response.params === 'string') {
         try {
           const parsed = JSON.parse(response.params);
           idToken = parsed.id_token || parsed.idToken;
         } catch {
-          console.log('Could not parse params as JSON');
         }
       }
 
       if (idToken) {
         handleGoogleLogin(idToken);
       } else {
-        console.error('No ID token found in response:', response);
         setLocalError('Failed to get ID token from Google. Response: ' + JSON.stringify(response));
       }
     } else if (response?.type === 'error') {
-      console.error('Google OAuth error:', response);
       setLocalError('Google Sign-In was cancelled or failed: ' + (response.error?.message || 'Unknown error'));
     }
   }, [response]);

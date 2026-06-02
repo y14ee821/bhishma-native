@@ -3,15 +3,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Backend API base URL - update this to match your backend
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
-console.log('🔗 API Base URL:', API_BASE_URL);
-
 // Get stored access token
 const getAccessToken = async () => {
   try {
     const token = await AsyncStorage.getItem('access_token');
     return token;
   } catch (error) {
-    console.error('Error getting access token:', error);
     return null;
   }
 };
@@ -21,7 +18,6 @@ const setAccessToken = async (token) => {
   try {
     await AsyncStorage.setItem('access_token', token);
   } catch (error) {
-    console.error('Error storing access token:', error);
   }
 };
 
@@ -30,7 +26,6 @@ const removeAccessToken = async () => {
   try {
     await AsyncStorage.removeItem('access_token');
   } catch (error) {
-    console.error('Error removing access token:', error);
   }
 };
 
@@ -81,10 +76,8 @@ const apiRequest = async (endpoint, options = {}) => {
     return { success: true, data };
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.error('API request timeout:', endpoint);
       return { success: false, error: 'Request timeout. Please check if the backend server is running.' };
     }
-    console.error('API request error:', error);
     return { success: false, error: error.message || 'Network error. Please check if the backend server is running.' };
   }
 };

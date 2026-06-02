@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Switch, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, Switch, TouchableOpacity, ScrollView, ActivityIndicator, Animated, Easing } from 'react-native';
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 import ToggleSwitch from '../components/ToggleSwitch';
 import { useDispatch, useSelector } from 'react-redux';
 import { initMQTT } from '../services/mqttService';
 import { useDeviceControlState } from '../reduxStates';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { lightTheme, darkTheme, dedicatedIEControlStyles } from '../styles';
 import { publishFullOperation, unsubscribeFromIE } from '../services/mqttService';
 import { setAllChannelOperationPerforming, setAllChannelOperationSuccess, updateCurrentIEInfo} from '../store/deviceControlSlice';
@@ -37,7 +38,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
   const user_id = useSelector(state => state.auth.user_id);
   const { name, device_id } = route.params || {};// Get the IE name from navigation parameters
   const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
-  const [dedicatedIEInfo, setDedicatedIEInfo] = useState(null);
+  const [dedicatedIEInfo, setDedicatedIEInfo] = useState("loading");
 
   // Fetch device info on mount
   useEffect(() => {
@@ -49,7 +50,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
         dispatch(updateCurrentIEInfo({data: result.data?.data}));
       } else {
         showError(result.error);
-        console.error('Failed to load device info:', result.error);
+        setDedicatedIEInfo(null);
       }
     };
     
@@ -74,8 +75,31 @@ export const DedicatedIEControl = ({ darkMode }) => {
       };
     }, [client, name, dedicatedIEInfo, dispatch])
   )
-  
-   if(dedicatedIEInfo)
+
+  // Gentle pulsing glow behind the loading spinner
+  const loadingPulse = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(loadingPulse, {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(loadingPulse, {
+          toValue: 0,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+
+   if(dedicatedIEInfo !== "loading" && dedicatedIEInfo !== null)
     {
       return (
     <LinearGradient colors={theme.gradient} style={styles.gradient}>
@@ -102,6 +126,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
                   client={client}
                   disabled={!connectedToBroker || allChannelOperationPerforming || !client}
                   channelDataInfo={channelData}
+                  darkMode={darkMode}
                 />
               ))}
             </View>
@@ -133,8 +158,13 @@ export const DedicatedIEControl = ({ darkMode }) => {
           </View>
         </View>
         <View style={styles.buttonWrapper}>
-          <TouchableOpacity 
-            style={styles.fullOperationButton} 
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={[
+              styles.opButton,
+              darkMode ? styles.opButtonDark : styles.opButtonLight,
+              !client && styles.opButtonDisabled,
+            ]}
             onPress={() => {
               if (client) {
                 publishFullOperation(client, name, 1, dedicatedIEInfo, dispatch, setAllChannelOperationPerforming, store, setAllChannelOperationSuccess, showSuccess, showError);
@@ -144,10 +174,23 @@ export const DedicatedIEControl = ({ darkMode }) => {
             }}
             disabled={!client}
           >
-            <Text>All On</Text>
+            <LinearGradient
+              colors={["#34d399", "#059669"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.opButtonGradient}
+            >
+              <Ionicons name="flash" size={20} color="#ffffff" style={styles.opButtonIcon} />
+              <Text style={styles.opButtonText}>All On</Text>
+            </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.fullOperationButton} 
+          <TouchableOpacity
+            activeOpacity={0.85}
+            style={[
+              styles.opButton,
+              darkMode ? styles.opButtonDark : styles.opButtonLight,
+              !client && styles.opButtonDisabled,
+            ]}
             onPress={() => {
               if (client) {
                 publishFullOperation(client, name, 0, dedicatedIEInfo, dispatch, setAllChannelOperationPerforming, store, setAllChannelOperationSuccess, showSuccess, showError);
@@ -157,7 +200,15 @@ export const DedicatedIEControl = ({ darkMode }) => {
             }}
             disabled={!client}
           >
-            <Text>All Off</Text>
+            <LinearGradient
+              colors={["#fb7185", "#e11d48"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.opButtonGradient}
+            >
+              <Ionicons name="flash-off" size={20} color="#ffffff" style={styles.opButtonIcon} />
+              <Text style={styles.opButtonText}>All Off</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </View>
@@ -165,12 +216,71 @@ export const DedicatedIEControl = ({ darkMode }) => {
     <ChannelRenameModal />
     </LinearGradient>
   );
-} else {
+}
+  else if(dedicatedIEInfo === "loading")
+  {
+    return (
+      <LinearGradient colors={theme.gradient} style={styles.gradient}>
+        <View style={styles.loadingContainer}>
+          <View style={styles.loadingCard}>
+            <View style={styles.loadingIconWrap}>
+              <Animated.View
+                style={[
+                  styles.loadingHalo,
+                  {
+                    opacity: loadingPulse.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.3, 0.85],
+                    }),
+                    transform: [
+                      {
+                        scale: loadingPulse.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0.82, 1.18],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+              <ActivityIndicator size="large" color="#38bdf8" />
+            </View>
+            <Text style={styles.loadingTitle}>Loading device</Text>
+            <Text style={styles.loadingSubtitle}>
+              {name ? `Fetching “${name}” details…` : "Fetching device details…"}
+            </Text>
+            <View style={styles.loadingDotsRow}>
+              {[0, 1, 2].map((i) => (
+                <Animated.View
+                  key={i}
+                  style={[
+                    styles.loadingDot,
+                    {
+                      opacity: loadingPulse.interpolate({
+                        inputRange: [0, 0.5, 1],
+                        outputRange:
+                          i === 0
+                            ? [1, 0.3, 1]
+                            : i === 1
+                            ? [0.3, 1, 0.3]
+                            : [0.6, 0.6, 1],
+                      }),
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+          </View>
+        </View>
+      </LinearGradient>
+    );
+  }
+else {
   return (
     <LinearGradient colors={theme.gradient} style={styles.gradient}>
       <View style={styles.container}>
         <Text style={styles.errorText}>
-          No data available for the specified IE.
+          No data available for the specified Device : {name} and Device ID : {device_id}
         </Text>
       </View>
     </LinearGradient>

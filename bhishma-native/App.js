@@ -30,20 +30,11 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
     // Fetch IE info only if authenticated
     if (isAuthenticated) {
       dispatch(fetchIEInfo());
-      
-      // Log MQTT configuration (never log the password)
-      console.log('📡 MQTT Configuration:', {
-        host: process.env.EXPO_PUBLIC_MQTT_HOST || "wss://test.mosquitto.org:8081/mqtt (default)",
-        username: process.env.EXPO_PUBLIC_MQTT_USERNAME || "(none)",
-        keepalive: Number(process.env.EXPO_PUBLIC_MQTT_KEEPALIVE) || 60,
-        reconnectPeriod: Number(process.env.EXPO_PUBLIC_MQTT_RECONNECT_PERIOD) || 5000,
-      });
     }
   }, [dispatch, isAuthenticated]);
 
   // Show error state if fetch failed
   if (errorIEInfo) {
-    console.error('Error loading IE info:', errorIEInfo);
     // You can return an error component here if needed
   }
 
@@ -51,7 +42,6 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
   // Allow rendering even with empty devices - user might not have devices yet
   if (isAuthenticated && (!LoadedIEs || Object.keys(LoadedIEs).length === 0)) {
     // Allow app to render even with no devices - user can add devices
-    console.log('No devices found for user');
   }
 
   const mqttConfig = {
@@ -84,7 +74,7 @@ function AppContent({ darkMode, setDarkMode, autoDarkMode, setAutoDarkMode }) {
 }
 
 export default function App() {
-  const [autoDarkMode, setAutoDarkMode] = useState(false);
+  const [autoDarkMode, setAutoDarkMode] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {

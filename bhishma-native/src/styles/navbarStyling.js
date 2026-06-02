@@ -36,7 +36,7 @@ export const lightNavTheme = {
 export const darkNavTheme = {
   
   navBar: {
-    backgroundColor: '#2c2c2c',
+    backgroundColor: '#0d0d0f',
     elevation: 6,
     flexDirection: 'row',
     alignItems: 'center',
@@ -56,7 +56,7 @@ export const darkNavTheme = {
     letterSpacing: 1,
   },
   navLink: { 
-    color: '#7a8a7a',
+    color: '#9ca3af',
     fontSize: 16,
     fontWeight: '600',
   },

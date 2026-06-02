@@ -25,7 +25,7 @@ const styles = toggleSwitchStyles;
 // ToggleSwitch component definition
 // This component renders a toggle switch for a device channel.
 // It manages UI state, dispatches Redux actions, and handles MQTT publish events.
-const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, disabled: disabledFromParent = false, channelDataInfo }) => {
+const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, disabled: disabledFromParent = false, channelDataInfo, darkMode = false }) => {
   const { id } = channelDataInfo;
   const store = useStore();// for handling the redux values in setTimeout funtion
   const channelData = useChannelState(ie_name, index);
@@ -67,7 +67,6 @@ const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, di
       // Success - check if state matches after 3 seconds
       setTimeout(() => {
         const state = store.getState();
-        console.log("state",state.deviceControl.currentIEInfo);
         const latestValue = state.deviceControl.currentIEInfo[ie_name]["channels"][index]["currentState"];
         const latestUiValue = state.deviceControl.currentIEInfo[ie_name]["channels"][index]["uiValue"];
         if (latestUiValue !== latestValue) {
@@ -77,7 +76,6 @@ const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, di
       }, 3000);
     } catch (error) {
       // Handle error from thunk
-      console.log(`Failed to publish toggle command: ${error}`);
       setInternalDisabled(false); // Re-enable the switch on error
     }
   };
@@ -98,12 +96,18 @@ const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, di
     return value === 1 ? "#22c55e" : "#dc2626"; // green or red
   };
   const getCardBackgroundColor = () => {
-    if (disabled) return "#dbeafe"; // light blue
-    return "#fff";
+    if (disabled) return darkMode ? "rgba(37, 99, 235, 0.22)" : "#dbeafe"; // working
+    return darkMode ? "#1c1c20" : "#fff";
   };
   return (
-    <View style={[styles.card, { backgroundColor: getCardBackgroundColor() }]} >
-      <Text style={[styles.channelText]}>
+    <View
+      style={[
+        styles.card,
+        darkMode && styles.cardDark,
+        { backgroundColor: getCardBackgroundColor() },
+      ]}
+    >
+      <Text style={[styles.channelText, darkMode && styles.channelTextDark]}>
         Channel: {String(name) || '-'}
       </Text>
       <Text style={[styles.stateText, { color: getStateTextColor() }]}>
@@ -126,11 +130,11 @@ const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, di
           visual position is still top-right thanks to absolute positioning. */}
       <TouchableOpacity
         onPress={openRenameModal}
-        style={styles.editButton}
+        style={[styles.editButton, darkMode && styles.editButtonDark]}
         accessibilityLabel={`Rename channel ${index}`}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <Text style={styles.editButtonText}>Edit</Text>
+        <Text style={[styles.editButtonText, darkMode && styles.editButtonTextDark]}>Edit</Text>
       </TouchableOpacity>
     </View>
   )

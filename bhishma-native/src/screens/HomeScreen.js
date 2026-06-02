@@ -4,6 +4,7 @@ import {
   Pressable,
   StatusBar,
   Animated,
+  Easing,
   ScrollView,
   RefreshControl,
   Alert,
@@ -23,8 +24,10 @@ const styles = homeScreenStyles;
 
 const webPointer = Platform.OS === "web" ? { cursor: "pointer" } : {};
 
-/** Native narrow width: stack greeting + MQTT so copy is not crushed by the badge */
-const HERO_STACK_BREAKPOINT = 440;
+/** Narrow viewports (phones / mobile browser): show only the connection signal icon
+ *  beside the greeting instead of the full status badge, so the greeting is never
+ *  crushed and the technical broker copy is hidden on small screens. */
+const CONNECTION_COMPACT_BREAKPOINT = 600;
 
 /** Web/iOS narrow width: collapse "Your Devices" grid from 2 columns to 1 so
  *  device names and channel counts no longer get clipped on small screens. */
@@ -48,11 +51,118 @@ const HOME_GRAD = {
   actionSecondary: ["#ffffff", "#f0f7ff", "#e0e7ff"],
   deviceCard: ["#ffffff", "#f8fafc", "#edf2f7"],
   emptyWell: ["#ffffff", "#f4f7fb", "#e8edf4"],
+  /** Vivid gradient chips used behind section-header icons */
+  badgeSky: ["#38bdf8", "#0284c7"],
+  badgeMint: ["#34d399", "#059669"],
+  badgeViolet: ["#a78bfa", "#7c3aed"],
+};
+
+/** Gradient chip behind a section-header icon — modern, glanceable section markers */
+const SectionBadge = ({ colors: badgeColors, name, size = 22 }) => (
+  <LinearGradient
+    colors={badgeColors}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={homeScreenStyles.sectionIconBadge}
+  >
+    <Ionicons name={name} size={size} color="#ffffff" />
+  </LinearGradient>
+);
+
+/** Smoothly counts a number up to its target — dashboard-style stat reveal */
+const AnimatedStatNumber = ({ value, style, duration = 1100 }) => {
+  const anim = useRef(new Animated.Value(0)).current;
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    const id = anim.addListener(({ value: v }) => setDisplay(Math.round(v)));
+    Animated.timing(anim, {
+      toValue: value || 0,
+      duration,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+    return () => anim.removeListener(id);
+  }, [value]);
+
+  return (
+    <Animated.Text style={style} allowFontScaling={false}>
+      {display}
+    </Animated.Text>
+  );
+};
+
+/** Softly floating + rotating background icon (decorative, non-interactive) */
+const FloatingIcon = ({ name, size, color, position, duration = 6000, range = 18, rotate = 8, delay = 0 }) => {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(v, {
+          toValue: 1,
+          duration,
+          delay,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(v, {
+          toValue: 0,
+          duration,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        homeScreenStyles.floatingIcon,
+        position,
+        {
+          opacity: v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.16, 0.34, 0.16] }),
+          transform: [
+            { translateY: v.interpolate({ inputRange: [0, 1], outputRange: [0, -range] }) },
+            { rotate: v.interpolate({ inputRange: [0, 1], outputRange: ["0deg", `${rotate}deg`] }) },
+          ],
+        },
+      ]}
+    >
+      <Ionicons name={name} size={size} color={color} />
+    </Animated.View>
+  );
+};
+
+/** Background field of drifting IoT icons — purely decorative */
+const FloatingIconField = () => (
+  <View pointerEvents="none" style={homeScreenStyles.floatingLayer}>
+    <FloatingIcon name="wifi" size={34} color="#7dd3fc" position={{ top: "7%", left: "8%" }} duration={5200} range={20} rotate={6} />
+    <FloatingIcon name="bulb-outline" size={30} color="#fcd34d" position={{ top: "20%", right: "10%" }} duration={6400} range={16} rotate={-8} delay={400} />
+    <FloatingIcon name="hardware-chip-outline" size={38} color="#a5b4fc" position={{ top: "44%", left: "5%" }} duration={7000} range={24} rotate={10} delay={200} />
+    <FloatingIcon name="cloud-outline" size={32} color="#bae6fd" position={{ top: "58%", right: "7%" }} duration={5800} range={18} rotate={-6} delay={600} />
+    <FloatingIcon name="pulse" size={28} color="#6ee7b7" position={{ top: "74%", left: "12%" }} duration={6000} range={16} rotate={8} delay={300} />
+    <FloatingIcon name="flash-outline" size={26} color="#fca5a5" position={{ top: "86%", right: "14%" }} duration={5400} range={14} rotate={-10} delay={500} />
+  </View>
+);
+
+/** Time-of-day greeting: Morning (<12), Afternoon (12–17), Evening (>=18) */
+const computeGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good Morning";
+  if (hour < 18) return "Good Afternoon";
+  return "Good Evening";
 };
 
 export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
   const { width: windowWidth } = useWindowDimensions();
-  const heroStacked = Platform.OS !== "web" && windowWidth < HERO_STACK_BREAKPOINT;
+  // On phones / narrow mobile-browser widths we collapse the broker status to just
+  // the colored signal icon (no technical "MQTT Broker" copy) so the greeting keeps
+  // full width. This is width-based (not platform-based) so it also fixes mobile web.
+  const connectionCompact = windowWidth < CONNECTION_COMPACT_BREAKPOINT;
   // Android already renders each device row full-width; on web/iOS we collapse
   // the 2-column grid to a single column once the viewport is narrow.
   const devicesStacked =
@@ -66,6 +176,9 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
   const [hoveredDeviceName, setHoveredDeviceName] = useState(null);
   const dispatch = useDispatch();
 
+  // Computed once per render (updates on screen re-render / page refresh).
+  const greeting = computeGreeting();
+
   const headerAnimatedValue = useRef(new Animated.Value(0)).current;
   const sectionOverview = useRef(new Animated.Value(0)).current;
   const sectionActions = useRef(new Animated.Value(0)).current;
@@ -73,6 +186,8 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
   const actionCardLeft = useRef(new Animated.Value(0)).current;
   const actionCardRight = useRef(new Animated.Value(0)).current;
   const deviceRowAnims = useRef({}).current;
+  const orbFloat = useRef(new Animated.Value(0)).current;
+  const connPulse = useRef(new Animated.Value(0)).current;
 
   // Get real IoT device data from Redux
   const IE_Info = useIEInfo();
@@ -87,36 +202,78 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
   }, [IE_Info]);
 
   useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(orbFloat, {
+          toValue: 1,
+          duration: 6000,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(orbFloat, {
+          toValue: 0,
+          duration: 6000,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(connPulse, {
+          toValue: 1,
+          duration: 1400,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(connPulse, {
+          toValue: 0,
+          duration: 1400,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+
+  useEffect(() => {
     sectionOverview.setValue(0);
     sectionActions.setValue(0);
     sectionTail.setValue(0);
     actionCardLeft.setValue(0);
     actionCardRight.setValue(0);
 
-    const springIn = (v) =>
+    // Run everything in parallel with small staggered delays (instead of a strict
+    // sequence) so all sections start animating in almost immediately and cascade in
+    // under ~0.7s — fixes the slow, drawn-out reveal of the lower content.
+    const springIn = (v, delay = 0) =>
       Animated.spring(v, {
         toValue: 1,
-        tension: 52,
-        friction: 8,
+        delay,
+        tension: 60,
+        friction: 9,
         useNativeDriver: true,
       });
 
-    Animated.sequence([
-      Animated.parallel([
-        Animated.timing(headerAnimatedValue, {
-          toValue: 1,
-          duration: 680,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.delay(60),
-      springIn(sectionOverview),
-      springIn(sectionActions),
-      Animated.parallel([
-        springIn(actionCardLeft),
-        Animated.sequence([Animated.delay(90), springIn(actionCardRight)]),
-      ]),
-      springIn(sectionTail),
+    Animated.parallel([
+      Animated.timing(headerAnimatedValue, {
+        toValue: 1,
+        duration: 360,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      springIn(sectionOverview, 70),
+      springIn(sectionActions, 130),
+      springIn(actionCardLeft, 170),
+      springIn(actionCardRight, 220),
+      springIn(sectionTail, 260),
     ]).start();
   }, []);
 
@@ -130,9 +287,10 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
     const rowSprings = Object.keys(IE_Info).map((name, index) =>
       Animated.spring(deviceRowAnims[name], {
         toValue: 1,
-        delay: 40 + index * 85,
-        tension: 48,
-        friction: 8,
+        // Cap the stagger so long device lists still finish quickly
+        delay: Math.min(index * 45, 360),
+        tension: 58,
+        friction: 9,
         useNativeDriver: true,
       })
     );
@@ -263,17 +421,16 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
     return deviceRowAnims[name];
   };
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    return "Good Evening";
+  const getConnectionStatus = () => {
+    if (connectingToBroker) return "Connecting to server...";
+    return connectedToBroker ? "Connected to server" : "Disconnected from server";
   };
 
-  const getConnectionStatus = () => {
-    if (connectingToBroker) return "Connecting...";
-    return connectedToBroker ? "Connected" : "Disconnected";
-  };
+  const statusColor = connectingToBroker
+    ? "#d97706"
+    : connectedToBroker
+    ? "#059669"
+    : "#dc2626";
 
   const getDeviceIcon = (deviceName) => {
     const firstLetter = deviceName.charAt(0).toUpperCase();
@@ -287,6 +444,8 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
           barStyle={darkMode ? "light-content" : "dark-content"}
           backgroundColor={colors.background}
         />
+
+        <FloatingIconField />
 
         <ScrollView 
           style={styles.scrollContainer}
@@ -309,45 +468,90 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
               end={{ x: 1, y: 1 }}
               style={styles.headerUnifiedCard}
             >
-              <View style={[styles.headerSection, heroStacked && styles.headerSectionStacked]}>
-                <View
-                  style={[
-                    styles.headerGreetingColumn,
-                    heroStacked && styles.headerGreetingColumnStacked,
-                  ]}
-                >
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.heroOrb,
+                  styles.heroOrbA,
+                  {
+                    transform: [
+                      {
+                        translateY: orbFloat.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, 16],
+                        }),
+                      },
+                      {
+                        scale: orbFloat.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [1, 1.12],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.heroOrb,
+                  styles.heroOrbB,
+                  {
+                    transform: [
+                      {
+                        translateY: orbFloat.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, -14],
+                        }),
+                      },
+                      {
+                        scale: orbFloat.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [1.1, 1],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+              <View style={styles.headerSection}>
+                <View style={styles.headerGreetingColumn}>
                   <View style={styles.greetingStack}>
                     <View style={styles.greetingTitleRow}>
-                      <View style={[styles.greetingIconSlot, styles.greetingSciFiIconBubble]}>
-                        <Ionicons
-                          name="planet-outline"
-                          size={22}
-                          color="rgba(186, 230, 253, 0.98)"
-                        />
-                      </View>
+                      <LinearGradient
+                        colors={["#38bdf8", "#2563eb"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={[styles.greetingIconSlot, styles.greetingIconBubbleFancy]}
+                      >
+                        <Ionicons name="planet" size={20} color="#ffffff" />
+                      </LinearGradient>
                       <View style={styles.greetingRowTextCol}>
                         <Text
                           style={[theme.greeting, styles.homeGreetingText]}
-                          numberOfLines={heroStacked ? 3 : 2}
+                          numberOfLines={2}
+                          adjustsFontSizeToFit={connectionCompact}
+                          minimumFontScale={0.8}
                           {...(Platform.OS === "android" ? { includeFontPadding: false } : {})}
                         >
-                          {getGreeting()}!
+                          {greeting}!
                         </Text>
                       </View>
                     </View>
                     <View style={styles.greetingAccentLine} />
                     <View style={styles.subtitleRow}>
-                      <View style={[styles.greetingIconSlot, styles.greetingSciFiIconBubble]}>
-                        <Ionicons
-                          name="pulse-outline"
-                          size={22}
-                          color="rgba(186, 230, 253, 0.98)"
-                        />
-                      </View>
+                      <LinearGradient
+                        colors={["#a78bfa", "#7c3aed"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={[styles.greetingIconSlot, styles.greetingIconBubbleFancy]}
+                      >
+                        <Ionicons name="pulse" size={20} color="#ffffff" />
+                      </LinearGradient>
                       <View style={styles.greetingRowTextCol}>
                         <Text
                           style={[theme.subtitle, styles.homeSubtitleText]}
-                          numberOfLines={heroStacked ? 4 : 2}
+                          numberOfLines={2}
                           {...(Platform.OS === "android" ? { includeFontPadding: false } : {})}
                         >
                           Control your IoT devices
@@ -357,24 +561,19 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                   </View>
                 </View>
 
-                {heroStacked ? (
-                  <View style={styles.heroDividerHorizontal} />
-                ) : (
-                  <View style={styles.headerColumnDivider} />
-                )}
+                {!connectionCompact && <View style={styles.headerColumnDivider} />}
 
                 <View
                   style={[
                     styles.headerBrokerColumn,
-                    heroStacked && styles.headerBrokerColumnStacked,
+                    connectionCompact && styles.headerBrokerColumnCompact,
                   ]}
                 >
-                  <View
-                    style={[styles.connectionBadge, heroStacked && styles.connectionBadgeStacked]}
-                  >
+                  {connectionCompact ? (
                     <View
                       style={[
                         styles.connectionIconBubble,
+                        styles.connectionIconBubbleCompact,
                         connectingToBroker && styles.connectionIconBubblePending,
                         !connectingToBroker &&
                           connectedToBroker &&
@@ -383,6 +582,8 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                           !connectedToBroker &&
                           styles.connectionIconBubbleErr,
                       ]}
+                      accessibilityRole="image"
+                      accessibilityLabel={getConnectionStatus()}
                     >
                       <Ionicons
                         name={
@@ -392,7 +593,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                             ? "wifi"
                             : "cloud-offline-outline"
                         }
-                        size={Platform.OS === "android" ? 22 : 26}
+                        size={24}
                         color={
                           connectingToBroker
                             ? "#d97706"
@@ -402,28 +603,80 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                         }
                       />
                     </View>
-                    <View style={styles.connectionBadgeTextBlock}>
-                      <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={[
-                          styles.connectionText,
-                          {
-                            color: connectingToBroker
-                              ? "#d97706"
-                              : connectedToBroker
-                              ? "#059669"
-                              : "#dc2626",
-                          },
-                        ]}
-                      >
-                        {getConnectionStatus()}
-                      </Text>
-                      <Text style={styles.connectionSubtext} numberOfLines={1}>
-                        MQTT Broker
-                      </Text>
+                  ) : (
+                    <View style={styles.connectionBadge}>
+                      <View style={styles.connectionIconWrap}>
+                        <Animated.View
+                          pointerEvents="none"
+                          style={[
+                            styles.connectionHalo,
+                            {
+                              backgroundColor: statusColor,
+                              opacity: connPulse.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0.08, 0.34],
+                              }),
+                              transform: [
+                                {
+                                  scale: connPulse.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [0.85, 1.35],
+                                  }),
+                                },
+                              ],
+                            },
+                          ]}
+                        />
+                        <View
+                          style={[
+                            styles.connectionIconBubble,
+                            styles.connectionIconBubbleInBadge,
+                            connectingToBroker && styles.connectionIconBubblePending,
+                            !connectingToBroker &&
+                              connectedToBroker &&
+                              styles.connectionIconBubbleOk,
+                            !connectingToBroker &&
+                              !connectedToBroker &&
+                              styles.connectionIconBubbleErr,
+                          ]}
+                        >
+                          <Ionicons
+                            name={
+                              connectingToBroker
+                                ? "sync"
+                                : connectedToBroker
+                                ? "wifi"
+                                : "cloud-offline-outline"
+                            }
+                            size={26}
+                            color={statusColor}
+                          />
+                        </View>
+                      </View>
+                      <View style={styles.connectionBadgeTextBlock}>
+                        <Text numberOfLines={2} style={[styles.connectionText, { color: statusColor }]}>
+                          {getConnectionStatus()}
+                        </Text>
+                        <View style={styles.connectionLiveRow}>
+                          <Animated.View
+                            style={[
+                              styles.connectionLiveDot,
+                              {
+                                backgroundColor: statusColor,
+                                opacity: connPulse.interpolate({
+                                  inputRange: [0, 1],
+                                  outputRange: [0.45, 1],
+                                }),
+                              },
+                            ]}
+                          />
+                          <Text style={[styles.connectionLiveText, { color: statusColor }]}>
+                            {connectingToBroker ? "Linking…" : connectedToBroker ? "Live" : "Offline"}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
-                  </View>
+                  )}
                 </View>
               </View>
             </LinearGradient>
@@ -438,12 +691,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
               style={styles.contentSection}
             >
               <View style={[styles.devicesSectionHeader, styles.devicesSectionHeaderInPanel]}>
-                <Ionicons
-                  name="speedometer-outline"
-                  size={24}
-                  color="rgba(186, 230, 253, 0.98)"
-                  style={styles.devicesSectionHeaderIcon}
-                />
+                <SectionBadge colors={HOME_GRAD.badgeSky} name="speedometer" />
                 <Text style={[theme.sectionTitle, styles.devicesSectionTitle]}>Overview</Text>
               </View>
               <LinearGradient
@@ -481,7 +729,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                         </View>
                         <Text style={styles.overviewStatLabel}>Devices you own</Text>
                       </View>
-                      <Text style={styles.overviewStatNumber}>{stats.totalDevices}</Text>
+                      <AnimatedStatNumber value={stats.totalDevices} style={styles.overviewStatNumber} />
                     </View>
                     <View style={styles.overviewDivider} />
                     <View style={styles.overviewStatItem}>
@@ -491,7 +739,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                         </View>
                         <Text style={styles.overviewStatLabel}>channels</Text>
                       </View>
-                      <Text style={styles.overviewStatNumber}>{stats.totalChannels}</Text>
+                      <AnimatedStatNumber value={stats.totalChannels} style={styles.overviewStatNumber} />
                     </View>
                   </View>
                 </LinearGradient>
@@ -508,12 +756,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
               style={[styles.contentSection, styles.contentSectionActions]}
             >
               <View style={[styles.devicesSectionHeader, styles.devicesSectionHeaderInPanel]}>
-                <Ionicons
-                  name="flash-outline"
-                  size={24}
-                  color="rgba(167, 243, 208, 0.98)"
-                  style={styles.devicesSectionHeaderIcon}
-                />
+                <SectionBadge colors={HOME_GRAD.badgeMint} name="flash" />
                 <Text style={[theme.sectionTitle, styles.devicesSectionTitle]}>Quick actions</Text>
               </View>
               <View style={styles.actionButtonsContainer}>
@@ -604,12 +847,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 style={[styles.contentSection, styles.contentSectionDevices]}
               >
                 <View style={[styles.devicesSectionHeader, styles.devicesSectionHeaderInPanel]}>
-                  <Ionicons
-                    name="layers-outline"
-                    size={Platform.OS === "android" ? 26 : 24}
-                    color="rgba(221, 214, 254, 0.98)"
-                    style={styles.devicesSectionHeaderIcon}
-                  />
+                  <SectionBadge colors={HOME_GRAD.badgeViolet} name="layers" />
                   <Text style={[theme.sectionTitle, styles.devicesSectionTitle]}>Your Devices</Text>
                 </View>
                 <View style={styles.deviceListContainer}>
@@ -692,35 +930,23 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                                 </Text>
                               </View>
                               <View style={styles.deviceNameChannelSep} />
-                              <View style={styles.deviceCardRightZone}>
-                                {Platform.OS === "android" ? (
-                                  <>
-                                    <Ionicons
-                                      name="radio-outline"
-                                      size={18}
-                                      color="#4338ca"
-                                      style={styles.deviceChannelIcon}
-                                    />
-                                    <Text style={styles.deviceChannelCount}>{channelCount}</Text>
-                                  </>
-                                ) : (
-                                  <View style={styles.deviceCardChannelsRow}>
-                                    <View style={styles.deviceChannelEmojiWrap}>
-                                      <Ionicons name="radio-outline" size={24} color="#4338ca" />
-                                    </View>
-                                    {!devicesCompact && (
-                                      <Text style={styles.deviceChannelLabel}>Channels</Text>
-                                    )}
-                                    <Text style={styles.deviceChannelCount}>{channelCount}</Text>
-                                  </View>
+                              <LinearGradient
+                                colors={["#eef2ff", "#e0e7ff", "#ede9fe"]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.deviceChannelsPill}
+                              >
+                                <Ionicons
+                                  name="radio-outline"
+                                  size={Platform.OS === "android" ? 16 : 20}
+                                  color="#4338ca"
+                                  style={styles.deviceChannelPillIcon}
+                                />
+                                {!devicesCompact && (
+                                  <Text style={styles.deviceChannelLabel}>Channels</Text>
                                 )}
-                              </View>
-                              <Ionicons
-                                name="chevron-forward"
-                                size={Platform.OS === "android" ? 22 : 30}
-                                color="#334155"
-                                style={styles.deviceCardChevron}
-                              />
+                                <Text style={styles.deviceChannelCount}>{channelCount}</Text>
+                              </LinearGradient>
                             </View>
 
                             {deviceInfo.lastUpdated && (
@@ -748,12 +974,7 @@ export const HomeScreen = ({ navigation, darkMode, setDarkMode }) => {
                 style={[styles.contentSection, styles.contentSectionDevices]}
               >
                 <View style={[styles.devicesSectionHeader, styles.devicesSectionHeaderInPanel]}>
-                  <Ionicons
-                    name="layers-outline"
-                    size={Platform.OS === "android" ? 26 : 24}
-                    color="rgba(221, 214, 254, 0.98)"
-                    style={styles.devicesSectionHeaderIcon}
-                  />
+                  <SectionBadge colors={HOME_GRAD.badgeViolet} name="layers" />
                   <Text style={[theme.sectionTitle, styles.devicesSectionTitle]}>Your Devices</Text>
                 </View>
                 <LinearGradient

@@ -44,6 +44,14 @@ export const homeScreenStyles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
+  /** Decorative drifting-icon background layer (sits behind scroll content) */
+  floatingLayer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
+  floatingIcon: {
+    position: 'absolute',
+  },
   header: {
     paddingTop: 18,
     paddingBottom: 12,
@@ -95,6 +103,25 @@ export const homeScreenStyles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 8,
     overflow: 'hidden',
+  },
+  /** Soft decorative glow orbs floating behind the hero content for depth */
+  heroOrb: {
+    position: 'absolute',
+    borderRadius: 999,
+  },
+  heroOrbA: {
+    width: 150,
+    height: 150,
+    top: -52,
+    right: -38,
+    backgroundColor: 'rgba(56, 189, 248, 0.16)',
+  },
+  heroOrbB: {
+    width: 112,
+    height: 112,
+    bottom: -44,
+    left: -30,
+    backgroundColor: 'rgba(167, 139, 250, 0.16)',
   },
   headerSection: {
     flexDirection: 'row',
@@ -159,6 +186,17 @@ export const homeScreenStyles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
+  /** Vivid gradient version of the greeting icon bubble (fancy hero) */
+  greetingIconBubbleFancy: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    shadowColor: '#38bdf8',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.55,
+    shadowRadius: 9,
+    elevation: 5,
+  },
   greetingTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -181,8 +219,8 @@ export const homeScreenStyles = StyleSheet.create({
   },
   homeGreetingText: {
     textAlign: 'left',
-    fontSize: 28,
-    lineHeight: 34,
+    fontSize: 22,
+    lineHeight: 28,
     letterSpacing: 0.35,
     fontWeight: '800',
     textShadowColor: 'rgba(15, 23, 42, 0.35)',
@@ -220,6 +258,25 @@ export const homeScreenStyles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     alignSelf: 'stretch',
+  },
+  /** Phones / mobile browser: shrink the broker column to just the signal icon so the
+   *  greeting keeps full width and never truncates. */
+  headerBrokerColumnCompact: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 'auto',
+    width: 'auto',
+    maxWidth: 60,
+    paddingLeft: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  connectionIconBubbleCompact: {
+    marginRight: 0,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
   connectionBadge: {
     flexDirection: 'row',
@@ -262,6 +319,45 @@ export const homeScreenStyles = StyleSheet.create({
         marginRight: 8,
       },
     }),
+  },
+  connectionIconWrap: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    ...Platform.select({
+      android: { marginRight: 8 },
+    }),
+  },
+  connectionIconBubbleInBadge: {
+    marginRight: 0,
+  },
+  /** Pulsing glow ring behind the connection icon */
+  connectionHalo: {
+    position: 'absolute',
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    ...Platform.select({
+      android: { width: 38, height: 38, borderRadius: 19 },
+    }),
+  },
+  connectionLiveRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 3,
+  },
+  connectionLiveDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    marginRight: 5,
+  },
+  connectionLiveText: {
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
   },
   connectionIconBubbleOk: {
     backgroundColor: 'rgba(5, 150, 105, 0.12)',
@@ -585,6 +681,22 @@ export const homeScreenStyles = StyleSheet.create({
   devicesSectionHeaderIcon: {
     marginRight: 12,
   },
+  /** Vivid gradient chip behind each section-header icon */
+  sectionIconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
   /** Same clarity idea as greeting: bright label + light shadow on dark glass */
   devicesSectionTitle: {
     marginBottom: 0,
@@ -701,6 +813,33 @@ export const homeScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexShrink: 1,
+  },
+  /** Bounded gradient chip for the channel count — no longer overlaps anything */
+  deviceChannelsPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 0,
+    marginLeft: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(79, 70, 229, 0.38)',
+    overflow: 'hidden',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.28,
+    shadowRadius: 8,
+    elevation: 4,
+    ...Platform.select({
+      android: { marginLeft: 6, paddingVertical: 5, paddingHorizontal: 9 },
+    }),
+  },
+  deviceChannelPillIcon: {
+    marginRight: 6,
+    ...Platform.select({
+      android: { marginRight: 4 },
+    }),
   },
   deviceCardChevron: {
     marginLeft: 6,

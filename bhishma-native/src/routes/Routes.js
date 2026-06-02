@@ -22,12 +22,15 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 const LoginScreen = lazy(() => import("../screens/LoginScreen"));
 
-console.log("Platform.OS", Platform.OS);
-
 const NAV_STACK_BREAKPOINT = 560;
+const NAV_GRAD_LIGHT = ["#0f2747", "#1e3a5f", "#28507e"];
+const NAV_GRAD_DARK = ["#050507", "#0f0f12", "#050507"];
+const LOGO_GRAD = ["#38bdf8", "#2563eb"];
+const LOGOUT_GRAD = ["#fb7185", "#e11d48"];
 
 const NavBar = ({ current, onNavigate, darkMode, setDarkMode, autoDarkMode, setAutoDarkMode, user, onLogout }) => {
   const navigation = useNavigation();
@@ -48,103 +51,139 @@ const NavBar = ({ current, onNavigate, darkMode, setDarkMode, autoDarkMode, setA
           paddingRight: 16 + insets.right,
         };
 
-  const useStackedNav = Platform.OS !== "web" && width < NAV_STACK_BREAKPOINT;
+  // Width-based (not platform-based) so a narrow mobile browser also gets the two-row
+  // layout — otherwise the single row overflows and the Logout button is pushed off-screen.
+  const useStackedNav = width < NAV_STACK_BREAKPOINT;
 
-  const navLinks = (
-    <View style={styles.navLinks}>
-      <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
-        {showIcons ? (
-          <HomeIcon color={theme.navLink.color} size={24} />
-        ) : (
-          <Text
-            style={[styles.navLink, current === "Home" && styles.navLinkActive, theme.navLink]}
-          >
-            Home
-          </Text>
-        )}
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("DeviceControl")}>
-        {showIcons ? (
-          <ControlIcon
-            color={current === "Control" ? "#007AFF" : theme.navLink.color}
-            size={24}
-          />
-        ) : (
-          <Text
-            style={[styles.navLink, current === "Control" && styles.navLinkActive, theme.navLink]}
-          >
-            Control
-          </Text>
-        )}
-      </TouchableOpacity>
+  const webPointer = Platform.OS === "web" ? { cursor: "pointer" } : {};
+  const navTextColor = darkMode ? "#cbd5e1" : "rgba(255, 255, 255, 0.92)";
+  const userInitial = (user?.name || user?.email || "?").charAt(0).toUpperCase();
+
+  const brand = (
+    <View style={styles.brandRow}>
+      <LinearGradient
+        colors={LOGO_GRAD}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.brandBadge}
+      >
+        <Ionicons name="hardware-chip" size={20} color="#ffffff" />
+      </LinearGradient>
+      <Text style={styles.brandText}>Remcon</Text>
     </View>
   );
 
+  const renderNavPill = (routeName, label, icon) => (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() => navigation.navigate(routeName)}
+      style={[styles.navPill, darkMode ? styles.navPillDark : styles.navPillLight, webPointer]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+    >
+      <Ionicons name={icon} size={18} color={navTextColor} />
+      {!showIcons && (
+        <Text style={[styles.navPillText, { color: navTextColor }]}>{label}</Text>
+      )}
+    </TouchableOpacity>
+  );
+
+  const navLinks = (
+    <View style={styles.navLinks}>
+      {renderNavPill("HomeScreen", "Home", "home-outline")}
+      {renderNavPill("DeviceControl", "Control", "options-outline")}
+    </View>
+  );
+
+  const themeMode = autoDarkMode ? "auto" : darkMode ? "dark" : "light";
+  const themeMeta = {
+    auto: { icon: "contrast-outline", label: "Auto", color: "#a78bfa" },
+    dark: { icon: "moon", label: "Dark", color: "#7dd3fc" },
+    light: { icon: "sunny", label: "Light", color: "#fbbf24" },
+  }[themeMode];
+
+  // Single control cycles: Auto -> Dark -> Light -> Auto
+  const cycleThemeMode = () => {
+    if (autoDarkMode) {
+      setAutoDarkMode(false);
+      setDarkMode(true);
+    } else if (darkMode) {
+      setDarkMode(false);
+    } else {
+      setAutoDarkMode(true);
+    }
+  };
+
   const themeControls = (
-    <View style={styles.themeToggleContainer}>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={cycleThemeMode}
+      style={[styles.navPill, darkMode ? styles.navPillDark : styles.navPillLight, webPointer]}
+      accessibilityRole="button"
+      accessibilityLabel={`Theme mode: ${themeMeta.label}. Tap to switch`}
+    >
+      <Ionicons name={themeMeta.icon} size={18} color={themeMeta.color} />
       {!useStackedNav && (
-        <Text style={[styles.toggleLabel, theme.navLink]}>
-          {autoDarkMode ? "Auto" : "Manual"}
-        </Text>
+        <Text style={[styles.navPillText, { color: navTextColor }]}>{themeMeta.label}</Text>
       )}
-      <Switch
-        value={autoDarkMode}
-        onValueChange={(value) => {
-          setAutoDarkMode(value);
-          if (!value) {
-            setDarkMode(!darkMode);
-          }
-        }}
-        trackColor={{ false: "#767577", true: "#81b0ff" }}
-        thumbColor={autoDarkMode ? "#007AFF" : "#f4f3f4"}
-        style={styles.switch}
-      />
-      {!autoDarkMode && (
-        <TouchableOpacity style={styles.manualToggle} onPress={() => setDarkMode(!darkMode)}>
-          <Text style={{ fontSize: 20 }}>{darkMode ? "☀️" : "🌙"}</Text>
-        </TouchableOpacity>
-      )}
+    </TouchableOpacity>
+  );
+
+  const userBlock = user && (
+    <View style={styles.userChip}>
+      <LinearGradient
+        colors={LOGO_GRAD}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.userAvatar}
+      >
+        <Text style={styles.userAvatarText}>{userInitial}</Text>
+      </LinearGradient>
+      <Text
+        style={[styles.userName, { color: navTextColor, textTransform: "capitalize" }]}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+      >
+        {user.name?.split(" ")?.[0] || user.email}
+      </Text>
     </View>
   );
 
   const logoutControl = user && (
     <TouchableOpacity
+      activeOpacity={0.85}
       onPress={onLogout}
-      style={[styles.logoutButton, useStackedNav && styles.logoutButtonCompact]}
+      style={[styles.logoutPill, webPointer]}
       accessibilityRole="button"
       accessibilityLabel="Log out"
     >
-      {useStackedNav ? (
-        <View style={styles.logoutCompactInner}>
-          <Ionicons name="log-out-outline" size={20} color="#ff6b6b" />
-          <Text style={[styles.logoutText, styles.logoutTextCompact]}>Logout</Text>
-        </View>
-      ) : (
-        <Text style={[styles.logoutText, theme.navLink]}>Logout</Text>
-      )}
+      <LinearGradient
+        colors={LOGOUT_GRAD}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.logoutPillGradient}
+      >
+        <Ionicons name="log-out-outline" size={18} color="#ffffff" />
+        <Text style={styles.logoutPillText}>Logout</Text>
+      </LinearGradient>
     </TouchableOpacity>
   );
 
   if (useStackedNav) {
     return (
-      <View style={[theme.navBar, navSafe, styles.navBarStacked]}>
+      <LinearGradient
+        colors={darkMode ? NAV_GRAD_DARK : NAV_GRAD_LIGHT}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={[styles.navBarBase, styles.navBarBorder, navSafe, styles.navBarStacked]}
+      >
         <View style={styles.navBarTopRow}>
-          <View style={styles.appNameContainer}>
-            <Text style={[theme.appName, styles.appNameNative]}>Remcon</Text>
-          </View>
+          {brand}
           {navLinks}
         </View>
         <View style={styles.navBarBottomRow}>
           {user ? (
-            <View style={styles.userInfoStacked}>
-              <Text
-                style={[styles.userName, theme.navLink]}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {user.name || user.email}
-              </Text>
-            </View>
+            <View style={styles.userInfoStacked}>{userBlock}</View>
           ) : (
             <View style={{ flex: 1 }} />
           )}
@@ -153,28 +192,25 @@ const NavBar = ({ current, onNavigate, darkMode, setDarkMode, autoDarkMode, setA
             {logoutControl}
           </View>
         </View>
-      </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={[theme.navBar, navSafe]}>
-      <View style={styles.appNameContainer}>
-        <Text style={[theme.appName]}>Remcon</Text>
-      </View>
+    <LinearGradient
+      colors={darkMode ? NAV_GRAD_DARK : NAV_GRAD_LIGHT}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={[styles.navBarBase, styles.navBarBorder, navSafe]}
+    >
+      {brand}
       {navLinks}
       <View style={styles.rightContainer}>
-        {user && (
-          <View style={styles.userInfo}>
-            <Text style={[styles.userName, theme.navLink]} numberOfLines={1} ellipsizeMode="tail">
-              {user.name || user.email}
-            </Text>
-          </View>
-        )}
+        {userBlock}
         {themeControls}
         {logoutControl}
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) => {
@@ -184,7 +220,6 @@ export const Routes = ({darkMode, setDarkMode, autoDarkMode, setAutoDarkMode}) =
   const { isAuthenticated, user, isLoading } = useSelector((state) => state.auth);
 
   const handleRetry = () => {
-    console.log("Retrying...");
     dispatch(clearError(false));
   };
 

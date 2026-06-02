@@ -37,8 +37,6 @@ export const changeChannelName = async (device_id, channel_id, new_name) => {
             error: response.data?.detail || 'Failed to change channel name',
         };
     } catch (error) {
-        console.error('Error changing channel name:', error);
-
         if (error.response) {
             const status = error.response.status;
             const detail = error.response.data?.detail || error.message;

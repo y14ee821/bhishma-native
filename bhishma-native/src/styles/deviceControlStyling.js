@@ -103,6 +103,103 @@ export const deviceControlStyles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 0.2)",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
-  }
+  },
+  /** Modern device tile — avatar + name + Control chip (theme-aware) */
+  deviceCard: {
+    width: 160,
+    minHeight: 168,
+    margin: 10,
+    borderRadius: 20,
+    overflow: "hidden",
+    shadowColor: "#020617",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  deviceCardLight: {
+    borderWidth: 1,
+    borderColor: "rgba(148, 163, 184, 0.4)",
+  },
+  deviceCardDark: {
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.12)",
+  },
+  deviceCardGradient: {
+    flex: 1,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deviceAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+    borderWidth: 1,
+  },
+  deviceAvatarLight: {
+    backgroundColor: "rgba(191, 219, 254, 0.95)",
+    borderColor: "rgba(37, 99, 235, 0.35)",
+  },
+  deviceAvatarDark: {
+    backgroundColor: "rgba(56, 189, 248, 0.16)",
+    borderColor: "rgba(56, 189, 248, 0.45)",
+  },
+  deviceAvatarText: {
+    fontSize: 26,
+    fontWeight: "800",
+  },
+  deviceAvatarTextLight: {
+    color: "#1e3a8a",
+  },
+  deviceAvatarTextDark: {
+    color: "#e0f2fe",
+  },
+  deviceCardName: {
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: 0.3,
+    textAlign: "center",
+    maxWidth: "100%",
+  },
+  deviceCardNameLight: {
+    color: "#0f172a",
+  },
+  deviceCardNameDark: {
+    color: "#ffffff",
+  },
+  deviceCardChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 12,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  deviceCardChipLight: {
+    backgroundColor: "rgba(37, 99, 235, 0.10)",
+    borderColor: "rgba(37, 99, 235, 0.28)",
+  },
+  deviceCardChipDark: {
+    backgroundColor: "rgba(56, 189, 248, 0.14)",
+    borderColor: "rgba(56, 189, 248, 0.4)",
+  },
+  deviceCardChipText: {
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.2,
+  },
+  deviceCardChipTextLight: {
+    color: "#2563eb",
+  },
+  deviceCardChipTextDark: {
+    color: "#7dd3fc",
+  },
 });
 

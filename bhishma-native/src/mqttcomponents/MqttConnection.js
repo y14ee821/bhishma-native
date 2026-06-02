@@ -16,7 +16,6 @@ export const useMqttClient = () => {
   const context = useContext(MqttClientContext);
   // Check if context is undefined (not provided) vs null (provided but client not ready)
   if (context === undefined) {
-    console.warn('useMqttClient must be used within MqttConnection provider');
     return null;
   }
   // context can be null (client not ready yet) or the actual client object
@@ -39,7 +38,6 @@ export const useMqttConnection = (options = {}) => {
 
   useEffect(() => {
     const url = brokerUrl;
-    console.log('🔌 Connecting to MQTT Broker:', url);
 
     // Build options inside effect to avoid dependency issues.
     // We intentionally don't set `protocol` here — mqtt.js will pick ws/wss
@@ -53,15 +51,6 @@ export const useMqttConnection = (options = {}) => {
       ...options,
     };
 
-    // TEMP debug — verify credentials are actually reaching mqtt.js
-    // (logs only metadata, never the password value)
-    console.log('🔐 MQTT auth:', {
-      username: defaultOptions.username ?? '(missing)',
-      passwordLength: defaultOptions.password ? defaultOptions.password.length : 0,
-      passwordFirstChar: defaultOptions.password ? defaultOptions.password[0] : '',
-      passwordLastChar: defaultOptions.password ? defaultOptions.password[defaultOptions.password.length - 1] : '',
-    });
-
     // Set connecting state
     dispatch(setConnectingToBroker(true));
     dispatch(checkBrokerConnection(false));
@@ -72,45 +61,38 @@ export const useMqttConnection = (options = {}) => {
 
     // Connection successful
     mqttClient.on('connect', () => {
-      console.log('✅ Successfully connected to MQTT broker');
       dispatch(checkBrokerConnection(true));
       dispatch(setConnectingToBroker(false));
     });
 
     // Connection error
     mqttClient.on('error', (error) => {
-      console.error('❌ MQTT connection error:', error.message);
       dispatch(checkBrokerConnection(false));
       dispatch(setConnectingToBroker(false));
     });
 
     // Connection lost
     mqttClient.on('close', () => {
-      console.log('🔴 MQTT connection closed');
       dispatch(checkBrokerConnection(false));
       dispatch(setConnectingToBroker(false));
     });
 
     // Reconnecting
     mqttClient.on('reconnect', () => {
-      console.log('🔄 Attempting to reconnect to MQTT broker...');
       dispatch(setConnectingToBroker(true));
       dispatch(checkBrokerConnection(false));
     });
 
     // Offline
     mqttClient.on('offline', () => {
-      console.log('📡 MQTT client is offline');
       dispatch(checkBrokerConnection(false));
       dispatch(setConnectingToBroker(false));
     });
 
     // Cleanup on unmount
     return () => {
-      console.log('🧹 Cleaning up MQTT connection...');
       if (mqttClient) {
         mqttClient.end(false, () => {
-          console.log('MQTT client disconnected');
         });
       }
       setClient(null);

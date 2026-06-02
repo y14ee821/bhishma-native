@@ -306,7 +306,7 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-    gradient: ['#2c2c2c', '#4a4a4a', '#7a8a7a'],
+    gradient: ['#000000', '#0d0d0f', '#1a1a1d'],
     card: {
         backgroundColor: '#23262f',
         borderColor: '#333',
@@ -335,7 +335,7 @@ export const darkTheme = {
             margin: 10,
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "#7a8a7a",
+            backgroundColor: "#1f1f23",
             borderWidth: 0,
             shadowColor: "#000000",
             shadowOffset: { width: 0, height: 6 },
@@ -364,7 +364,7 @@ export const darkTheme = {
         },
         subtitle: {
             fontSize: 16,
-            color: "#a8b8a8",
+            color: "#a1a1aa",
             marginBottom: 20,
             textAlign: "center",
             fontWeight: "500",
@@ -375,14 +375,14 @@ export const darkTheme = {
             marginBottom: 20,
         },
         statCard: {
-            backgroundColor: "rgba(74, 74, 74, 0.7)",
+            backgroundColor: "rgba(24, 24, 27, 0.72)",
             borderRadius: 16,
             padding: 18,
             flex: 1,
             marginHorizontal: 4,
             alignItems: 'center',
             borderWidth: 1,
-            borderColor: "rgba(122, 138, 122, 0.4)",
+            borderColor: "rgba(255, 255, 255, 0.12)",
             shadowColor: "#000000",
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.5,
@@ -397,7 +397,7 @@ export const darkTheme = {
         },
         statLabel: {
             fontSize: Platform.OS === "web" ? 14 : 12,
-            color: "#a8b8a8",
+            color: "#a1a1aa",
             fontWeight: "600",
         },
         sectionTitle: {
@@ -411,9 +411,9 @@ export const darkTheme = {
             paddingBottom: 8,
         },
         deviceCard: {
-            backgroundColor: "rgba(74, 74, 74, 0.8)",
+            backgroundColor: "rgba(24, 24, 27, 0.85)",
             borderWidth: 1,
-            borderColor: "rgba(122, 138, 122, 0.5)",
+            borderColor: "rgba(255, 255, 255, 0.14)",
             shadowColor: "#000000",
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.5,
@@ -427,13 +427,13 @@ export const darkTheme = {
         },
         deviceStatus: {
             fontSize: 13,
-            color: "#a8b8a8",
+            color: "#a1a1aa",
             marginTop: 2,
             fontWeight: "600",
         },
         deviceStatLabel: {
             fontSize: 12,
-            color: "#7a8a7a",
+            color: "#71717a",
             marginBottom: 4,
             fontWeight: "600",
         },
@@ -444,7 +444,7 @@ export const darkTheme = {
         },
         lastUpdated: {
             fontSize: 11,
-            color: "#7a8a7a",
+            color: "#71717a",
             marginTop: 12,
             fontStyle: "italic",
         },
@@ -457,7 +457,7 @@ export const darkTheme = {
         },
         emptySubtitle: {
             fontSize: 15,
-            color: "#a8b8a8",
+            color: "#a1a1aa",
             textAlign: "center",
             fontWeight: "500",
         },

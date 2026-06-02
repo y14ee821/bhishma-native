@@ -7,7 +7,6 @@ try {
   const core = TurboModuleRegistry.get?.('ExpoModulesCore');
   core?.installModules?.();
 } catch (e) {
-  console.warn('ExpoModulesCore.installModules:', e?.message || e);
 }
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);

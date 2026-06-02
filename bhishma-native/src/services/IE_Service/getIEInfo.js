@@ -12,7 +12,6 @@ export const getIEInfo = async () => {
         // Get authentication token
         const token = await getAccessToken();
         if (!token) {
-            console.error('❌ No access token found');
             return { success: false, error: 'Authentication required. Please login again.' };
         }
 
@@ -25,16 +24,12 @@ export const getIEInfo = async () => {
         });
 
         if (response.status === 200 && response.data?.data) {
-            console.log('✅ IE info fetched successfully');
             return { success: true, data: response.data.data };
         } else {
-            console.warn('⚠️ Unexpected response format:', response.data);
             return { success: false, error: 'Invalid response format from server' };
         }
 
     } catch (error) {
-        console.error('❌ Error fetching IE info:', error);
-        
         // Handle specific error cases
         if (error.response) {
             const status = error.response.status;

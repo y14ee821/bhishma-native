@@ -29,7 +29,6 @@ export const getCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const result = await authAPI.getCurrentUser();
-      console.log("result from aysncthuink",result);
       if (result.success) {
         await AsyncStorage.setItem('user', JSON.stringify(result.data));
         return result.data;
@@ -46,45 +45,36 @@ export const getCurrentUser = createAsyncThunk(
 export const checkAuthStatus = createAsyncThunk(
   'auth/checkAuthStatus',
   async (_, { rejectWithValue }) => {
-    console.log('🔐 Checking authentication status...');
     try {
       // Check if we have a stored token
       const token = await getAccessToken();
       
       if (!token) {
-        console.log('❌ No token found, user not authenticated');
         // No token, clear any stored user data
         await AsyncStorage.removeItem('user');
         return rejectWithValue('No token found');
       }
 
-      console.log('✅ Token found, verifying...');
-
       // Verify token is still valid
       const verifyResult = await authAPI.verifyToken();
       if (!verifyResult.success) {
-        console.log('❌ Token invalid');
         await removeAccessToken();
         await AsyncStorage.removeItem('user');
         return rejectWithValue('Token invalid');
       }
       
       // Always fetch fresh user data from API to get latest my_devices
-      console.log('📡 Fetching fresh user data from API...');
       const result = await authAPI.getCurrentUser();
       if (result.success) {
-        console.log('✅ User fetched successfully');
         await AsyncStorage.setItem('user', JSON.stringify(result.data));
         return result.data;
       } else {
-        console.log('❌ API call failed:', result.error);
         // Clear invalid data
         await removeAccessToken();
         await AsyncStorage.removeItem('user');
         return rejectWithValue(result.error || 'Not authenticated');
       }
     } catch (error) {
-      console.error('❌ Auth check error:', error);
       // Clear invalid data on any error
       await removeAccessToken();
       await AsyncStorage.removeItem('user');

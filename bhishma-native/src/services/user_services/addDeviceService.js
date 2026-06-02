@@ -19,7 +19,6 @@ export const addDeviceService = async (deviceName, secretKey) => {
 
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('Error adding device:', error);
     return { success: false, error: error.response?.data?.detail || error.message };
   }
 };

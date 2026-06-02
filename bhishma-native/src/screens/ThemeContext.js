@@ -26,7 +26,6 @@ export const ThemeProvider = ({ children }) => {
         setTheme(savedTheme);
       }
     } catch (error) {
-      console.log('Error loading theme:', error);
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +36,6 @@ export const ThemeProvider = ({ children }) => {
     try {
       await AsyncStorage.setItem('appTheme', newTheme);
     } catch (error) {
-      console.log('Error saving theme:', error);
     }
   };
 

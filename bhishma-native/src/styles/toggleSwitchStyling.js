@@ -29,6 +29,21 @@ export const toggleSwitchStyles = StyleSheet.create({
     elevation: 2,
     position: "relative",
   },
+  cardDark: {
+    borderColor: "rgba(255, 255, 255, 0.12)",
+    shadowColor: "#000000",
+    shadowOpacity: 0.5,
+  },
+  channelTextDark: {
+    color: "#7dd3fc",
+  },
+  editButtonDark: {
+    backgroundColor: "rgba(56, 189, 248, 0.14)",
+    borderColor: "rgba(56, 189, 248, 0.4)",
+  },
+  editButtonTextDark: {
+    color: "#7dd3fc",
+  },
   editButton: {
     position: "absolute",
     top: 8,

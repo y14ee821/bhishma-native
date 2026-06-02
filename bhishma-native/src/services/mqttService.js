@@ -12,7 +12,6 @@ const getDeviceControlActions = () => require('../store/deviceControlSlice');
 //   }
 
 // const url = "wss://test.mosquitto.org:8081/mqtt"
-// console.log('MQTT URL:', url);
 // const client = mqtt.connect(url, options)
 import { useStore } from 'react-redux';
 export const parseMessage = (msg,channelCount) => {
@@ -34,7 +33,6 @@ export const initMQTT = (dispatch, ie_name, channelCount, client) => {
   if (client.connected) {
     client.subscribe(`${ie_name}/status`, (err) => {
       if (err) {
-        console.error(`Failed to subscribe to ${ie_name}/status:`, err);
       }
     });
     dispatch(checkBrokerConnection(true));
@@ -47,7 +45,6 @@ export const initMQTT = (dispatch, ie_name, channelCount, client) => {
     dispatch(setConnectingToBroker(false));
     client.subscribe(`${ie_name}/status`, (err) => {
       if (err) {
-        console.error(`Failed to subscribe to ${ie_name}/status:`, err);
       }
     });
   });
@@ -60,7 +57,6 @@ export const initMQTT = (dispatch, ie_name, channelCount, client) => {
   });
 
   client.on('error', (error) => {
-    console.error(`MQTT error for ${ie_name}:`, error.message);
     dispatch(checkBrokerConnection(false));
   });
 
@@ -97,7 +93,6 @@ export const unsubscribeFromIE = (client, ie_name) => {
   const topic = `${ie_name}/status`;
   client.unsubscribe(topic, (err) => {
     if (err) {
-      console.error(`Failed to unsubscribe from ${topic}:`, err);
     }
   });
 };
@@ -107,7 +102,6 @@ export const publishFullOperation = (client, ie_name, state, IE_Info,dispatch,
   dispatch(setAllChannelOperationPerforming(true));
   let desiredState  = false
   if (!IE_Info || !IE_Info[ie_name] || !IE_Info[ie_name].channels) {
-    console.error('Invalid IE_Info provided to publishFullOperation');
     return;
   }
 

@@ -9,7 +9,6 @@ export class RootErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    console.error('RootErrorBoundary', error, info?.componentStack);
   }
 
   render() {

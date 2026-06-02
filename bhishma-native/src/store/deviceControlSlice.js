@@ -159,12 +159,10 @@ const deviceControlSlice = createSlice({
             state.connectingToBroker = Boolean(action.payload);
         },
         modifyIE_Machines: (state, action) => {
-            //console.log("Updating IE_Info in store:", action.payload)
             state.IE_Info = action.payload;
 
         },
         updateIE_Mapper: (state, action) => {
-            //console.log("Updating IE_Mapper in store:", action.payload)
             state.IE_Mapper = action.payload.data;
 
         },
@@ -173,7 +171,6 @@ const deviceControlSlice = createSlice({
             state.currentIEInfo = action.payload?.data;
         },
         toggleChannel: (state, action) => {
-            console.log("Updating IE_Info in store:", action.payload)
             const {ie_name,channelId,value} = action.payload;
             state.currentIEInfo[ie_name]["channels"][channelId]["currentState"] = value
 
@@ -181,7 +178,6 @@ const deviceControlSlice = createSlice({
         updateIEsState: (state,action) =>
         {
             const {ie_name,valueList} = action.payload;
-            //console.log("from updateIEsState",ie_name,valueList);
             if(state.currentIEInfo && state.currentIEInfo[ie_name])
             {   
             valueList.forEach((value,index) => 
@@ -200,8 +196,6 @@ const deviceControlSlice = createSlice({
         updatedCurrentUIState: (state, action) => 
             {
                 const {ie_name,index,newValue} = action.payload;
-                //console.log("from updateIEsState",ie_name,valueList);
-                console.log("ie_name,index,newValue", ie_name,index,newValue)
 
                 state.currentIEInfo[ie_name]["channels"][index]["uiValue"] = newValue
             }

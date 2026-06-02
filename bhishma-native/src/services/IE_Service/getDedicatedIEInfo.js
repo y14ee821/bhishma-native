@@ -13,7 +13,6 @@ export const getDedicatedIEInfo = async (device_id) => {
         // Get authentication token
         const token = await getAccessToken();
         if (!token) {
-            console.error('No access token found');
             return { success: false, error: "Authentication required" };
         }
 
@@ -26,16 +25,12 @@ export const getDedicatedIEInfo = async (device_id) => {
         });
 
         if (response.status === 200) {
-            console.log('Device info fetched successfully:', device_id);
             return { success: true, data: response.data };
         } else {
-            console.warn('Unexpected response status:', response.status);
             return { success: false, error: "Failed to fetch device info" };
         }
 
     } catch (error) {
-        console.error('Error fetching device info:', error);
-        
         // Handle specific error cases
         if (error.response) {
             const status = error.response.status;
