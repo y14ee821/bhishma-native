@@ -38,6 +38,16 @@ const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, di
   const [internalDisabled, setInternalDisabled] = React.useState(false);//For disabling the switch during update
   // Combine internal disabled state with parent disabled prop
   const disabled = disabledFromParent || internalDisabled;
+  // Track mount status so the confirmation loop doesn't touch state/alert after
+  // the screen is closed mid-wait.
+  const isMountedRef = React.useRef(true);
+
+  React.useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Open the singleton ChannelRenameModal pre-filled with this channel's current
   // name. The modal lives in DedicatedIEControl and reads everything from Redux.
@@ -55,26 +65,41 @@ const ToggleSwitch = ({ dispatch, user_id, device_id, index, ie_name, client, di
     // Toggle the value between 0 and 1
     const newValue = value === 1 ? 0 : 1;
     setInternalDisabled(true); // Disable the switch during update
-    
+
     // Dispatch the thunk to publish toggle command
     try {
-      await dispatch(publishToggleCommand({ 
-        channel: index, 
-        state: newValue, 
-        ie_name, 
-        client 
+      await dispatch(publishToggleCommand({
+        channel: index,
+        state: newValue,
+        ie_name,
+        client
       })).unwrap();
-      
-      // Success - check if state matches after 3 seconds
-      setTimeout(() => {
+
+      // The publish succeeded, but that only means the command left the phone.
+      // Poll until the device confirms via its /status echo (break early on
+      // match = fast path); if it never matches within the window, warn.
+      const FALLBACK_MS = 3000;
+      const POLL_MS = 150;
+      const startedAt = Date.now();
+      let confirmed = false;
+
+      while (isMountedRef.current && Date.now() - startedAt < FALLBACK_MS) {
         const state = store.getState();
         const latestValue = state.deviceControl.currentIEInfo[ie_name]["channels"][index]["currentState"];
         const latestUiValue = state.deviceControl.currentIEInfo[ie_name]["channels"][index]["uiValue"];
-        if (latestUiValue !== latestValue) {
+        if (latestUiValue === latestValue) {
+          confirmed = true;
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, POLL_MS));
+      }
+
+      if (isMountedRef.current) {
+        if (!confirmed) {
           alert(`Failed to update channel ${index}. Please try again.`);
         }
         setInternalDisabled(false); // Re-enable the switch
-      }, 3000);
+      }
     } catch (error) {
       // Handle error from thunk
       setInternalDisabled(false); // Re-enable the switch on error

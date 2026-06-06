@@ -9,10 +9,18 @@ dettach_attach_REPL = 0
 dettach_attach_REPL and uos.dupterm(None, 1)
 
 from utils import utilities
+from led_indicator import StatusLed
 
 utils = utilities()
 jsonInputs = utils.jsonParams
 gc.collect()
+
+connectionIndicatorPin = jsonInputs.get("connectionIndicatorPin", None)
+if connectionIndicatorPin is not None:
+    connectionIndicatorPin = StatusLed(connectionIndicatorPin)
+
+
+
 
 _setup_pin = jsonInputs.get("setup_button_pin")
 if _setup_pin is not None:
@@ -27,7 +35,7 @@ if _setup_pin is not None:
         run_setup_portal(
             ap_ssid=jsonInputs.get("ap_setup_ssid", "Bhishma-Setup"),
             ap_password=jsonInputs.get("ap_setup_password", "bhishma123"),
-            indicator_pin=jsonInputs.get("connectionIndicatorPin"),
+            indicator_led=connectionIndicatorPin,
         )
     gc.collect()
 
@@ -38,11 +46,28 @@ print("heap after mqtt:", gc.mem_free())
 gc.collect()
 
 from wifiConnect import connect
+from ping_check import ping_check
+import time
 
-if connect(jsonInputs):
-    print("Wifi Connection is good!")
-else:
-    print("Issue with wifi, please check.")
+connect_to_wifi_and_internet = False
+while not connect_to_wifi_and_internet:
+    if connect(jsonInputs):
+        print("Wifi Connection is good!")
+        if ping_check():
+            print("Internet Connection is good!")
+            connect_to_wifi_and_internet = True
+            if connectionIndicatorPin is not None:
+                connectionIndicatorPin.on()
+        else:
+            print("Internet Connection is not good!")
+            time.sleep(jsonInputs["wifi_connectivity_repeat_timeout"])
+            if connectionIndicatorPin is not None:
+                connectionIndicatorPin.off()
+    else:
+        print(f"Wifi not connected, retrying in {jsonInputs['wifi_connectivity_repeat_timeout']} seconds...")
+        time.sleep(jsonInputs["wifi_connectivity_repeat_timeout"])
+        if connectionIndicatorPin is not None:
+            connectionIndicatorPin.off()
 
 gc.collect()
 print("heap before run:", gc.mem_free())
@@ -58,5 +83,6 @@ obj = mqttOperations(
     mqtt_username=jsonInputs.get("mqtt_username"),
     mqtt_password=jsonInputs.get("mqtt_password"),
     ssl=jsonInputs.get("ssl", False),
+    connectionIndicatorPin=connectionIndicatorPin,
 )
 obj.executor()

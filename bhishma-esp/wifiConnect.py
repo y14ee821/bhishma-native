@@ -1,5 +1,4 @@
 import network
-from machine import Pin
 import time
 import gc
 
@@ -11,8 +10,6 @@ def connect(config):
     wlan.active(True)
     ssid = config["ssid"]
     password = config["password"]
-    indicator = Pin(config["connectionIndicatorPin"], Pin.OUT)
-    indicator.off()
     if not wlan.isconnected():
         print("connecting to network...")
         wlan.connect(ssid, password)
@@ -23,7 +20,5 @@ def connect(config):
             print("wait..")
     if wlan.isconnected():
         print("network config:", wlan.ifconfig())
-        indicator.on()
         return True
-    indicator.off()
     return False

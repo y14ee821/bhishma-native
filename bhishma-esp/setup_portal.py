@@ -18,7 +18,6 @@ can run before any network is available.
 import json
 import time
 import machine
-from machine import Pin
 import network
 
 try:
@@ -197,21 +196,21 @@ def _read_request(conn, max_bytes=4096):
 
 
 def run_setup_portal(ap_ssid="Bhishma-Setup", ap_password="bhishma123",
-                     indicator_pin=None, port=80):
+                     indicator_led=None, port=80):
     """Block in AP mode until the user submits WiFi creds, then reboot.
 
     Args:
         ap_ssid: SSID broadcast by the ESP for the setup phase.
         ap_password: WPA2 password (must be >=8 chars), or "" for open AP.
-        indicator_pin: optional GPIO for a "setup mode" LED (driven solid ON).
+        indicator_led: optional shared StatusLed instance for a "setup mode"
+            indicator (driven solid ON while the portal is up).
         port: HTTP port (default 80).
 
     This function only returns by way of `machine.reset()` after a successful
     save, so callers should treat it as terminal.
     """
-    led = None
-    if indicator_pin is not None:
-        led = Pin(indicator_pin, Pin.OUT)
+    led = indicator_led
+    if led is not None:
         led.on()
 
     ap = _start_ap(ap_ssid, ap_password)

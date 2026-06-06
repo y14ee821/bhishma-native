@@ -7,3 +7,6 @@ cp utils.py /pyboard/utils.py
 cp wifiConnect.py /pyboard/wifiConnect.py
 cp setup_portal.py /pyboard/setup_portal.py
 cp setup_button.py /pyboard/setup_button.py
+cp led_indicator.py /pyboard/led_indicator.py
+cp ping_check.py /pyboard/ping_check.py
+

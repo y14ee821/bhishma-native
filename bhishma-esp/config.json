@@ -34,6 +34,9 @@
     "setup_button_hold_ms": 3000,
     "setup_button_watch_ms": 10000,
     "setup_button_active_low": true,
+    "wifi_connectivity_repeat_timeout":60,
     "ap_setup_ssid": "Bhishma-Setup",
-    "ap_setup_password": "bhishma123"
+    "ap_setup_password": "bhishma123",
+    "mqtt_poll_ms": 500,
+    "status_publish_interval_ms": 1000
 }

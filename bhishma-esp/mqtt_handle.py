@@ -9,6 +9,7 @@ gc.collect()
 class mqttOperations:
     def __init__(self, **kwargs):
         self.inputs = kwargs
+        self.connectionIndicatorPin = kwargs.get("connectionIndicatorPin", None)
         self.jsonParams = kwargs.get("jsonParams")
         if self.jsonParams is None:
             from utils import utilities
@@ -27,6 +28,8 @@ class mqttOperations:
         for op_key in self.outputs:
             self.output_states_cache[op_key] = 0
 
+        self._state_changed = False
+
         print("Outputs initialized:", len(self.outputs))
 
     def sub_cb(self, topic, msg):
@@ -34,6 +37,7 @@ class mqttOperations:
         print(topic, msg)
         if "received" not in str(msg):
             self.espOutputControl(msg)
+            self._state_changed = True
 
     def connect_and_subscribe(self):
         from mqtt_custom import MQTTClient
@@ -64,12 +68,16 @@ class mqttOperations:
             client.connect()
             client.subscribe(self.inputs["topic"])
             print("MQTT OK:", self.inputs["topic"])
+            if self.connectionIndicatorPin is not None:
+                self.connectionIndicatorPin.on()
             return client
         except Exception as error:
             err = str(error)
             print("MQTT error:", err)
             if "password" in err or "authorized" in err:
                 print("Fix credentials in HiveMQ console + config.json, then redeploy config")
+            if self.connectionIndicatorPin is not None:
+                self.connectionIndicatorPin.off()
             return None
 
     def executor(self):
@@ -82,14 +90,21 @@ class mqttOperations:
                 print("MQTT retry in 30s (no reboot)...")
                 time.sleep(30)
                 continue
+            poll_ms = int(self.jsonParams.get("mqtt_poll_ms", 100))
+            status_interval_ms = int(self.jsonParams.get("status_publish_interval_ms", 1000))
+            last_status_ms = time.ticks_ms()
             while True:
                 gc.collect()
                 try:
                     client.check_msg()
-                    time.sleep_ms(1000)
-                    statusString = self._formatOutputStatesAsIP()
-                    client.publish(self.inputs["topic"] + "/status", statusString)
-                    gc.collect()
+                    now = time.ticks_ms()
+                    if self._state_changed or time.ticks_diff(now, last_status_ms) >= status_interval_ms:
+                        statusString = self._formatOutputStatesAsIP()
+                        client.publish(self.inputs["topic"] + "/status", statusString)
+                        last_status_ms = now
+                        self._state_changed = False
+                        gc.collect()
+                    time.sleep_ms(poll_ms)
                 except Exception as error:
                     print("Loop error:", error)
                     utils.restart_and_reconnect()
