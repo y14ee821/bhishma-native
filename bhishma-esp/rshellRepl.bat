@@ -1,6 +1,6 @@
 @echo off
 REM Open rshell REPL to see boot prints and interact. Type 'exit' twice to quit.
-set PORT=COM8
+set PORT=COM12
 set RSHELL=C:\Users\lchinta\AppData\Roaming\Python\Python314\Scripts\rshell.exe
 
 echo.

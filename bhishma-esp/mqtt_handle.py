@@ -15,14 +15,23 @@ class mqttOperations:
             from utils import utilities
             self.jsonParams = utilities().jsonHandler()
 
+        self.relay_active_low = bool(self.jsonParams.get("relay_active_low", True))
+
         self.outputs = {}
         total_outputs = int(self.jsonParams.get("totalOutputs", 0))
         for i in range(1, total_outputs + 1):
             op_key = "op%s" % i
             if op_key in self.jsonParams and self.jsonParams[op_key] != "":
                 pin_num = int(self.jsonParams[op_key])
-                self.outputs[op_key] = machine.Pin(pin_num, machine.Pin.OUT)
-                self.outputs[op_key].off()
+                pin = machine.Pin(pin_num, machine.Pin.OUT)
+                # Drive to the OFF state respecting relay polarity: active-low
+                # relays are off when the pin is HIGH (.on()), active-high when
+                # the pin is LOW (.off()).
+                if self.relay_active_low:
+                    pin.on()
+                else:
+                    pin.off()
+                self.outputs[op_key] = pin
 
         self.output_states_cache = {}
         for op_key in self.outputs:
@@ -36,7 +45,7 @@ class mqttOperations:
         gc.collect()
         print(topic, msg)
         if "received" not in str(msg):
-            self.espOutputControl(msg)
+            self.espOutputControl(msg, active_low=self.relay_active_low)
             self._state_changed = True
 
     def connect_and_subscribe(self):
@@ -65,6 +74,11 @@ class mqttOperations:
                 ssl_params=ssl_params,
             )
             client.set_callback(self.sub_cb)
+            # Free as much contiguous heap as possible right before the TLS
+            # handshake -- on the ESP8266 it needs ~22-28KB and will hard-reset
+            # (rst cause:2) if it runs out mid-handshake.
+            gc.collect()
+            print("heap before TLS:", gc.mem_free())
             client.connect()
             client.subscribe(self.inputs["topic"])
             print("MQTT OK:", self.inputs["topic"])
@@ -116,7 +130,7 @@ class mqttOperations:
             statusString = statusString + ip_key + ":" + str(self.output_states_cache[op_key]) + "-"
         return statusString[0:len(statusString) - 1] if statusString else ""
 
-    def espOutputControl(self, incomingData):
+    def espOutputControl(self, incomingData,active_low=True):
         gc.collect()
         try:
             data = incomingData.decode() if isinstance(incomingData, bytes) else str(incomingData)
@@ -130,10 +144,12 @@ class mqttOperations:
                     value = int(parts[1].strip())
                     if output_name in self.outputs:
                         if value == 1:
-                            self.outputs[output_name].on()
+                            if active_low: self.outputs[output_name].off()
+                            else: self.outputs[output_name].on()
                             self.output_states_cache[output_name] = 1
                         else:
-                            self.outputs[output_name].off()
+                            if active_low: self.outputs[output_name].on()
+                            else: self.outputs[output_name].off()
                             self.output_states_cache[output_name] = 0
                 except Exception as error:
                     print("Cmd error:", cmd, error)

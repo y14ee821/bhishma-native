@@ -138,6 +138,6 @@ export const publishFullOperation = (client, ie_name, state, IE_Info,dispatch,
         showError(`Operation failed, unable to change state to ${state==1?"All On":"All Off"}`);
       }
   }
-  ,5000)
+  ,2000)
   
 };

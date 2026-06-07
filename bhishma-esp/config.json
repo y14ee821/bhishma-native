@@ -38,5 +38,6 @@
     "ap_setup_ssid": "Bhishma-Setup",
     "ap_setup_password": "bhishma123",
     "mqtt_poll_ms": 500,
-    "status_publish_interval_ms": 1000
+    "status_publish_interval_ms": 1000,
+    "relay_active_low": true
 }

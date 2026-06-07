@@ -2,7 +2,7 @@
 REM Deploy Bhishma app files to ESP8266 via rshell
 REM Run from anywhere; paths are relative to this folder.
 
-set PORT=COM11
+set PORT=COM12
 set RSHELL=C:\Users\lchinta\AppData\Roaming\Python\Python314\Scripts\rshell.exe
 cd /d "%~dp0"
 
