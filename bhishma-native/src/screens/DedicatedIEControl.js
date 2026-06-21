@@ -4,7 +4,7 @@ import { useRoute, useFocusEffect } from '@react-navigation/native';
 import ToggleSwitch from '../components/ToggleSwitch';
 import { useDispatch, useSelector } from 'react-redux';
 import { initMQTT } from '../services/mqttService';
-import { useDeviceControlState } from '../reduxStates';
+import { useDeviceControlState, useCurrentIELastUpdated } from '../reduxStates';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { lightTheme, darkTheme, useThemedStyles, makeDedicatedIEControlStyles } from '../styles';
@@ -32,17 +32,23 @@ export const DedicatedIEControl = ({ darkMode }) => {
   const theme = darkMode ? darkTheme : lightTheme;
   const styles = useThemedStyles(makeDedicatedIEControlStyles, darkMode);
   const { allChannelOperationPerforming, allChannelOperationSuccess } = useDeviceControlState();
-
+  const currentIELastUpdated = useCurrentIELastUpdated();
   const dispatch = useDispatch();
   const route = useRoute();
   const user_id = useSelector(state => state.auth.user_id);
   const { name, device_id } = route.params || {};// Get the IE name from navigation parameters
   const { connectedToBroker, channelStates, IE_Mapper, IE_Info } = useDeviceControlState();
   const [dedicatedIEInfo, setDedicatedIEInfo] = useState("loading");
-
+  // 'checking' (no message yet, still within grace window) | 'connected' | 'disconnected'
+  const [connectionStatus, setConnectionStatus] = useState('checking');
+  // Timestamp we started waiting for the first status message (used for the
+  // initial grace window before we declare the device unreachable).
+  const waitStartRef = useRef(Date.now());
   // Fetch device info on mount
   useEffect(() => {
     const fetchDeviceInfo = async () => {
+      waitStartRef.current = Date.now();
+      setConnectionStatus('checking');
       const result = await getDedicatedIEInfo(device_id);
       
       if (result.success) {
@@ -99,7 +105,29 @@ export const DedicatedIEControl = ({ darkMode }) => {
     return () => loop.stop();
   }, []);
 
-   if(dedicatedIEInfo !== "loading" && dedicatedIEInfo !== null)
+
+  // Re-evaluate connectivity on every status message AND on a recurring timer,
+  // so the screen can flip to "disconnected" even when messages simply stop
+  // arriving (a message-only effect would never re-run in that case).
+  const evaluateConnection = React.useCallback(() => {
+    const inactiveThreshold = 5000;
+    if (currentIELastUpdated) {
+      const timeDifference = Date.now() - new Date(currentIELastUpdated).getTime();
+      setConnectionStatus(timeDifference > inactiveThreshold ? 'disconnected' : 'connected');
+    } else {
+      // No status message received yet; stay in "checking" until the grace
+      // window elapses, then assume the device is unreachable.
+      const waited = Date.now() - waitStartRef.current;
+      setConnectionStatus(waited > inactiveThreshold ? 'disconnected' : 'checking');
+    }
+  }, [currentIELastUpdated]);
+
+  useEffect(() => {
+    evaluateConnection();
+    const intervalId = setInterval(evaluateConnection, 1000);
+    return () => clearInterval(intervalId);
+  }, [evaluateConnection])
+   if(dedicatedIEInfo !== "loading" && dedicatedIEInfo !== null )
     {
       return (
     <LinearGradient colors={theme.gradient} style={styles.gradient}>
@@ -115,7 +143,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
               styles.flexWrap,
               !connectedToBroker && styles.blurredControls
             ]}>
-              {Object.entries(dedicatedIEInfo[name]["channels"]).map(([channelId, channelData]) => (
+              {connectionStatus === 'connected' && Object.entries(dedicatedIEInfo[name]["channels"]).map(([channelId, channelData]) => (
                 <ToggleSwitch 
                   dispatch={dispatch}
                   user_id={user_id}
@@ -129,6 +157,20 @@ export const DedicatedIEControl = ({ darkMode }) => {
                   darkMode={darkMode}
                 />
               ))}
+              {connectionStatus === 'checking' && (
+                <View style={styles.container}>
+                  <Text style={[styles.errorText, styles.centerText]}>
+                    Checking device status, please wait…
+                  </Text>
+                </View>
+              )}
+              {connectionStatus === 'disconnected' && (
+                <View style={styles.container}>
+                  <Text style={[styles.errorText, styles.centerText, {color:"red"}]}>
+                    Unable to connect to the Device : {name}, please check if device is online and try again.
+                  </Text>
+                </View>
+              )}
             </View>
             
             {/* Overlay when not connected */}
@@ -157,7 +199,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
 
           </View>
         </View>
-        <View style={styles.buttonWrapper}>
+        {connectionStatus === 'connected' && <View style={styles.buttonWrapper}>
           <TouchableOpacity
             activeOpacity={0.85}
             style={[
@@ -210,7 +252,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
               <Text style={styles.opButtonText}>All Off</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </View>
+        </View>}
       </View>
     </ScrollView>
     <ChannelRenameModal />
@@ -275,6 +317,7 @@ export const DedicatedIEControl = ({ darkMode }) => {
       </LinearGradient>
     );
   }
+
 else {
   return (
     <LinearGradient colors={theme.gradient} style={styles.gradient}>

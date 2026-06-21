@@ -12,16 +12,9 @@ export {
   useToggleError,
   useIEByName,
   useChannelState,
-  useUpdateChannelDetails
+  useUpdateChannelDetails,
+  useCurrentIELastUpdated
 } from './deviceControlStates';
-
-// Device State Hooks
-export {
-  useDeviceState,
-  useDeviceChannels,
-  useDeviceOnline,
-  useDeviceChannel
-} from './deviceStates';
 
 // Utils State Hooks
 export {

@@ -127,3 +127,8 @@ export const useChannelState = (ieName, channelId) => {
     state.deviceControl.currentIEInfo[ieName]?.channels?.[channelId] || null
   );
 };
+
+export const useCurrentIELastUpdated = () => 
+{
+  return useSelector((state) => state.deviceControl.currentIEInfo && "lastUpdated" in state.deviceControl.currentIEInfo ? state.deviceControl.currentIEInfo["lastUpdated"] : null);
+}

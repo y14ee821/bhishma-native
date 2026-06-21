@@ -168,7 +168,8 @@ const deviceControlSlice = createSlice({
         },
         updateCurrentIEInfo: (state, action) =>
         {
-            state.currentIEInfo = action.payload?.data;
+            const data = action.payload?.data || {};
+            state.currentIEInfo = { ...data, lastUpdated: "" };
         },
         toggleChannel: (state, action) => {
             const {ie_name,channelId,value} = action.payload;
@@ -187,11 +188,12 @@ const deviceControlSlice = createSlice({
                 state.IE_Info[ie_name]["channels"][index+1]["currentState"] = value
                 state.IE_Info[ie_name]["channels"][index+1]["uiValue"] = value                
             }
-
-            
             )
         }
-            
+        if(state.currentIEInfo && "lastUpdated" in state.currentIEInfo)
+        {
+            state.currentIEInfo["lastUpdated"] = new Date().toISOString();
+        }
         },
         updatedCurrentUIState: (state, action) => 
             {
